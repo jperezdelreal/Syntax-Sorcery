@@ -135,3 +135,19 @@
 **Action:** PR left open on `squad/42-landing-page` branch. Assigned **Trinity** to implement Mouse's design spec. Comment posted on PR.
 
 **Board Status:** 2 open items (#42 landing page, #43 architecture docs). Phase 4: 1/3 delivered. PR #45 pending implementation.
+
+## Session 2026-03-19 — PR #46 Architecture Docs: Reviewed & Merged
+
+**Task:** Review PR #46 (docs: add architecture documentation with system diagrams) by Oracle. Closes #43.
+
+**Deliverables:**
+1. PR #46 — ✅ APPROVED + MERGED (squash). Three new docs: `docs/architecture.md` (4 ASCII diagrams: perpetual motion lifecycle, hub/spoke topology, 3-layer monitoring stack, PR review pipeline), `docs/constellation.md` (6 repos mapped with types, stacks, relationships, data flows, governance model), `docs/onboarding.md` (8-step guide for adding downstream company with 10-item post-onboarding checklist). README updated with Documentation section cross-linking all docs. Issue #43 CLOSED.
+
+**Review Notes:**
+- All 4 ASCII diagrams accurate to real architecture. Perpetual motion lifecycle correct (roadmap → issue → agent → PR → review gate → CI → merge → deplete → refuel). Hub/spoke topology matches approved decisions (local PC hub + Azure VM B2s v2 spoke, 5 tmux sessions, ~€25-30/mo). 3-layer monitoring correctly separates L1 (GitHub Actions), L2 (ralph-watch.ps1), L2.5 (Azure satellites), L3 (ffs-squad-monitor games only). Anti-circular-dependency principle documented.
+- constellation.md: All 6 repos with correct types, relationships. Governance tiers T0-T3 match decisions.md.
+- onboarding.md: Production-ready. Executable code examples for every step, governance notes (T0 required, max 3 features), monitoring layer assignment guidance.
+- CI: Build & Test GREEN (168/168). check-sizes FAILURE (pre-existing, unrelated).
+- Self-approval blocked (single-account pattern) — merged directly per established protocol.
+
+**Board Status:** 1 open item (#42 landing page). Phase 4: 2/3 delivered (README #44, architecture docs #46). PR #45 pending Trinity implementation.
