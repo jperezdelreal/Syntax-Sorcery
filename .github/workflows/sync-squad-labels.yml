@@ -43,12 +43,13 @@ jobs:
                 inMembersTable = true;
                 continue;
               }
-              if (inMembersTable && line.startsWith('## ')) {
-                break;
+              if (inMembersTable && line.match(/^#{2,}\s/)) {
+                break;  // stop at any heading (##, ###, etc.)
               }
               if (inMembersTable && line.startsWith('|') && !line.includes('---') && !line.includes('Name')) {
                 const cells = line.split('|').map(c => c.trim()).filter(Boolean);
-                if (cells.length >= 2 && cells[0] !== 'Scribe') {
+                const skipNames = ['Scribe', '@copilot'];
+                if (cells.length >= 2 && !skipNames.includes(cells[0])) {
                   members.push({
                     name: cells[0],
                     role: cells[1]
@@ -131,6 +132,13 @@ jobs:
             labels.push(...TYPE_LABELS);
             labels.push(...PRIORITY_LABELS);
             labels.push(...SIGNAL_LABELS);
+
+            // Truncate descriptions to GitHub's 100-char limit
+            for (const label of labels) {
+              if (label.description && label.description.length > 100) {
+                label.description = label.description.substring(0, 97) + '...';
+              }
+            }
 
             // Sync labels (create or update)
             for (const label of labels) {
