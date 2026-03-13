@@ -35,3 +35,13 @@
 **Pattern Note:** For single-account repos, skip \gh pr review --approve\ (GitHub prevents self-approval). Merge directly — CI workflow validates quality.
 
 **Test 2 Score Target:** 9/10 (up from Test 1: 7/10). Critical deficiency #1 (ZERO CI checks) FIXED. Multi-terminal orchestration infrastructure enabled.
+
+## Learnings
+
+### 2026-03-18 — Roadmap Refresh: Phase 3 Autonomy Hardening
+
+- **Roadmap depletion → refuel cycle works.** Previous 3/3 items delivered, board cleared, Ralph idled. Refueling triggered by this session. The perpetual-motion engine functions as designed.
+- **Test-driven roadmap evolution is the pattern.** Test 1 score (7/10) with 5 deficiencies directly informed both the previous roadmap AND this one. Each roadmap closes specific gaps: previous closed #1 (CI), this one closes #2 (dedup) and #3 (superficial review).
+- **Orchestrator roadmap ≠ product roadmap.** SS items are infrastructure/tooling that downstream repos consume. Dedup guard and review gate are canonical implementations — built once in SS, adopted by constellation.
+- **Strategic sequencing matters.** Dedup guard before review gate before Azure launcher. Each layer depends on the previous being stable. Don't scale (Azure 24/7) before the autonomous cycle is clean (dedup + review).
+- **3-feature limit enforces focus.** With 5+ candidate items (dedup, Azure, review gate, branch protection automation, cross-repo comms), the 3-limit forced prioritization by impact. Branch protection deferred — documented workaround exists.
