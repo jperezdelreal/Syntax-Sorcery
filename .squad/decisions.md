@@ -115,6 +115,26 @@ Autonomous AI dev company (€500/mo Azure, unlimited GitHub). Strict context hy
 
 **See `decisions-archive-2026-03-15.md` for Phase 1 entries (P1-07 through P1-14, archived 2026-03-15T12:00Z)**
 
+### 2026-03-16T17:45Z: Phase 2 Stages 3–5 Complete — First Game Deployed
+
+**By:** Trinity (Full-Stack Developer) + Tank (Cloud Engineer) + Switch (Tester/QA)  
+**Status:** COMPLETE  
+**Tier:** T2  
+**What:**
+   - **Trinity (Stage 3: Game Repo Creation):** Created first game repository `pixel-bounce` from Squad template. Orchestrator state machine initialized (proposal→deployed pipeline ready). All 12 pipeline:* labels active. Game repo fully integrated with Hub via upstream.json v2.
+   - **Tank (Stages 4–5: Build & Deploy Verification):** Verified build+deploy pipeline architecture. GitHub Actions (free tier, public repos, unlimited minutes) + GitHub Pages proven sufficient for Phase 2. Cost analysis confirms €0 for 1000+ deployments/month. Tested build workflow (npm install, build, test), deploy workflow (GHA Pages native deploy). HTML5 Canvas games (<5MB each) fit easily within 1GB GitHub Pages limit per repo.
+   - **Switch (Pipeline E2E Tests Stages 3–5):** Wrote 92 new E2E tests covering orchestrator (38 tests), build template (31 tests), deploy readiness (23 tests). Total suite now **126 tests, 100% passing**. Full pipeline coverage Stages 0–5 complete.
+
+**Outcomes:**
+   - `pixel-bounce` game repository deployed to GitHub Pages (live at jperezdelreal.github.io/pixel-bounce).
+   - 12 pipeline:* labels on FFS constellation + satellite repos (fully operational).
+   - Build+deploy pipeline verified cost-free on GitHub free tier.
+   - Pipeline E2E test suite complete (126 tests, 0 failures). Phase 2 quality gate automated.
+
+**Why:** Phase 2 requires fully autonomous game production (Proposal→Deployed). Stages 0–2 (parsing/GDD/issues) were proven in Wave 3. Stages 3–5 (game creation/build/deploy) are now operationalized with live game, cost verification, and comprehensive test coverage. Phase 2 ready to scale.
+
+**Next:** Morpheus directs Phase 2 priorities (additional games, feature work, downstream governance). Proposal→prototype pipeline fully autonomous. Ralph monitoring active on all 4 FFS repos + game repos.
+
 ## Archived Decisions Summary
 
 **Historical decisions (2026-03-13 early, pre-Wave 3):** See decisions-archive.md
