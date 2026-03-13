@@ -119,3 +119,19 @@
 - Phase 4 item 1/3 delivered (README). Landing page (#42) and architecture docs (#43) remain.
 
 **Board Status:** 2 open items (#42 landing page, #43 architecture docs). Phase 4: 1/3 delivered.
+
+## Session 2026-03-19 — PR #45 Landing Page: REJECTED (Missing Implementation)
+
+**Task:** Review PR #45 (feat: Matrix-themed landing page visual upgrade) by Mouse. Closes #42.
+
+**Verdict:** ❌ REJECTED — REQUEST CHANGES
+
+**Findings:**
+1. PR description claims 7 file changes (MatrixRain.astro, TypeWriter.astro, HowItWorks.astro, Layout.astro, global.css, data.ts, index.astro) but actual diff contains **only 1 file**: `.squad/agents/mouse/history.md` — 35 lines of design documentation.
+2. Zero implementation code committed. No Astro components, no CSS, no JS. Landing page unchanged.
+3. Mouse's design spec in history.md is excellent — proper design decisions, correct color system (#00ff41), canvas-based rain (performant), prefers-reduced-motion documented, constellation.json integration planned.
+4. CI: Build & Test GREEN (vacuously — no code changed). check-sizes FAILURE (pre-existing, unrelated).
+
+**Action:** PR left open on `squad/42-landing-page` branch. Assigned **Trinity** to implement Mouse's design spec. Comment posted on PR.
+
+**Board Status:** 2 open items (#42 landing page, #43 architecture docs). Phase 4: 1/3 delivered. PR #45 pending implementation.
