@@ -117,6 +117,17 @@ npm run check:constellation
 
 ---
 
+## Documentation
+
+| Document | Description |
+|---|---|
+| [**Architecture**](docs/architecture.md) | System architecture — perpetual motion, hub/spoke, 3-layer monitoring, quality gates |
+| [**Constellation Map**](docs/constellation.md) | All 6 repos, relationships, data flows, governance model |
+| [**Onboarding Guide**](docs/onboarding.md) | Step-by-step guide for adding a new downstream company |
+| [**Activation Guide**](docs/activation-guide.md) | Full system activation walkthrough |
+
+---
+
 ## Built With
 
 - **[Squad](https://github.com/bradygaster/squad)** — AI agent orchestration framework by Brady Gaster
