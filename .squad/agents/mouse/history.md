@@ -83,3 +83,38 @@
 - Cost savings deserve celebration — make €0 HUGE and proud with gradients/emojis
 - Consistent design language across all views creates professional feel
 - Glassmorphism + dark theme = instant premium perception
+
+### 2026-03-19: Syntax Sorcery Landing Page — Matrix-Themed Visual Upgrade
+
+**Context:** Issue #42 — Ralph requested "marketing y estética" during autonomous 8h session while founder sleeps.
+**Goal:** Transform SS landing page from functional engineer-site to premium Matrix-themed showcase.
+
+**Design decisions:**
+- **Color system:** Matrix green (#00ff41) as primary accent on deep black (#0a0a0a), monochromatic with emerald tones
+- **Typography:** JetBrains Mono for terminal/code feel, Inter for readability, strong hierarchy
+- **Matrix Rain:** Pure CSS/JS canvas animation — Japanese katakana + hex chars, 12% opacity, subtle not overwhelming
+- **Glassmorphism:** `.glass` utility with backdrop-blur(12px), subtle white borders (6% opacity)
+- **Hero:** Full-viewport with Matrix rain background, floating ⟨SS⟩ logo mark, TypeWriter tagline, dual CTAs
+- **How It Works:** 3-step flow with timeline connector, terminal code snippets, staggered fade-ins
+- **Constellation:** Live data from constellation.json, color-coded by repo type (hub/downstream/game/tool)
+- **Squad cards:** Added taglines per agent for personality, hover scale effects
+- **Footer:** 3-column layout with org links, constellation repos, tech stack
+- **Micro-interactions:** card-hover with translateY + glow, scroll-fade with IntersectionObserver
+- **OG meta tags:** Full Open Graph + Twitter Card for social sharing
+
+**Technical:**
+- Custom Tailwind v4 @theme with CSS custom properties for Matrix palette
+- Custom @keyframes: fade-in, slide-up, glow-pulse, float
+- `.scroll-fade` + IntersectionObserver for on-scroll reveal
+- prefers-reduced-motion: animations disabled, text shown immediately
+- Pure canvas for Matrix rain (no dependencies)
+- Updated data.ts with `getConstellation()` reading from constellation.json
+- Added `tagline` field to TeamMember interface
+
+**Learnings:**
+- Matrix aesthetic requires restraint — 12% opacity rain, subtle glows, NOT full green everywhere
+- Font-mono for UI creates instant "hacker" feel without being cheesy
+- Constellation data from JSON gives real repo stats without API calls at build time
+- TypeWriter needs IntersectionObserver to avoid firing before visible
+- Canvas-based rain is more performant than CSS column animation for this density
+- Build-time data is perfect for Astro — constellation.json parsed server-side
