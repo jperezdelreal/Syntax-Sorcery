@@ -3,24 +3,63 @@ on:
   pull_request:
     paths: ['.squad/**']
 
+# Per-type limits from .squad/skills/context-hygiene/SKILL.md
+# history.md: 8KB | decisions.md: 12KB | charter.md: 15KB
+# orchestration-log/*.md: 2KB | log/*.md: 1KB
+# Any other file: 25KB hard stop (15KB alert)
+# Total .squad/ (excl templates/): 100KB
+
 jobs:
   check-sizes:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Check .squad/ file sizes
+      - name: Check .squad/ file sizes (per-type limits)
         run: |
           fail=0
           total=0
+
+          get_limit_kb() {
+            local file="$1"
+            local basename
+            basename=$(basename "$file")
+
+            # Per-file-type limits (KB)
+            case "$file" in
+              */history.md)           echo 8 ;;
+              */decisions.md)         echo 12 ;;
+              */charter.md)           echo 15 ;;
+              */orchestration-log/*)  echo 2 ;;
+              */log/*)               echo 1 ;;
+              *)                     echo 25 ;;
+            esac
+          }
+
+          get_warn_kb() {
+            local file="$1"
+            case "$file" in
+              */history.md)           echo 6 ;;
+              */decisions.md)         echo 10 ;;
+              */charter.md)           echo 12 ;;
+              */orchestration-log/*)  echo 1 ;;
+              */log/*)               echo 1 ;;
+              *)                     echo 15 ;;
+            esac
+          }
+
           while IFS= read -r -d '' f; do
             size=$(stat -c%s "$f")
             kb=$((size / 1024))
             total=$((total + size))
-            if [ "$kb" -ge 15 ]; then
-              echo "::error file=$f::🛑 $f is ${kb}KB (limit: 15KB)"
+
+            limit=$(get_limit_kb "$f")
+            warn=$(get_warn_kb "$f")
+
+            if [ "$kb" -ge "$limit" ]; then
+              echo "::error file=$f::🛑 $f is ${kb}KB (limit: ${limit}KB)"
               fail=1
-            elif [ "$kb" -ge 12 ]; then
-              echo "::warning file=$f::⚠️ $f is ${kb}KB (approaching 15KB limit)"
+            elif [ "$kb" -ge "$warn" ]; then
+              echo "::warning file=$f::⚠️ $f is ${kb}KB (approaching ${limit}KB limit)"
             fi
           done < <(find .squad -type f ! -path '.squad/archive/*' ! -path '.squad/templates/*' -print0)
 
