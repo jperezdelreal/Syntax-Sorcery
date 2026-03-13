@@ -37,6 +37,16 @@ Autonomous AI dev company (€500/mo Azure, unlimited GitHub). Strict context hy
 **Why:** GDD→Issue pipeline (P1-10b) needs executable spec. Prevents per-GDD custom logic. Enables scale to 100s of games.  
 **Artifacts:** docs/gdd-template.md, docs/gdd-issue-mapping.md
 
+### 2026-03-14: P1-10b GDD→Issue Autonomous Pipeline — Fully Automated Issue Generation
+
+**By:** Trinity (Full-Stack Developer)  
+**Status:** COMPLETE  
+**Tier:** T2  
+**What:** Built Node.js parser + GitHub Actions workflow for fully autonomous GDD→GitHub Issues conversion. Script parses YAML frontmatter + 10 GDD sections, generates complete issue tree per Oracle's spec. Dry-run mode for safe testing. Tested with "Chrono Tiles" game (31 issues generated correctly with auto labels/priorities). js-yaml added as dependency.  
+**Why:** Pipeline eliminates manual issue creation, enables GDD-driven development, scales to 100s of games. Zero cost (GHA). Unblocks P1-10c (GDD submission gate) and P1-12 (integration testing).  
+**Constraints Respected:** No hardcoded game logic. Design Pillars correctly skipped. GitHub Actions unlimited budget. Zero Azure cost.  
+**Artifacts:** scripts/gdd-to-issues.js, .github/workflows/gdd-to-issues.yml, docs/gdds/examples/test-game.md
+
 ### 2026-03-14: P1-14 FFS Visibility Audit — Showcase Remediation Roadmap
 
 **By:** Oracle (Product & Docs)  

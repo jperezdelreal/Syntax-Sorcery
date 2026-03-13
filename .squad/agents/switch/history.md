@@ -16,6 +16,7 @@
 - 2026-03-13: Self-audit scored Grade D (0.43). 3 critical findings: no README, .gitignore minimal, 72.6KB template violates own limits. 10 issues filed (#10-#20).
 - 2026-03-13: Lesson — we must fix our own house before auditing FFS. Credibility requires passing our own checklist first.
 - 2026-03-14: Wave 2 Update — Ralph v5 hardened by Tank for 24h autonomous operation. Six failure modes fixed: session timeout (30m), exponential backoff (5m→60m), stale lock detection (2h), 3-file log rotation, health checks, hourly heartbeat. Zero Azure cost. Reusable SKILL extracted at `.squad/skills/ralph-hardening/SKILL.md`. Ready for P1-12 (FFS Integration Testing) and P1-13 (SS Self-Audit Post-Intervention).
+- 2026-03-14: P1-10b Complete — Trinity built GDD→Issue pipeline. Node.js script + GHA workflow parses all GDD formats, creates full issue trees. "Chrono Tiles" test produces 31 issues with correct auto labels/priorities. Parser unblocks P1-10c (GDD submission) and P1-12 (integration testing).
 
 ### 2026-03-13: Self-Audit Results Filed — Critical Blocker
 - SS grades D (0.43/1.0) on readiness checklist. Cannot credibly audit FFS (C grade, 0.68) while SS is D.
