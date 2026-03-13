@@ -41,6 +41,80 @@ Test 1 autonomy evaluation scored this as the **#1 critical deficiency** — PRs
 ## Impact
 
 All future PRs to master/main will require 126 tests to pass before merging (once branch protection is enabled). This directly addresses the autonomy gap where @copilot PRs merged without validation.
+### 2026-03-18T00:00Z: Test 2 Strategy — Ralph Go Multi-Terminal (Local) APPROVED
+
+**By:** Morpheus (Lead/Architect)  
+**Date:** 2026-03-18  
+**Tier:** T1 (Architecture)  
+**Status:** ✅ APPROVED
+
+**What:** Strategic roadmap replacement for Test 2 autonomous operations using 5 local terminals (1 per downstream repo) + SS hub. Previous roadmap (meta-infrastructure) replaced with 3 high-strength operational items addressing Test 1 critical gap (ZERO CI checks):
+
+1. **Configure CI checks and branch protection** — Establishes npm ci + npm test + eslint validation with branch protection. Foundation of autonomous quality control.
+2. **Add constellation-wide health monitoring** — Script `scripts/constellation-health.js` validates all 6 repos are operational (perpetual-motion.yml, roadmap.md exist, recent workflow runs).
+3. **Create ralph-watch.ps1 dashboard** — Real-time visibility into Layer 2 refueling engine (last run, repos monitored, refueling events).
+
+**Rationale:** Previous roadmap was scaffolding-focused (validators, reusable workflows). New roadmap operationally hardened: quality gates + monitoring for multi-terminal execution.
+
+**Expected Outcomes:**
+- Quality gate established (CI blocks broken PRs)
+- Hub visibility enabled (constellation health + dashboard)
+- Test 2 success criteria met (safe autonomous execution with multi-terminal validation)
+
+**Risk:** LOW. All items additive (no breaking changes).
+
+**GitHub Issues Created:** #29 (dashboard), #30 (CI checks), #31 (constellation health) — all @copilot-ready.
+
+---
+
+### 2026-03-18T00:00Z: Monitoring Separation Implementation — 3-Layer Architecture APPROVED
+
+**By:** Morpheus (Lead/Architect)  
+**Tier:** T1  
+**Status:** ✅ ANALYSIS COMPLETE — PENDING IMPLEMENTATION
+
+**What:** Concrete monitoring separation approved by user (3-layer hierarchy):
+1. **Layer 1: SS self-monitors** (safety-net.yml GitHub Actions daily, .squad/ health checks)
+2. **Layer 2: SS monitors downstream** (ralph-watch.ps1 + safety-net.yml + constellation.json)
+3. **Layer 3: Squad Monitor monitors ONLY FFS games** (flora, ComeRosquillas, pixel-bounce — NOT SS, removes circular dependency)
+
+**Current State Analysis:**
+- SS constellation.json: ✅ Correct (6 repos including SS)
+- SS safety-net.yml: ✅ Correct (monitors all 6 via constellation)
+- SS ralph-watch.ps1: ✅ Correct (monitors all 6, refuels downstream)
+- ffs-squad-monitor server/config.js: ❌ Missing pixel-bounce, includes FirstFrameStudios (hub, not game)
+- ffs-squad-monitor vite.config.js: ❌ Duplicates server/config.js with same issues
+
+**Implementation Required:**
+- Add pixel-bounce to ffs-squad-monitor REPOS arrays (mandatory)
+- DECISION A: Remove FirstFrameStudios from Squad Monitor? (Hub, not game — Morpheus recommends YES)
+- DECISION B: Remove ffs-squad-monitor self-reference? (SS already monitors via constellation — Morpheus recommends YES)
+
+**User Input Required:** Confirm Decisions A & B before ffs-squad-monitor changes.
+
+---
+
+### 2026-03-13T20:12Z: User Directive — No Cross-Repo Direct Commits, Issues Only
+
+**By:** jperezdelreal (via Copilot)  
+**Tier:** T0  
+**Status:** ✅ DIRECTIVE  
+**What:** When Ralph Go multi-terminal setup runs, SS MUST NEVER make direct git commits to downstream repos. ALL cross-repo communication MUST go through GitHub Issues. Issues are the only message bus between repos.
+
+**Why:** Prevents git push conflicts when multiple Squad sessions run concurrently on different repos. Each repo's local Squad session owns its own git state exclusively.
+
+**Applies to:** ALL repos — no repo commits directly to another repo's branch.
+
+---
+
+### 2026-03-13T19:52Z: User Directive — Ralph Refueling Only Downstream
+
+**By:** jperezdelreal (via Copilot)  
+**Tier:** T0  
+**Status:** ✅ DIRECTIVE  
+**What:** When Ralph sees an empty board, he creates a "📋 Define next roadmap" issue (with dedup check) ONLY in downstream repos (flora, ComeRosquillas, pixel-bounce, ffs-squad-monitor, FirstFrameStudios). SS does NOT refuel — it has its own monitoring. Validate no config conflicts before implementing.
+
+**Why:** User request — prevents the autonomous pipeline from ever fully stopping in downstream repos.
 
 ---
 
