@@ -1,0 +1,160 @@
+---
+import Layout from '../layouts/Layout.astro';
+import { getRecentDecisions, getTeamRoster } from '../utils/data';
+
+const decisions = getRecentDecisions(5);
+const team = getTeamRoster();
+---
+
+<Layout title="Syntax Sorcery — Autonomous Software Company">
+  <main class="container mx-auto px-4 py-12 max-w-7xl">
+    <!-- Hero Section -->
+    <section class="text-center mb-20">
+      <h1 class="text-6xl font-bold mb-6 bg-gradient-to-r from-cyan-400 to-blue-600 bg-clip-text text-transparent">
+        Syntax Sorcery
+      </h1>
+      <p class="text-2xl text-gray-400 mb-4">Autonomous Software Company</p>
+      <p class="text-lg text-gray-500 max-w-3xl mx-auto">
+        An AI-powered autonomous development company where specialized agents design, build, and deploy software products with minimal human intervention. Built on GitHub CLI, powered by Squad framework.
+      </p>
+      <div class="mt-8 flex justify-center gap-4">
+        <span class="px-4 py-2 bg-gray-800 rounded-lg border border-gray-700 text-sm">
+          🤖 8 AI Agents
+        </span>
+        <span class="px-4 py-2 bg-gray-800 rounded-lg border border-gray-700 text-sm">
+          ⚡ 24/7 Autonomous
+        </span>
+        <span class="px-4 py-2 bg-gray-800 rounded-lg border border-gray-700 text-sm">
+          €500/mo Azure Budget
+        </span>
+      </div>
+    </section>
+
+    <!-- Downstream Companies Section -->
+    <section class="mb-20">
+      <h2 class="text-4xl font-bold mb-8 text-center">Downstream Companies</h2>
+      <div class="grid md:grid-cols-2 gap-6 max-w-4xl mx-auto">
+        <a 
+          href="https://jperezdelreal.github.io/FirstFrameStudios/" 
+          target="_blank"
+          class="block p-6 bg-gray-900 rounded-lg border border-gray-800 hover:border-cyan-500 transition-colors"
+        >
+          <div class="flex items-start gap-4">
+            <div class="text-5xl">🎮</div>
+            <div class="flex-1">
+              <h3 class="text-2xl font-bold mb-2">FirstFrame Studios</h3>
+              <p class="text-gray-400 mb-3">
+                Autonomous HTML5 game development studio. Building arcade-style games with AI-driven design and deployment.
+              </p>
+              <div class="flex items-center gap-2">
+                <span class="px-3 py-1 bg-green-900/30 text-green-400 text-sm rounded-full border border-green-700">
+                  ✅ Production
+                </span>
+                <span class="text-gray-500 text-sm">2 games live</span>
+              </div>
+            </div>
+          </div>
+        </a>
+        
+        <div class="p-6 bg-gray-900/50 rounded-lg border border-dashed border-gray-800">
+          <div class="flex items-start gap-4">
+            <div class="text-5xl opacity-30">🚀</div>
+            <div class="flex-1">
+              <h3 class="text-2xl font-bold mb-2 text-gray-600">Future Company Slot</h3>
+              <p class="text-gray-600 mb-3">
+                Next autonomous company will be created here as the Squad system scales.
+              </p>
+              <span class="px-3 py-1 bg-gray-800 text-gray-600 text-sm rounded-full border border-gray-700">
+                🔮 Planned
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Recent Activity Section -->
+    <section class="mb-20">
+      <h2 class="text-4xl font-bold mb-8 text-center">Recent Activity</h2>
+      <div class="max-w-4xl mx-auto space-y-4">
+        {decisions.map((decision) => (
+          <div class="p-5 bg-gray-900 rounded-lg border border-gray-800">
+            <div class="flex items-start justify-between mb-2">
+              <h3 class="text-xl font-semibold text-cyan-400">{decision.title}</h3>
+              <span class="px-2 py-1 bg-gray-800 text-gray-400 text-xs rounded">
+                {decision.tier}
+              </span>
+            </div>
+            <p class="text-gray-400 mb-2 text-sm">{decision.summary}</p>
+            <div class="flex items-center gap-4 text-sm text-gray-500">
+              <span>By: {decision.by}</span>
+              <span>•</span>
+              <span>{new Date(decision.date).toLocaleDateString('en-US', { 
+                year: 'numeric', 
+                month: 'short', 
+                day: 'numeric' 
+              })}</span>
+            </div>
+          </div>
+        ))}
+      </div>
+    </section>
+
+    <!-- Team Roster Section -->
+    <section class="mb-20">
+      <h2 class="text-4xl font-bold mb-8 text-center">The Squad</h2>
+      <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+        {team.map((member) => (
+          <div class="p-5 bg-gray-900 rounded-lg border border-gray-800 text-center">
+            <div class="text-5xl mb-3">{member.emoji}</div>
+            <h3 class="text-xl font-bold mb-1">{member.name}</h3>
+            <p class="text-gray-400 text-sm mb-3">{member.role}</p>
+            <span class="text-xs text-gray-500">{member.status}</span>
+          </div>
+        ))}
+      </div>
+    </section>
+
+    <!-- System Health Section -->
+    <section class="mb-20">
+      <h2 class="text-4xl font-bold mb-8 text-center">System Health</h2>
+      <div class="grid md:grid-cols-3 gap-6 max-w-4xl mx-auto">
+        <div class="p-6 bg-gray-900 rounded-lg border border-gray-800 text-center">
+          <div class="text-4xl font-bold text-green-400 mb-2">100%</div>
+          <div class="text-gray-400 text-sm">Pipeline Success Rate</div>
+          <div class="text-gray-600 text-xs mt-2">Last 30 days</div>
+        </div>
+        
+        <div class="p-6 bg-gray-900 rounded-lg border border-gray-800 text-center">
+          <div class="text-4xl font-bold text-cyan-400 mb-2">24/7</div>
+          <div class="text-gray-400 text-sm">Autonomous Operation</div>
+          <div class="text-gray-600 text-xs mt-2">Zero downtime</div>
+        </div>
+        
+        <div class="p-6 bg-gray-900 rounded-lg border border-gray-800 text-center">
+          <div class="text-4xl font-bold text-blue-400 mb-2">42</div>
+          <div class="text-gray-400 text-sm">Total Deployments</div>
+          <div class="text-gray-600 text-xs mt-2">Across all projects</div>
+        </div>
+      </div>
+      
+      <div class="mt-8 p-6 bg-gray-900/50 rounded-lg border border-gray-800 max-w-4xl mx-auto">
+        <h3 class="text-lg font-semibold mb-3 text-center">Cost Efficiency</h3>
+        <div class="flex justify-center items-baseline gap-2">
+          <span class="text-3xl font-bold text-green-400">€156</span>
+          <span class="text-gray-500">/ €500 monthly budget</span>
+        </div>
+        <div class="mt-3 w-full bg-gray-800 rounded-full h-2">
+          <div class="bg-green-500 h-2 rounded-full" style="width: 31.2%"></div>
+        </div>
+        <p class="text-center text-gray-600 text-sm mt-2">31% utilized • Well within budget</p>
+      </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="text-center text-gray-600 text-sm pt-12 border-t border-gray-800">
+      <p>Powered by GitHub Actions • Built with Astro & Tailwind CSS</p>
+      <p class="mt-2">© 2026 Syntax Sorcery — Autonomous Software Company</p>
+    </footer>
+  </main>
+</Layout>
