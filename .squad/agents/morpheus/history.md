@@ -87,3 +87,21 @@
 - **Orchestrator roadmap ≠ product roadmap.** SS items are infrastructure/tooling that downstream repos consume. Dedup guard and review gate are canonical implementations — built once in SS, adopted by constellation.
 - **Strategic sequencing matters.** Dedup guard before review gate before Azure launcher. Each layer depends on the previous being stable. Don't scale (Azure 24/7) before the autonomous cycle is clean (dedup + review).
 - **3-feature limit enforces focus.** With 5+ candidate items (dedup, Azure, review gate, branch protection automation, cross-repo comms), the 3-limit forced prioritization by impact. Branch protection deferred — documented workaround exists.
+
+## Session 2026-03-19 — Phase 4 Roadmap: Marketing & Aesthetics
+
+**Task:** Define Phase 4 roadmap per founder directive. 8-hour autonomous session, founder sleeping. Ralph requested roadmap refuel after Phase 3 completion (6/6 items delivered).
+
+**Context:** Founder explicitly requested "marketing y estética" alongside infrastructure. Phases 2-3 built the engine; Phase 4 builds the showroom.
+
+**Deliverables:**
+1. Roadmap updated: items 1-6 marked `[x]` (done), items 7-9 added
+2. Issue #41 — README premium overhaul (badges, architecture diagram, constellation overview, current stats)
+3. Issue #42 — Landing page visual upgrade (Matrix CSS animations, live stats, OG tags, "How It Works")
+4. Issue #43 — Architecture documentation (architecture.md, onboarding.md, constellation.md with ASCII diagrams)
+
+**Board Status:** 3 open issues (#41, #42, #43). Ralph can assign to @copilot. Mouse available for #42, Oracle available for #43.
+
+**Strategic Note:** First roadmap cycle that mixes infrastructure with public-facing presentation. Shift from "build the engine" to "build the showroom." README is marketing item #1 (most visible artifact). Landing page is the public face. Architecture docs demonstrate engineering maturity to the Squad community.
+
+**Status (2026-03-19):** Phase 3 COMPLETE (6/6 items, 168 tests, 6 PRs merged). Phase 4 DEFINED (3 items: README, landing page, architecture docs). Total autonomous delivery: 6 issues closed, 6 PRs merged across Phases 2-3.
