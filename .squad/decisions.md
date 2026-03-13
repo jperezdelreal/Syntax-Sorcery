@@ -6,6 +6,44 @@ Autonomous AI dev company (€500/mo Azure, unlimited GitHub). Strict context hy
 
 ## Active Decisions (Last 7 Days)
 
+### 2026-03-13T20:58Z: User Directive — Merge Gates & Required Checks
+
+**By:** joperezd (via Copilot)  
+**Tier:** T0  
+**Status:** ✅ DIRECTIVE  
+**What:** Some repos have merge gates (branch protection rules) that prevent automatic merging. Squad agents need to handle this gracefully — if `gh pr merge` fails due to required reviews or status checks, the agent should report the blocker instead of failing silently.  
+**Why:** User request — captured for team memory. Critical for autonomous operations: Ralph and agents must detect and report merge gates rather than assuming all PRs can be auto-merged.
+
+---
+
+### 2026-03-13T20:58Z: Decision — CI Checks Workflow
+
+**Date:** 2026-03-13  
+**By:** Switch (Tester/QA)  
+**Tier:** T2  
+**Issue:** #30  
+**PR:** #32  
+
+## Decision
+
+Added `.github/workflows/ci.yml` as the first CI quality gate for Syntax Sorcery. Workflow runs `npm ci` + `npm test` on every PR and push to `master`/`main`.
+
+## Rationale
+
+Test 1 autonomy evaluation scored this as the **#1 critical deficiency** — PRs merged without any validation. This is the minimum viable CI gate: dependency validation + test execution.
+
+## What's NOT included (and why)
+
+- **ESLint:** Not configured in the project. Adding linting should be a separate issue.
+- **Branch protection:** Requires admin access. Steps documented in `.squad/guides/ci-checks.md` for founder to configure.
+- **Build step:** No build process exists yet. Guide documents how to add one.
+
+## Impact
+
+All future PRs to master/main will require 126 tests to pass before merging (once branch protection is enabled). This directly addresses the autonomy gap where @copilot PRs merged without validation.
+
+---
+
 ### 2026-03-13T20:32Z: Hub/Spoke Azure VM Architecture — APPROVED
 
 **By:** Morpheus (Lead/Architect)  
