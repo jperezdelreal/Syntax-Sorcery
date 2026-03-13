@@ -21,6 +21,20 @@ Autonomous AI dev company (€500/mo Azure, unlimited GitHub). Strict context hy
 **Why:** Foundational expectation — SS must exemplify automated context management, not replicate downstream company problems. Hygiene must be systemic, not a task.  
 **Implication:** Scribe role and .squad/ structure embedded for permanent, autonomous maintenance.
 
+### 2026-03-13T12:09Z: User Directive — Phase 2 Focus Scope
+
+**By:** joperezd (via Copilot)  
+**Tier:** T0  
+**What:** No preocuparse por escalabilidad a 5+ juegos ni múltiples proyectos downstream por ahora. Foco exclusivo en Phase 2 con FFS como único downstream. Ejecutar el plan de Morpheus tal cual.  
+**Why:** User request — captured for team memory.
+
+### 2026-03-13T12:26Z: User Directive — Morpheus Leads, Ralph Awaits Approval
+
+**By:** joperezd (via Copilot)  
+**Tier:** T0  
+**What:** No activar Ralph ni ejecutar trabajo que Morpheus no haya aprobado o solicitado. Morpheus lidera — el equipo sigue su plan. "Modo autopilot" se refiere al modo del GH CLI, no a Ralph.  
+**Why:** User request — captured for team memory.
+
 ### 2026-03-13T11:30Z: P1-11 Autonomous Proposal→Prototype Pipeline Architecture
 
 **By:** Morpheus (Lead/Architect)  
@@ -32,6 +46,43 @@ Autonomous AI dev company (€500/mo Azure, unlimited GitHub). Strict context hy
 **Risks:** @copilot GDD/implementation quality (mitigated: validation gates + Trinity fallback), cross-repo orchestration (mitigated: gh CLI + repository_dispatch).  
 **Artifacts:** docs/proposal-to-prototype.md, 12 implementation subtasks (Trinity Wave A→D, ~20 hours).  
 **Dependencies:** Requires P1-10a (GDD Template ✅), P1-10b (GDD→Issues ✅), P1-08 (Ralph v5 ✅).
+
+### 2026-03-16: Phase 2 Round 2 — FFS Satellite PRs Resolved
+
+**By:** Morpheus (Lead/Architect) + Trinity (Full-Stack Developer)  
+**Status:** COMPLETE  
+**Tier:** T1  
+**What:** Successfully resolved 6 FFS satellite PR merge conflicts (ComeRosquillas #29/#30, ffs-squad-monitor #27/#28/#29/#32). All PRs merged. Conflict types: .squad/decisions.md overlaps (append-only, non-destructive), .squad/history.md updates (sequential writes). Game features (Ghost AI, difficulty system, backend API extraction, tests, docs) all production-ready.  
+**Outcomes:** 9 total FFS satellite PRs merged this session (3 from T2, 6 conflict-resolved). All game repos health-checked. T2 Feature Work pipeline cleaner. CI hardened with per-type size limits (history.md 8KB, decisions.md 12KB, others per SKILL). 34 tests green.  
+**Why:** Satellites have feature-rich development. Conflicts are expected (append-only .squad/ changes), low-risk, resolvable. Manual resolution enables Phase 2 feature velocity.  
+**Next:** Morpheus determines Phase 2 Round 3 priority (Flora features, pipeline stages 3-5, visibility remediation, or new initiatives).
+
+### 2026-03-15: Phase 2 Test Matrix & Quality Gate
+
+**By:** Switch (Tester/QA)  
+**Status:** COMPLETE  
+**Tier:** T2  
+**What:** Established Phase 2 game acceptance test matrix (docs/phase2-test-matrix.md). Defines pass/fail for all 6 pipeline stages, 25-item quality checklist, CI integration, 3-tier grading (🟢 Ship / 🟡 Fix First / 🔴 Reject). Installed vitest with 34 unit tests (validate-proposal.js 13 tests, gdd-to-issues.js 21 tests). Refactored scripts for testability (non-breaking).  
+**Why:** Phase 2 requires autonomous game production. Formal quality gate prevents untested game shipment. Unit tests catch regressions in critical pipeline scripts.  
+**Impact:** `npm test` runs vitest (34 tests, all green). `npm run test:validate-squad` preserves old validation. Scripts refactored for testability, backward-compatible.  
+**Risks:** vitest globals mode (CommonJS compat) — should verify in GHA workflows.
+
+### 2026-03-16: CI Size Check — Per-Type Limits Enforced
+
+**By:** Tank (Cloud Engineer)  
+**Tier:** T2  
+**Status:** COMPLETE  
+**What:** Updated `squad-size-check.yml` from generic 15KB limit to per-type limits (history.md 8KB, decisions.md 12KB, charter.md 15KB, orchestration-log 2KB, log 1KB, any other 25KB). Proactive warnings at SKILL thresholds (6KB/10KB/12KB/15KB). Total .squad/ 100KB limit preserved.  
+**Why:** P1-13 self-audit found CI not enforcing SKILL-defined limits. PRs could pass while violating hygiene rules. Now CI is automated enforcement gate per founder directive.
+
+### 2026-03-13: E2E Pipeline Test — Stages 0–2 Validated
+
+**By:** Trinity (Full-Stack Developer)  
+**Status:** COMPLETE  
+**Tier:** T2  
+**What:** First end-to-end test of Proposal→Prototype pipeline (Stages 0–2). All 5 pipeline scripts pass with "Pixel Bounce" test proposal. Validation ✅, GDD generation ✅ (10 sections), issue parsing ✅ (26 issues), orchestrator ✅, label creation ✅. Zero bugs. Full report at docs/e2e-pipeline-test-report.md.  
+**Outcomes:** Stages 0–2 production-ready. CLI interfaces documented (--file vs --proposal inconsistency noted but functional). Template-based GDD is structural scaffold; @copilot GDD via GHA workflow provides creative content. Pipeline state machine tracks all 6 stages correctly.  
+**Next:** Stages 3–5 (game repo creation, @copilot implementation, build/deploy) require cross-repo orchestration and game repo template activation.
 
 ### 2026-03-15: FFS Takeover T2 — Satellite Cascade Complete
 
