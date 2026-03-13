@@ -90,3 +90,28 @@
 **Roadmap Convergence Safeguard:** Implemented 3-cycle limit per repo without user review. After 3 consecutive refuelings, ralph-watch pauses and creates escalation issue requiring human confirmation. Prevents infinite roadmap generation without direction.
 
 **Impact:** The final piece of Phase 2 Workstream A autonomy. Perpetual motion engine is now truly perpetual — roadmaps refuel automatically, @copilot executes work, system runs 24/7 unattended. Target <15min/week human intervention achievable.
+
+## Session 2026-03-17 — Activation Guide Creation
+
+**Task:** Created comprehensive step-by-step activation guide (`docs/activation-guide.md`) for founder to activate the autonomous perpetual motion system.
+
+**Deliverable:**
+- 29KB Spanish-language guide with 8 parts: Pre-requisitos, Push a GitHub, GitHub Pages, Workflows, Smoke Test, ralph-watch.ps1, Sistema Completo, Troubleshooting
+- Concrete commands (no vague descriptions) — exact git commands, PowerShell scripts, GitHub CLI calls
+- Expected output for every step — founder can verify correctness at each checkpoint
+- Troubleshooting section with 8 common problems + solutions table format
+- Non-technical founder can follow end-to-end
+
+**Phase 2 Completion Audit:**
+- **Documented items (13/13):** A1 perpetual-motion, A2 roadmaps, A3 issue template, A4 safety-net, A5 ralph-watch, B1 FFS Page, B2 Devlog, B3 SS Page, B4 Squad Monitor, C1-C4 repo features
+- **Built items (10/13):** ralph-watch.ps1 exists, guides exist (squad-watch-layer2.md, writing-copilot-issues.md), roadmap.md exists in SS
+- **Missing items (3/13 — Tank fixing):**
+  1. perpetual-motion.yml NOT deployed to any repo yet
+  2. safety-net.yml NOT deployed to SS yet
+  3. Issue template copilot-ready.md NOT deployed to any repo yet
+
+**Key Finding:** constellation.json has incorrect owner ("jperezdelreal" should be "joperezd"). Documented in Gap 2 of activation guide. Tank must fix before push.
+
+**Architectural Insight:** Activation guide emphasizes "flip the switch" moment — Phase 2 is fully BUILT (code exists), but NOT ACTIVATED (workflows not running in GitHub). User controls when to push and activate. This is correct: build-then-activate is safer than build-in-production.
+
+**Next:** Tank completes 3 gaps → user follows guide → system goes live.
