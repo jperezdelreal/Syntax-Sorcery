@@ -119,35 +119,35 @@ Autonomous AI dev company (€500/mo Azure, minimal human intervention). Strict 
 **What:** Most important to founder: visibility of what happens—achievements, problems, progress. Show the world the team's autonomous work. Includes dashboards, updated blogs, GitHub Pages as showcase, visible metrics. This is marketing necessity, not vanity. Applies to both SS and FFS.
 **Why:** Public showcase is proof that autonomy works. Without visibility, project has no external impact.
 
-### 2026-03-13: P1-01 FFS Read-Only Audit Complete
-**By:** Morpheus (Lead/Architect)
-**Status:** COMPLETE
-**What:** FFS constellation grades C overall (0.68). Hub context bloat critical: decisions-archive 627KB (12.5× over 50KB limit), growth-framework 55KB, new-project-playbook 45KB. Downstream repos (ComeRosquillas B, Flora C, ffs-squad-monitor B) have clean context but governance/autonomy gaps. Top 3 remediation priorities: (1) Hub context bloat, (2) triage workflow sync, (3) test infrastructure.
-**Why:** Audit-first approach validates FFS maturity before intervention. C-grade is acceptable per readiness gates.
-
-### 2026-03-14: P1-02 Template Bloat Resolution
-**By:** Morpheus (Lead/Architect)
-**Status:** DECIDED
-**What:** Templates 65KB (31 files, largest 6.7KB) accepted as-is. Framework-provided scaffolding, on-demand loading only, CI already excludes. No individual file violates 15KB limit. Non-template .squad/ files (83.9KB) flagged as separate P1 concern.
-**Why:** Templates are reference material, not operational bloat. Restructuring breaks Squad framework. Limit applies to operational files that inflate context windows.
-
-### 2026-03-13: P1-03 FFS Context Health Map Complete
-**By:** Oracle (Product & Docs)
-**Status:** COMPLETE
-**What:** FFS context health YELLOW (C+). Critical violations: decisions-archive.md (642KB—42× limit), aaa-gap-analysis.md (38KB—2.5× limit). Active governance files healthy (6/7 <15KB with TLDR layers). Remediation: split archives by era, index creation, domain-specific split for gap analysis. Post-remediation frees ~165K tokens/session (27% budget improvement).
-**Why:** Context bloat is bottleneck. Efficient archive structure enables downstream operations at scale.
-
-### 2026-03-13: P1-06 FFS Skills Inventory Complete
-**By:** Oracle (Product & Docs)
-**Status:** COMPLETE
-**What:** 34 FFS skills classified: 22 domain-agnostic (→SS cherry-pick), 12 game-specific (→FFS reference), 3 overlapping (merge), 2 flagged hidden dependencies. Immediate cherry-pick: feature-triage, multi-agent-coordination (CRITICAL for SS parallel work).
-**Why:** Skills classification enables efficient cherry-pick migration without game-baggage bloat.
-
 ### 2026-03-13: SS Self-Audit Results
 **By:** Switch (Tester/QA)
 **Status:** BLOCKER
 **What:** SS grades D (0.43/1.0). Critical gaps: #11 no README, #12 minimal .gitignore, #13 72.6KB template violates 25KB limit. Must remediate before credibly auditing FFS.
 **Why:** Can't audit C-grade FFS while SS is D-grade. Fix house first.
+
+### 2026-03-14: P1-04 FFS Context Remediation Complete
+**By:** Trinity (Full-Stack Developer)
+**Status:** COMPLETE
+**Tier:** T2
+**What:** FFS operational .squad/ reduced 2618KB → 126KB (95% reduction). decisions-archive.md (639KB) split into yearly archive files with TLDR quick-index tables. 30+ identity/analysis files compressed, all now <15KB. governance.md streamlined to 3.6KB (SS-aligned). 70 orchestration + 24 session logs archived; 5 most recent kept per tier. All operational files respect 15KB hard limit.
+**Why:** Context bloat was primary bottleneck (27% of session tokens). Efficient archive structure enables downstream operations at FFS scale without context window penalties.
+**Artifacts:** Draft PR jperezdelreal/FirstFrameStudios#197
+
+### 2026-03-14: P1-05 Governance Swap Complete
+**By:** Trinity (Full-Stack Developer)
+**Status:** COMPLETE
+**Tier:** T2
+**What:** SS T0-T3 tier definitions installed in FFS decisions.md. Tier mapping: T0=Founder (new companies, principles), T1=Lead/Solo (architecture, gates, skills), T2=Agent (implementation), T3=Auto (logs, history, typos). upstream.json created linking FFS → Syntax Sorcery with inheritance of policy/skills/governance. TLDR added to decisions.md referencing upstream contract.
+**Why:** FFS governance now aligned with SS. Clear authority/scope boundaries prevent autonomous decision conflicts. Upstream link enables efficient governance scaling to future downstream companies.
+**Artifacts:** PR jperezdelreal/FirstFrameStudios#197
+
+### 2026-03-14: P1-08 Ralph-Watch Hardened for Autonomous Operation
+**By:** Tank (Cloud Engineer)
+**Status:** COMPLETE
+**Tier:** T2
+**What:** Ralph-watch upgraded v4→v5 with six hardening measures for 24h unattended operation: (1) session timeout 30m (kills hung copilot), (2) exponential backoff 5m→60m (prevents retry storms), (3) stale lock detection 2h (handles crashes), (4) 3-file log rotation (preserves diagnostics), (5) pre-round health checks (graceful degradation), (6) hourly heartbeat with Discord + auto P0 GitHub issue on critical failures. Zero additional Azure cost (GitHub Actions free tier).
+**Why:** Ralph is the autonomous execution engine. Silent failures stop entire squad. v4 had no session timeout (could hang forever), fixed retry intervals (wasteful on persistent failures), 4h heartbeat (too slow). v5 enables 24h unattended operation with early failure detection.
+**Artifacts:** PR jperezdelreal/FirstFrameStudios#196, reusable SKILL at .squad/skills/ralph-hardening/SKILL.md
 
 ## Governance
 

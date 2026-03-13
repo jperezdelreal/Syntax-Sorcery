@@ -49,3 +49,25 @@
 **What:** Classified 34 FFS skills: 22 domain-agnostic (cherry-pickable), 12 game-specific (reference).
 **Key:** FFS is operationally rich (22 vs expected 13). Critical: multi-agent-coordination (72+ spawns, SS parallel safety blocker), feature-triage (scope), PRD, state machines.
 **Deliverable:** oracle-ffs-skills-inventory.md
+
+### 2026-03-14T14:45Z: P1-14 FFS Visibility & Showcase Audit — COMPLETE
+**What:** Comprehensive visibility audit of FFS's GitHub Pages, blog, and game playability against founder's three hard requirements (games playable, visible, impressive).
+**Key Findings:**
+- **GitHub Pages:** ✅ Astro site live at jperezdelreal.github.io/FirstFrameStudios/ — polished, well-designed
+- **Blog:** ✅ Infrastructure ready (Astro content collections), 2 seed articles, but 🔴 **no recent entries** (last update 2026-03-11, 3 days old)
+- **ComeRosquillas:** ✅ Excellent repo/README, ⚠️ **not linked from GitHub Pages**, unclear if play URL works (claims `/play/` endpoint)
+- **FLORA:** ❌ **No playable web build** (dev-only), README minimal (473 bytes), shows as "🌱 Starting" with no public demo
+- **Showcase:** ❌ **Missing dedicated "Play Games" page** — games buried in developer-focused content
+- **Visibility:** ❌ Founder **cannot discover or play games** from main showcase
+- **Overall Grade:** 🟡 **AMBER (60% complete)** — Strong foundation, critical gaps block founder requirements
+
+**Immediate Actions (P0):** 
+1. Verify ComeRosquillas `/play/` URL & link from home page
+2. Build web version of FLORA or create GitHub Pages static build
+3. Create dedicated game showcase landing page with play buttons
+4. Update FLORA README with game vision
+
+**Effort:** 8–12 hours for full remediation (Trinity owner)
+**Deadline:** This week (2026-03-17)
+
+**Deliverable:** `.squad/decisions/inbox/oracle-showcase-report.md` (9.3KB)

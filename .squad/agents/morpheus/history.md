@@ -57,3 +57,10 @@
 - Oracle completed P1-06 (Skills Inventory): 22 domain-agnostic skills cherry-pickable for SS (feature-triage, multi-agent-coordination are CRITICAL), 12 game-specific remain in FFS
 - Cost analysis: decisions-archive alone = 160K tokens/session; post-remediation frees 165K tokens (27% budget improvement)
 - Cross-repo triage sync needed: ComeRosquillas #21, Flora #28, ffs-squad-monitor #19 all flagged for workflow alignment
+
+### 2026-03-14: Wave 2 Complete — Context Remediation + Governance Swap (from Trinity/Tank)
+- Trinity (P1-04+P1-05): FFS operational .squad/ reduced 2618KB → 126KB (95% reduction). decisions-archive split into yearly files. governance.md compressed to 3.6KB (SS-aligned). upstream.json created.
+- Tank (P1-08): Ralph v4→v5 hardened for 24h autonomous operation — six failure modes fixed, zero Azure cost.
+- Governance: SS T0-T3 tiers now installed in FFS. Clear authority boundaries enable autonomous FFS operation without conflicts.
+- Ready for P1-07 (Skills Cherry-Pick), P1-09 (Cost Alerting), P1-10 (GDD→Issue Pipeline), P1-11 (Proposal→Prototype), P1-14 (Visibility)
+
