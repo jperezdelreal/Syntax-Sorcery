@@ -20,3 +20,9 @@
 - Brady's Squad-IRL has 20+ sample projects; Tamir's squad-monitor is a live dashboard pattern worth tracking
 - Decisions merged into `.squad/decisions.md`. Orchestration log: `2026-03-13T08-48-morpheus.md`
 - Phase 0 epic (#1) and 4 sub-issues (#2–#5) created on GitHub. Ready for team to work through gates.
+- Decisions file: `.squad/decisions/inbox/morpheus-phase0-strategy.md`
+
+### 2026-03-13: D2 — Downstream Management Framework (#3)
+- Created `.squad/identity/downstream-management.md` (<4KB) defining SS→downstream governance
+- Key design: policies always cascade and can't be overridden; skills can be overridden; domain stays local
+- Intervention protocol is the critical safety mechanism — 5 steps, no shortcuts except P0 emergencies
