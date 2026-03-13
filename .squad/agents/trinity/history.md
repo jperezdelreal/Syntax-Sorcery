@@ -13,3 +13,4 @@
 
 - 2026-03-13: Created squad-size-check.yml GitHub Action (34 lines, bash, no deps). Excludes archive/ and templates/ from checks.
 - 2026-03-13: `.squad/templates/squad.agent.TEMPLATE.md` is 71KB — framework scaffolding, not agent context. Excluded from CI.
+- 2026-03-14: Fixed #12, #13, #20 in PR #21. Comprehensive .gitignore, moved 73KB template to _reference/, documented templates as framework scaffolding.
