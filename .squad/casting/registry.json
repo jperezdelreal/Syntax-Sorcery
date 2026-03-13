@@ -1,0 +1,45 @@
+{
+  "registry_version": "1.0",
+  "entries": [
+    {
+      "persistent_name": "Morpheus",
+      "universe": "The Matrix",
+      "role": "Lead/Architect",
+      "created_at": "2026-03-13T08:11:10.000Z",
+      "legacy_named": false,
+      "status": "active"
+    },
+    {
+      "persistent_name": "Trinity",
+      "universe": "The Matrix",
+      "role": "Full-Stack Developer",
+      "created_at": "2026-03-13T08:11:10.000Z",
+      "legacy_named": false,
+      "status": "active"
+    },
+    {
+      "persistent_name": "Tank",
+      "universe": "The Matrix",
+      "role": "Cloud Engineer",
+      "created_at": "2026-03-13T08:11:10.000Z",
+      "legacy_named": false,
+      "status": "active"
+    },
+    {
+      "persistent_name": "Switch",
+      "universe": "The Matrix",
+      "role": "Tester/QA",
+      "created_at": "2026-03-13T08:11:10.000Z",
+      "legacy_named": false,
+      "status": "active"
+    },
+    {
+      "persistent_name": "Oracle",
+      "universe": "The Matrix",
+      "role": "Product & Docs",
+      "created_at": "2026-03-13T08:11:10.000Z",
+      "legacy_named": false,
+      "status": "active"
+    }
+  ]
+}
