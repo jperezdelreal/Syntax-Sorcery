@@ -1,0 +1,33 @@
+name: Squad Size Check
+on:
+  pull_request:
+    paths: ['.squad/**']
+
+jobs:
+  check-sizes:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check .squad/ file sizes
+        run: |
+          fail=0
+          total=0
+          while IFS= read -r -d '' f; do
+            size=$(stat -c%s "$f")
+            kb=$((size / 1024))
+            total=$((total + size))
+            if [ "$kb" -ge 15 ]; then
+              echo "::error file=$f::🛑 $f is ${kb}KB (limit: 15KB)"
+              fail=1
+            elif [ "$kb" -ge 12 ]; then
+              echo "::warning file=$f::⚠️ $f is ${kb}KB (approaching 15KB limit)"
+            fi
+          done < <(find .squad -type f ! -path '.squad/archive/*' ! -path '.squad/templates/*' -print0)
+
+          total_kb=$((total / 1024))
+          echo "Total .squad/ size: ${total_kb}KB"
+          if [ "$total_kb" -ge 100 ]; then
+            echo "::error::🛑 Total .squad/ is ${total_kb}KB (limit: 100KB)"
+            fail=1
+          fi
+          exit $fail
