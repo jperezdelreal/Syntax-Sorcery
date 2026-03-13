@@ -39,3 +39,8 @@
 - Key insight: P1-11 (Proposal→Prototype) is the most complex item — will need sub-decomposition once architecture is defined
 - Founder sign-off NOT required for any Phase 1 item — Gate 5 already cleared, all items T1/T2
 - FFS pause required before Wave 2 writes — batch all writes in single intervention window to minimize coordination overhead
+
+### 2026-03-14: P1-02 — Template Bloat Resolution
+- Decision: Option A — Accept templates/ (65KB, 31 files) as-is. No restructuring.
+- Rationale: Framework scaffolding from Brady Gaster, already excluded from CI enforcement, on-demand loading only, max file 6.7KB (well under 15KB limit)
+- Key finding: Total .squad/ is 149.3KB — templates aren't the bloat driver. Non-template files (83.9KB) need separate remediation.
