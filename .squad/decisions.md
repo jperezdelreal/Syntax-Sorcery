@@ -13,6 +13,26 @@ Autonomous AI dev company (€500/mo Azure, unlimited GitHub). Strict context hy
 **What:** €500/mo Azure-only budget. GitHub (Actions, Pages, repos, Issues, Copilot) is unlimited — zero cost constraints.  
 **Why:** Removes false conservatism about GitHub-based automation. Cost Alerting (GHA free tier), GDD Parser (GHA workflows), Ralph (GHA + Discord) all €0.
 
+### 2026-03-13T11:25Z: User Directive — SS Context Hygiene Expectation
+
+**By:** joperezd (via Copilot)  
+**Tier:** T0  
+**What:** Syntax Sorcery must not suffer from context hygiene problems. As a software engineering company, limits must be maintained automatically, not as manual effort.  
+**Why:** Foundational expectation — SS must exemplify automated context management, not replicate downstream company problems. Hygiene must be systemic, not a task.  
+**Implication:** Scribe role and .squad/ structure embedded for permanent, autonomous maintenance.
+
+### 2026-03-13T11:30Z: P1-11 Autonomous Proposal→Prototype Pipeline Architecture
+
+**By:** Morpheus (Lead/Architect)  
+**Status:** APPROVED (T1)  
+**Tier:** T1  
+**What:** 6-stage autonomous pipeline: Proposal → GDD (via @copilot) → GitHub Issues → Game Implementation → Build → GitHub Pages Deploy. Label-based state machine (`pipeline:*`) for Ralph monitoring. Per-game repository model with all pipeline logic in Syntax-Sorcery repo.  
+**Why:** Phase 1 requires fully autonomous game production without human intervention. GDD generation via @copilot eliminates Azure cost; GitHub Actions handles all orchestration. Extends existing GDD→Issue pipeline (P1-10b).  
+**Key Constraints:** Works for any game type, zero human input proposal→deployed, GitHub-unlimited (no Azure spend for pipeline), independent testability per stage.  
+**Risks:** @copilot GDD/implementation quality (mitigated: validation gates + Trinity fallback), cross-repo orchestration (mitigated: gh CLI + repository_dispatch).  
+**Artifacts:** docs/proposal-to-prototype.md, 12 implementation subtasks (Trinity Wave A→D, ~20 hours).  
+**Dependencies:** Requires P1-10a (GDD Template ✅), P1-10b (GDD→Issues ✅), P1-08 (Ralph v5 ✅).
+
 ### 2026-03-14: P1-07 Skills Cherry-Pick Complete
 
 **By:** Trinity (Full-Stack Developer)  
