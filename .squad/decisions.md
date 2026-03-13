@@ -76,6 +76,37 @@ Autonomous AI dev company (€500/mo Azure, unlimited GitHub). Strict context hy
 **Why:** Founder requires games visible+playable+impressive. Current state blocks requirement 1 (playability proof) and 2 (visibility).  
 **Next:** Trinity remediation this week (before Phase 1 close-out).
 
+### 2026-03-15: P1-12 FFS Integration Testing Report
+
+**By:** Switch (Tester/QA)  
+**Status:** 🟡 AMBER — 3 PASS, 4 WARNING, 0 FAIL  
+**Tier:** T2  
+**What:** Comprehensive integration test of Phase 1 deliverables against FFS main branch. Skills cherry-pick (P1-07) ✅, Cost Alerting (P1-09) ✅, GDD Pipeline (P1-10b) ✅. Context Remediation (P1-04), Governance Swap (P1-05), Ralph Hardening (P1-08) blocked by unmerged FFS PRs #196/#197.  
+**Why:** SS-side implementation complete; FFS-side merge gate required to confirm upstream/downstream integration.  
+**Recommendation:** Morpheus merge FFS PRs #196/#197 to unlock Phase 1 verification on main branch.  
+**Deliverable:** `.squad/decisions/inbox/switch-integration-report.md`
+
+### 2026-03-15: P1-13 SS Self-Audit Report
+
+**By:** Switch (Tester/QA)  
+**Status:** COMPLETE  
+**Tier:** T2  
+**Grade:** 🟢 B (0.71) — Up from D (0.43)  
+**What:** Comprehensive self-assessment across 5 categories (Context Health 0.87/A, Architecture 0.33/F, Squad Setup 0.67/C, Governance 0.83/B, Autonomy 0.83/B). Context hygiene strong; Architecture weak (zero tests, 19 outdated deps); Governance & Autonomy excellent (tier system clear, zero human issues, Ralph/cost-alerting live, squad heartbeat working).  
+**Critical Violation:** Oracle history.md at 8.59KB exceeds 8KB hard limit per context-hygiene SKILL. Requires Scribe summarization.  
+**Systemic Gap:** CI uses 15KB generic limit; SKILL specifies 8KB/12KB per-type limits. Founder directive ("hygiene systemic") requires CI enforcement.  
+**Deliverable:** `.squad/decisions/inbox/switch-self-audit.md`
+
+### 2026-03-15: P1-11 Proposal→Prototype Pipeline — COMPLETE
+
+**By:** Trinity (Full-Stack Developer)  
+**Status:** COMPLETE  
+**Tier:** T1  
+**What:** Implemented full 6-stage pipeline: Proposal (YAML) → GDD (@copilot) → Issues (gdd-to-issues.js) → Code (@copilot) → Build (GHA) → Deploy (Pages). 5 foundation scripts (validate-proposal.js, proposal-to-gdd.js, pipeline-orchestrator.js, create-pipeline-labels.js, extended gdd-to-issues.js), 2 GHA workflows (proposal-pipeline.yml, implement-game.yml), 1 game repo template (build-deploy.sh), 1 test proposal (chrono-tiles.md). Label-based state machine (pipeline:*) for Ralph monitoring.  
+**Key Decisions:** No LLM calls from scripts (deterministic). GDD generation via @copilot issue (human/bot flow). Static-first auto-detect for game repos. Unified build+deploy workflow.  
+**Cost:** €0 (GitHub Actions unlimited).  
+**Deliverable:** All scripts + workflows + templates in Syntax-Sorcery repo. Documented in `.squad/agents/trinity/history.md`
+
 ## Archived Decisions Summary
 
 **Historical decisions (2026-03-13 early, pre-Wave 3):** See decisions-archive.md

@@ -16,39 +16,11 @@
 - **Key Insight:** Context bloat (< 15KB/file) is operationally critical given €500/mo budget and autonomy requirements. Applies to both SS and FFS governance.
 - **FFS Governance Patterns:** G1 (5KB context limit), G3 (30d log cleanup), G9 (quarterly reviews). Archive management skill recommended for SS enforcement.
 
-## Recent Learnings
+## Recent Learnings (Summarized)
 
-### 2026-03-13T14:30Z: P1-03 FFS Context Health Map — COMPLETE
-**What:** Completed context health audit of FirstFrameStudios `.squad/` directory. Generated comprehensive health map (16.5KB) including file inventory, violation analysis, TLDR coverage assessment, and 3-phase remediation plan.
-
-**Key Findings:**
-- **Active governance files:** 6/7 healthy (< 15KB, clear TLDR layers). `decisions.md` (10.9KB), `ceremonies.md` (9.1KB), `routing.md` (7.4KB) all well-structured.
-- **CRITICAL VIOLATIONS (P0):**
-  - `decisions-archive.md` (642KB) — **42× operational limit.** No index. Blocks efficient lookup. Must split by era + create summary.
-  - `aaa-gap-analysis.md` (38.1KB) — **2.5× operational limit.** Monolithic, covers all domains. Must split by stakeholder (games, tooling, infra, deployment).
-- **Overall grade:** 🟡 **C+ (Yellow).** Ready to operate but requires remediation within 2 weeks.
-
-**Cost Analysis:** 642KB decisions-archive = ~160K tokens/session. Post-remediation: ~165K tokens freed (27% budget improvement).
-
-**Deliverable:** `.squad/decisions/inbox/oracle-ffs-context-health-map.md` (16.5KB)
-
-### 2026-03-13: P1-06 Skills Inventory — Complete
-**What:** Classified 34 FFS skills: 22 domain-agnostic (cherry-pickable for SS), 12 game-specific (reference only for FFS), 3 overlapping (context-map, canvas-2d-game-engine, web-game-engine), 2 flagged hidden dependencies (input-handling, state-machine-patterns safe to migrate but flag context).
-**Key Finding:** FFS is MORE operationally rich than anticipated. Expected ~13 domain-agnostic skills, found 22. Process wisdom substantial: feature-triage (Kill Your Darlings), multi-agent-coordination (72+ spawns battle-tested), skill-creator, squad-conventions all CRITICAL for SS.
-**Migration Path:** Immediate cherry-pick: feature-triage, multi-agent-coordination, skill-creator, conventional-commits, github-issues, prd, squad-conventions. Merge overlaps (context-map + our context-hygiene, canvas variants + web-game-engine).
-**Deliverable:** `.squad/decisions/inbox/oracle-ffs-skills-inventory.md` (22.9KB)
-
-### 2026-03-13: Cross-Agent Sync from Morpheus
-- Morpheus completed P1-01 (FFS Audit): FFS grades C (0.68). Hub context bloat critical (627KB decisions-archive 12.5× over limit), downstream repos clean on context but governance gaps.
-- Morpheus completed P1-02 (Template Bloat): Decided Option A — templates are framework ref material, not operational bloat. Accept as-is.
-- Context health map implications: Oracle's 165K token savings aligns with Morpheus's architecture constraint recommendation (history ≤8KB, decisions ≤15KB, .squad/* ≤25KB).
-
-**Next:** Feeds P1-04 (Morpheus Context Remediation). Unblocks P1-06 (Oracle Skills Inventory) once archives are clarified.
-
-### 2026-03-13T15:45Z: P1-06 FFS Skills Inventory — COMPLETE
-**What:** Classified 34 FFS skills: 22 domain-agnostic (cherry-pickable), 12 game-specific (reference).
-**Key:** FFS is operationally rich (22 vs expected 13). Critical: multi-agent-coordination (72+ spawns, SS parallel safety blocker), feature-triage (scope), PRD, state machines.
-**Deliverable:** oracle-ffs-skills-inventory.md
+- **Phase 0 Context Work (2026-03-13):** P1-03 FFS context health audit found decisions-archive.md at 642KB (42× over limit), aaa-gap-analysis.md at 38KB. Recommended split by era + stakeholder. P1-06 Skills Inventory classified 34 FFS skills: 22 cherry-pickable, 12 game-specific. Multi-agent-coordination (72+ spawns) and feature-triage (scope discipline) identified as CRITICAL for SS.
+- **P1-10a GDD Template Spec (2026-03-14):** Designed machine-executable GDD template (10 sections, YAML frontmatter). Validated vs Flora (37 issues). Mapping spec complete — enables Trinity's P1-10b parser. All unknowns resolved.
+- **P1-14 FFS Visibility & Showcase Audit (2026-03-14):** GitHub Pages live + polished. ComeRosquillas playable but not linked. FLORA dev-only (no web build). Blog inactive (last update 3 days old). Missing "Play Games" landing page. Grade: AMBER (60%). 7 blockers; 8–12h remediation (Trinity owner).
 
 ### 2026-03-14T14:45Z: P1-10a GDD Template Spec — COMPLETE
 **What:** Defined comprehensive GDD template format (10 sections) and Trinity's machine-executable parsing spec. Template is YAML-frontmatter + 10 markdown sections (High Concept, Design Pillars, Core Mechanics, Art & Visual Style, Audio, Game Loop & Progression, Technical Architecture, Content & Scope, Success Criteria & Testing, Dependencies & Critical Path). Mapping spec covers: section→issue-type rules, label derivation from YAML + sections, blocking dependency linkage, auto-triage logic.
