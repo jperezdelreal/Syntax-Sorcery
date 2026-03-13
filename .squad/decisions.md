@@ -59,6 +59,12 @@
 **What:** Brady Gaster (github.com/bradygaster/squad) and Tamir Dresher (github.com/tamirdresher/squad-personal-demo, tamirdresher.com/blog) are permanent reference sources. Weekly releases. Consult before Squad architecture decisions.
 **Why:** Source of truth for Squad best practices. Ecosystem evolves weekly.
 
+### 2026-03-13T10:12:00Z: Downstream Company Management Framework
+**By:** Morpheus (Lead/Architect)
+**Issue:** #3
+**What:** Defined autonomous company management at `.squad/identity/downstream-management.md`: (1) upstream/downstream relationship model, (2) 5-step intervention protocol, (3) 5 health metrics, (4) upstream.json schema for inheritance/overrides.
+**Why:** SS manages FFS and future companies safely. Codifies control boundaries and safety protocols for live autonomous systems.
+
 ## Governance
 
 - All meaningful changes require team consensus
