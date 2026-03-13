@@ -1,7 +1,50 @@
-# Squad: ignore runtime state (logs, inbox, sessions)
+# ======================
+# Node.js
+# ======================
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# ======================
+# Environment / Secrets
+# ======================
+.env
+.env.local
+.env.*.local
+*.pem
+*.key
+
+# ======================
+# OS generated files
+# ======================
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ======================
+# IDE / Editor
+# ======================
+.vscode/settings.json
+.idea/
+*.swp
+*.swo
+*~
+
+# ======================
+# Build output
+# ======================
+dist/
+build/
+*.tsbuildinfo
+
+# ======================
+# Squad: runtime state (transient, not config)
+# ======================
 .squad/orchestration-log/
 .squad/log/
 .squad/decisions/inbox/
 .squad/sessions/
-# Squad: SubSquad activation file (local to this machine)
 .squad-workstream
+
+# NOTE: .copilot/ is tracked — it contains config, not secrets
