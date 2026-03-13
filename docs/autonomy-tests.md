@@ -7,7 +7,7 @@
 | # | Name | Setup | Where Runs | Cost | Status |
 |---|------|-------|------------|------|--------|
 | 1 | ralph-watch.ps1 | Single script, polls all repos | PC local (background) | €0 | ✅ DONE |
-| 2 | Ralph Go Multi-Terminal | 1 terminal per repo, `copilot` + "Ralph, go" | PC local (5 terminals) | €0 | 🔄 NEXT |
+| 2 | Ralph Go Multi-Terminal | 1 terminal per repo, `copilot` + "Ralph, go" | PC local (5 terminals) | €0 | 🔄 IN PROGRESS |
 | 3 | Azure VM Hub/Spoke | SS on PC, Azure VM runs satellite terminals via tmux | PC + Azure VM (~€25-30/mo) | €25-30/mo | 📋 PLANNED |
 
 ---
@@ -50,8 +50,9 @@
 
 ## Test 2: Ralph Go Multi-Terminal (Local)
 
-**Date:** 2026-03-13  
+**Date:** 2026-03-13 (started 21:42 CET)  
 **Duration:** TBD  
+**Started:** 2026-03-13T21:42:00+01:00  
 **Setup:** 5 terminals on local PC, one per downstream repo, each running `copilot` + "Ralph, go"
 
 ### Repos & Teams

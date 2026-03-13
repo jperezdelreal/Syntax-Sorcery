@@ -79,6 +79,54 @@
 
 ## Session 2026-03-17 — A5 Layer 2 Refueling Engine Complete
 
+**Task:** Designed + implemented primary autonomy Layer 2 engine: ralph-watch.ps1 (550+ lines PowerShell).
+
+**Deliverables:**
+1. `scripts/ralph-watch.ps1` — 10-minute polling loop detecting "Define next roadmap" issues, opening Squad sessions, executing Lead roadmap definitions, auto-committing, closing refuel signal issues
+2. Hardening patterns: session timeout (30min), exponential backoff (5m–60m), stale lock detection (>2h), log rotation (7 days), health checks, alert mechanism
+3. Roadmap convergence limit: 3 cycles per repo before escalation to GitHub issues
+4. State persistence + dry-run mode for debugging
+
+**Architecture:** ralph-watch.ps1 = PRIMARY (ACTS, makes decisions), squad watch = COMPLEMENT (SUGGESTS, AI triage, no action)
+
+**Impact:** Enables true 24/7 autonomous refueling. User runs ralph-watch.ps1 once in background terminal — system self-refuels indefinitely when roadmaps deplete. Removes dependency on human-initiated Squad sessions for roadmap replenishment.
+
+## Session 2026-03-18 — Test 2 Strategy: Multi-Terminal Autonomous Operations
+
+**Context:** Test 1 scored 7/10. Five implementation deficiencies identified: (1) ZERO CI checks, (2) flora race condition, (3) ComeRosquillas Squad Release failure, (4) pixel-bounce safety-net.yml misconfiguration, (5) manual review instead of reviewer agent.
+
+**Strategic Decision (TIER-1 Architectural):** Replace Phase 2 roadmap Items 1-3 with operationally hardened alternatives addressing Test 1 critical gap (ZERO CI checks) + enabling safe multi-terminal execution.
+
+**New Roadmap (Approved):**
+1. **Configure CI checks + branch protection** (#30) — npm ci + test + eslint validation with required GitHub status checks. Foundation of autonomous quality control. CRITICAL fix for Test 1 deficiency #1.
+2. **Constellation-wide health monitoring** (#31) — `scripts/constellation-health.js` validates all 6 repos: perpetual-motion.yml exists, roadmap.md exists, recent workflow runs. Proactive visibility for multi-terminal orchestration.
+3. **ralph-watch.ps1 monitoring dashboard** (#29) — Real-time status HTML page: last run, repos monitored, refueling events, error count. Demonstrates Layer 2 autonomy engine working.
+
+**Rationale:** Previous roadmap (Items 1-3 = validators, reusable workflows) was meta-infrastructure scaffolding. New roadmap is operational hardening: quality gates (CI prevents broken merges) + monitoring (hub visibility for satellite repos) + transparency (dashboard). Directly addresses Test 1 deficiencies and enables safe Test 2 execution with CI validation blocking broken PRs.
+
+**Risk Assessment:** LOW. All items additive (no breaking changes). CI checks start minimal (npm ci + test), branch protection adjustable if needed.
+
+**GitHub Issues:** All @copilot-ready (#29-31). Ready for multi-terminal Test 2 execution.
+
+## Session 2026-03-18 — Monitoring Architecture Analysis: 3-Layer Hierarchy
+
+**Context:** User directive approved 3-layer monitoring separation to prevent circular dependencies and clarify ownership.
+
+**Analysis Complete:** Investigated all monitoring configuration files across SS + ffs-squad-monitor.
+
+**Findings:**
+- **Layer 1 (SS self-monitoring):** ✅ Correct. safety-net.yml daily cron, .squad/ health checks.
+- **Layer 2 (SS monitors downstream):** ✅ Correct. constellation.json + safety-net.yml + ralph-watch.ps1 cover all 6 repos.
+- **Layer 3 (Squad Monitor monitors FFS games):** ⚠️ INCOMPLETE. Missing pixel-bounce from REPOS arrays in server/config.js + vite.config.js. Also includes FirstFrameStudios (hub, not game) and self-reference (squad-monitor monitoring itself).
+
+**Decisions Pending User Confirmation:**
+- **Decision A:** Remove FirstFrameStudios from Squad Monitor REPOS? (Is hub, not a game. SS already monitors via constellation. Morpheus recommends YES.)
+- **Decision B:** Remove ffs-squad-monitor self-reference from REPOS? (Avoids circular self-monitoring. SS constellation already covers. Morpheus recommends YES.)
+
+**Mandatory Change:** Add pixel-bounce to both REPOS arrays.
+
+---
+
 **Task:** Implemented ralph-watch.ps1 — the Layer 2 refueling engine that detects "Define next roadmap" issues and autonomously refuels roadmaps via Squad CLI sessions.
 
 **Deliverables:**
@@ -172,3 +220,35 @@
 **Architecture Insight:** La separación de monitorización funciona porque cada capa usa mecanismos diferentes: Capa 1+2 usa constellation.json (config compartida, leída por safety-net.yml y ralph-watch.ps1). Capa 3 usa REPOS hardcoded en JS (desacoplado de constellation.json de SS). Este desacoplamiento es bueno — evita que Squad Monitor dependa de SS para saber qué monitorizar.
 
 **Decision recorded:** `.squad/decisions/inbox/morpheus-monitoring-separation-impl.md`
+
+---
+
+## Learnings — Session 2026-03-18: Test 2 Strategy and Roadmap Strengthening
+
+**Task:** Define potent strategy for Test 2 (Ralph Go Multi-Terminal Local), strengthen roadmap if needed, create GitHub issues.
+
+**Critical Evaluation of Previous Roadmap:**
+Previous roadmap had 3 infrastructure-focused items (perpetual-motion validation, roadmap depletion detection, reusable issue creation workflow). **Assessment: TOO WEAK for Test 2.** Items were meta-infrastructure (validators for validators) that didn't address Test 1's CRITICAL gap: ZERO CI checks (PRs merged without validation).
+
+**Architectural Decision: Prioritize Quality Gates Over Meta-Tooling**
+Replaced all 3 roadmap items with operationally urgent work:
+1. **Configure CI checks + branch protection** — Fixes Test 1 deficiency #1 (critical). Branch protection with required checks prevents @copilot from merging broken code. Foundation of autonomous quality control.
+2. **Add constellation-wide health monitoring** — SS is orchestrator hub for 6 repos. Proactive health script (`npm run check:constellation`) complements reactive safety-net.yml. Critical for multi-terminal Test 2.
+3. **Create ralph-watch.ps1 monitoring dashboard** — Real-time visibility into Layer 2 refueling engine. Demonstrates operational transparency for autonomous systems.
+
+**Roadmap Prioritization Meta-Pattern:**
+- **Fix critical gaps FIRST** (CI checks from Test 1) before building nice-to-have tooling
+- **Orchestrator repo roadmap** should focus on infrastructure hardening (quality gates, monitoring, visibility), not end-user features
+- **Test-driven roadmap evolution:** Use test results (7/10 score, 5 deficiencies) to prioritize next roadmap items
+- **Operational visibility matters:** Dashboards and health checks make autonomous systems trustable
+
+**Trade-offs Accepted:**
+- Deferred "reusable workflow for issue creation" — perpetual-motion.yml already creates issues inline (467 lines, working). Reusable workflow is DRY but not urgent.
+- Deferred "roadmap depletion detection utility" — perpetual-motion.yml detects depletion inline and creates "Define next roadmap" issue (lines 262-330). Separate utility is redundant.
+
+**Key Files:**
+- `roadmap.md` — Updated with 3 stronger items
+- `.squad/decisions/inbox/morpheus-test2-strategy.md` — Strategy rationale
+- GitHub issues #30 (CI checks), #31 (constellation health), #29 (ralph-watch dashboard)
+
+**Success Metric:** Test 2 score target 9/10 (up from 7/10) by eliminating CI gap and adding operational visibility.
