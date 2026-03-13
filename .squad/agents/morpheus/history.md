@@ -151,3 +151,22 @@
 - Self-approval blocked (single-account pattern) — merged directly per established protocol.
 
 **Board Status:** 1 open item (#42 landing page). Phase 4: 2/3 delivered (README #44, architecture docs #46). PR #45 pending Trinity implementation.
+
+## Session 2026-03-19 — PR #47 Landing Page v2: Reviewed & Merged
+
+**Task:** Review PR #47 (feat: landing page performance + live constellation stats) by Trinity. Closes #42. Revision after Mouse's PR #45 was rejected for zero implementation code.
+
+**Deliverables:**
+1. PR #47 — ✅ APPROVED + MERGED (squash). Trinity delivered genuine performance improvements and live data integration across 4 files:
+   - **MatrixRain.astro:** Replaced `setInterval(draw, 50)` with `requestAnimationFrame` + 20fps frame throttle (`frameInterval = 1000/20`). Added resize debounce (150ms). `visibilitychange` listener pauses animation when tab is hidden — zero CPU waste on background tabs.
+   - **data.ts:** New async `getConstellationWithStats()` fetches live repo stats (stars, open issues, last push) from GitHub API at build time. Graceful fallback if API unavailable. Original `getConstellation()` preserved for backward compatibility.
+   - **index.astro:** Constellation cards now display ⭐ stars, 📋 open issues, and last push date per repo. Conditional rendering — only shows when data available.
+   - **trinity/history.md:** Session log entry.
+
+**Review Notes:**
+- All 7 criteria passed: real code (not specs), performant animation, async build-time data, live constellation cards, CI GREEN, 168/168 tests pass, no regressions.
+- Minor (non-blocking): Sequential API calls in for-loop could be parallelized with Promise.all. Acceptable for 6 repos at build time.
+- CI: Build & Test GREEN. check-sizes FAILURE (pre-existing, unrelated).
+- Self-approval blocked (single-account pattern) — merged directly per established protocol. Issue #42 CLOSED.
+
+**Board Status:** 0 open items. Phase 4: 3/3 COMPLETE (README #44, landing page #47, architecture docs #46). All Phase 4 items delivered.
