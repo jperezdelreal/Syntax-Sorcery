@@ -1,5 +1,8 @@
 # Squad Decisions
 
+## TLDR
+Autonomous AI dev company (€500/mo Azure, minimal human intervention). Strict context hygiene (<100KB .squad/), GitHub Issues as work system. SS governs downstream companies (FFS first) via upstream/downstream model with gate-based readiness.
+
 ## Active Decisions
 
 ### 2026-03-13: Foundational Directive — Minimal Human Intervention
