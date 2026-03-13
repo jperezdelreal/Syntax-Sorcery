@@ -641,17 +641,46 @@ function run() {
   }
   console.log('');
 
+  // -----------------------------------------------------------------------
+  // Pipeline integration: label epic + write issues manifest
+  // -----------------------------------------------------------------------
+  if (epic.number && !dryRun) {
+    try {
+      execSync(`gh issue edit ${epic.number} --add-label "pipeline:issues"`, {
+        encoding: 'utf8', stdio: ['pipe', 'pipe', 'pipe']
+      });
+      console.log(`  🏷️  Added pipeline:issues label to Epic #${epic.number}`);
+    } catch (err) {
+      console.warn(`  ⚠️  Could not add pipeline:issues label: ${err.message}`);
+    }
+  }
+
+  // Write issues manifest to .pipeline/{slug}/issues.json
+  const pipelineDir = path.join(path.dirname(gddFile), '..', '.pipeline', gameSlug);
+  const manifestPath = path.join(pipelineDir, 'issues.json');
+  const manifest = createdIssues.map(i => ({
+    number: i.number,
+    title: i.title,
+    type: i.type,
+    url: i.url
+  }));
+
+  try {
+    if (!fs.existsSync(pipelineDir)) {
+      fs.mkdirSync(pipelineDir, { recursive: true });
+    }
+    fs.writeFileSync(manifestPath, JSON.stringify(manifest, null, 2), 'utf8');
+    console.log(`  📋 Issues manifest written to: ${manifestPath}`);
+  } catch (err) {
+    console.warn(`  ⚠️  Could not write manifest: ${err.message}`);
+  }
+
   // JSON report
   const report = {
     game: gameTitle,
     slug: gameSlug,
     epic_number: epic.number,
-    issues_created: createdIssues.map(i => ({
-      number: i.number,
-      title: i.title,
-      type: i.type,
-      url: i.url
-    })),
+    issues_created: manifest,
     warnings
   };
 

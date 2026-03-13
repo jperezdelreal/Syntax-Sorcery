@@ -1,0 +1,158 @@
+name: "Proposal Pipeline"
+
+on:
+  push:
+    paths:
+      - 'docs/proposals/**/*.proposal.md'
+      - '!docs/proposals/examples/**'
+    branches: [main, master]
+  workflow_dispatch:
+    inputs:
+      proposal_file:
+        description: 'Path to proposal file (e.g., docs/proposals/my-game.proposal.md)'
+        required: true
+        type: string
+      dry_run:
+        description: 'Dry run (no files committed, no issues created)'
+        required: false
+        default: false
+        type: boolean
+
+permissions:
+  issues: write
+  contents: write
+  pull-requests: write
+
+jobs:
+  # ─── Stage 0: Validate Proposal ────────────────────────────────
+  validate:
+    runs-on: ubuntu-latest
+    outputs:
+      slug: ${{ steps.validate.outputs.slug }}
+      proposal_file: ${{ steps.detect.outputs.file }}
+      valid: ${{ steps.validate.outputs.valid }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Detect proposal file
+        id: detect
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            echo "file=${{ inputs.proposal_file }}" >> "$GITHUB_OUTPUT"
+          else
+            FILE=$(git diff --name-only --diff-filter=AM HEAD~1 HEAD -- 'docs/proposals/**/*.proposal.md' | grep -v 'examples/' | head -1 || true)
+            echo "file=${FILE}" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Validate proposal
+        id: validate
+        if: steps.detect.outputs.file != ''
+        run: |
+          node scripts/validate-proposal.js --file "${{ steps.detect.outputs.file }}" && echo "valid=true" >> "$GITHUB_OUTPUT" || echo "valid=false" >> "$GITHUB_OUTPUT"
+          # Extract slug from filename
+          SLUG=$(basename "${{ steps.detect.outputs.file }}" .proposal.md)
+          echo "slug=${SLUG}" >> "$GITHUB_OUTPUT"
+
+      - name: Create validation failure issue
+        if: steps.validate.outputs.valid == 'false'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh issue create \
+            --title "Proposal Validation Failed: ${{ steps.validate.outputs.slug }}" \
+            --body "Proposal file \`${{ steps.detect.outputs.file }}\` failed validation. Check workflow logs for details." \
+            --label "pipeline:blocked,needs-info"
+
+  # ─── Stage 1: Generate GDD from Proposal ───────────────────────
+  generate-gdd:
+    needs: validate
+    if: needs.validate.outputs.valid == 'true' && needs.validate.outputs.proposal_file != ''
+    runs-on: ubuntu-latest
+    outputs:
+      slug: ${{ needs.validate.outputs.slug }}
+      gdd_path: ${{ steps.generate.outputs.output_path }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Initialize pipeline state
+        run: |
+          node scripts/pipeline-orchestrator.js init --slug "${{ needs.validate.outputs.slug }}" --title "${{ needs.validate.outputs.slug }}"
+          node scripts/pipeline-orchestrator.js transition --slug "${{ needs.validate.outputs.slug }}" --stage proposal
+
+      - name: Generate GDD scaffold
+        id: generate
+        run: |
+          DRY_RUN_FLAG=""
+          if [ "${{ inputs.dry_run }}" = "true" ]; then
+            DRY_RUN_FLAG="--dry-run"
+          fi
+          node scripts/proposal-to-gdd.js --proposal "${{ needs.validate.outputs.proposal_file }}" $DRY_RUN_FLAG
+
+      - name: Create GDD generation issue for squad
+        if: inputs.dry_run != 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          SLUG="${{ needs.validate.outputs.slug }}"
+
+          # Create issue for @copilot / squad to refine the GDD
+          gh issue create \
+            --title "[GDD] Generate complete GDD: ${SLUG}" \
+            --body "## Task
+
+          A proposal has been submitted for **${SLUG}** and a scaffold GDD has been auto-generated at \`docs/gdds/${SLUG}.md\`.
+
+          ### What to do
+          1. Read the proposal at \`docs/proposals/${SLUG}.proposal.md\`
+          2. Read the GDD template at \`docs/gdd-template.md\`
+          3. Enhance the auto-generated GDD at \`docs/gdds/${SLUG}.md\` with:
+             - Detailed core mechanics (at least 3 with full descriptions)
+             - Specific art direction and asset lists
+             - Technical architecture decisions
+             - Complete MVP scope with actionable items
+             - Success criteria and testing plan
+
+          ### Quality Gate
+          - All 10 GDD sections have substantive content
+          - At least 3 Core Mechanics with H4 sub-sections
+          - MVP scope has ≥ 5 items
+          - Technical Architecture specifies web-browser compatible stack
+
+          ### Pipeline
+          Once the GDD is finalized and merged to main, the GDD→Issues pipeline will automatically create the issue tree.
+
+          /cc @copilot" \
+            --label "pipeline:gdd,game:${SLUG},type:task"
+
+      - name: Commit GDD and pipeline state
+        if: inputs.dry_run != 'true'
+        run: |
+          SLUG="${{ needs.validate.outputs.slug }}"
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add "docs/gdds/${SLUG}.md" ".pipeline/${SLUG}/" || true
+          git diff --cached --quiet || git commit -m "feat(pipeline): auto-generate GDD scaffold for ${SLUG}
+
+          Stage 0 (proposal) → Stage 1 (GDD generation)
+          - Validated proposal: docs/proposals/${SLUG}.proposal.md
+          - Generated GDD scaffold: docs/gdds/${SLUG}.md
+          - Pipeline state initialized
+
+          Co-authored-by: Copilot <223556219+Copilot@users.noreply.github.com>"
+          git push || echo "Push failed — may need PR"

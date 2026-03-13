@@ -1,0 +1,157 @@
+name: "Implementation Orchestrator"
+
+on:
+  issues:
+    types: [labeled]
+  workflow_dispatch:
+    inputs:
+      game_slug:
+        description: 'Game slug (e.g., chrono-tiles)'
+        required: true
+        type: string
+      epic_number:
+        description: 'Epic issue number'
+        required: true
+        type: string
+
+permissions:
+  issues: write
+  contents: write
+
+jobs:
+  orchestrate:
+    # Only run when pipeline:issues label is applied, or manual dispatch
+    if: >
+      github.event_name == 'workflow_dispatch' ||
+      (github.event.action == 'labeled' && github.event.label.name == 'pipeline:issues')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Determine game context
+        id: context
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            SLUG="${{ inputs.game_slug }}"
+            EPIC="${{ inputs.epic_number }}"
+          else
+            # Extract slug from issue labels (game:{slug})
+            SLUG=$(echo '${{ toJSON(github.event.issue.labels) }}' | node -e "
+              const labels = JSON.parse(require('fs').readFileSync('/dev/stdin','utf8'));
+              const gameLabel = labels.find(l => l.name.startsWith('game:'));
+              console.log(gameLabel ? gameLabel.name.replace('game:','') : '');
+            ")
+            EPIC="${{ github.event.issue.number }}"
+          fi
+          echo "slug=${SLUG}" >> "$GITHUB_OUTPUT"
+          echo "epic=${EPIC}" >> "$GITHUB_OUTPUT"
+
+      - name: Update pipeline state
+        if: steps.context.outputs.slug != ''
+        run: |
+          node scripts/pipeline-orchestrator.js transition \
+            --slug "${{ steps.context.outputs.slug }}" \
+            --stage implementation
+
+      - name: Collect P0 issues
+        id: issues
+        if: steps.context.outputs.slug != ''
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          SLUG="${{ steps.context.outputs.slug }}"
+
+          # Find all P0 issues for this game
+          P0_ISSUES=$(gh issue list \
+            --label "game:${SLUG},priority:p0" \
+            --state open \
+            --json number,title \
+            --limit 50 || echo "[]")
+
+          echo "p0_issues=${P0_ISSUES}" >> "$GITHUB_OUTPUT"
+          echo "Found P0 issues:"
+          echo "${P0_ISSUES}" | node -e "
+            const data = JSON.parse(require('fs').readFileSync('/dev/stdin','utf8'));
+            data.forEach(i => console.log('  #' + i.number + ' — ' + i.title));
+            console.log('Total: ' + data.length);
+          "
+
+      - name: Assign P0 issues to @copilot
+        if: steps.context.outputs.slug != ''
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          SLUG="${{ steps.context.outputs.slug }}"
+          EPIC="${{ steps.context.outputs.epic }}"
+
+          # Label epic as implementing
+          gh issue edit "${EPIC}" --add-label "pipeline:implementing" --remove-label "pipeline:issues" || true
+
+          # Get P0 issues sorted by type (architecture first, then features)
+          ISSUES=$(gh issue list \
+            --label "game:${SLUG},priority:p0" \
+            --state open \
+            --json number,title,labels \
+            --limit 50 || echo "[]")
+
+          # Assign architecture issues first, then features
+          echo "${ISSUES}" | node -e "
+            const data = JSON.parse(require('fs').readFileSync('/dev/stdin','utf8'));
+            // Sort: architecture > feature > others
+            const priority = l => {
+              if (l.includes('component:architecture')) return 0;
+              if (l.includes('type:feature')) return 1;
+              return 2;
+            };
+            data.sort((a,b) => {
+              const aLabels = a.labels.map(l => l.name).join(',');
+              const bLabels = b.labels.map(l => l.name).join(',');
+              return priority(aLabels) - priority(bLabels);
+            });
+            data.forEach(i => console.log(i.number));
+          " | while read -r NUM; do
+            if [ -n "${NUM}" ]; then
+              echo "Assigning #${NUM} to @copilot..."
+              gh issue comment "${NUM}" --body "Assigning to @copilot for implementation.
+
+          **Context:** This is part of game **${SLUG}** (Epic #${EPIC}).
+          Please implement this issue, create a branch, and open a PR.
+
+          /cc @copilot" || true
+
+              gh issue edit "${NUM}" --add-label "pipeline:implementing" || true
+            fi
+          done
+
+      - name: Update pipeline status
+        if: steps.context.outputs.slug != ''
+        run: |
+          SLUG="${{ steps.context.outputs.slug }}"
+          # Write issues manifest
+          PIPELINE_DIR=".pipeline/${SLUG}"
+          mkdir -p "${PIPELINE_DIR}"
+
+          gh issue list \
+            --label "game:${SLUG}" \
+            --state all \
+            --json number,title,state,labels \
+            --limit 100 > "${PIPELINE_DIR}/issues.json" 2>/dev/null || echo "[]" > "${PIPELINE_DIR}/issues.json"
+
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add ".pipeline/${SLUG}/" || true
+          git diff --cached --quiet || git commit -m "chore(pipeline): ${SLUG} → implementation stage
+
+          Co-authored-by: Copilot <223556219+Copilot@users.noreply.github.com>"
+          git push || echo "Push skipped"
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
