@@ -51,3 +51,9 @@
 - Decision: Option A — Accept templates/ (65KB, 31 files) as-is. No restructuring.
 - Rationale: Framework scaffolding from Brady Gaster, already excluded from CI enforcement, on-demand loading only, max file 6.7KB (well under 15KB limit)
 - Key finding: Total .squad/ is 149.3KB — templates aren't the bloat driver. Non-template files (83.9KB) need separate remediation.
+
+### 2026-03-13: P1-03 & P1-06 Cross-Agent Sync (from Oracle)
+- Oracle completed P1-03 (Context Health Map): FFS context status YELLOW (C+), decisions-archive 642KB requires splitting, aaa-gap-analysis 38KB needs domain split
+- Oracle completed P1-06 (Skills Inventory): 22 domain-agnostic skills cherry-pickable for SS (feature-triage, multi-agent-coordination are CRITICAL), 12 game-specific remain in FFS
+- Cost analysis: decisions-archive alone = 160K tokens/session; post-remediation frees 165K tokens (27% budget improvement)
+- Cross-repo triage sync needed: ComeRosquillas #21, Flora #28, ffs-squad-monitor #19 all flagged for workflow alignment

@@ -77,6 +77,78 @@ Autonomous AI dev company (€500/mo Azure, minimal human intervention). Strict 
 **Artifacts:** Wave structure, parallel opportunities, @copilot fit analysis, risk mitigation in `.squad/decisions/inbox/morpheus-phase1-decomposition.md`
 **Why:** Establishes clear work breakdown structure and critical path for Phase 1. Enables parallel work and risk mitigation. Identifies copilot capability ceiling (🔴 items: template trade-off decision + Proposal→Prototype architecture).
 
+### 2026-03-13T10:14:00Z: User Directive — Full Autopilot Mode
+**By:** joperezd (via Copilot)
+**Tier:** T0
+**What:** "Haz todo lo que consideres y en el orden que quieras, estoy en autopilot." Full autonomous execution authorized for Phase 1. Coordinator executes all waves without checking back. User reviews only edge cases.
+**Why:** Reinforces foundational directive of minimal human intervention. Applies to entire Phase 1 execution.
+
+### 2026-03-13T09:20:02Z: Full Autonomy for Tools, MCP, Skills, Installations
+**By:** joperezdelreal (via Copilot)
+**Tier:** T0
+**What:** Team has total freedom to install tools, configure MCP servers, develop skills, create anything needed. No restrictions—software engineers, do what you need.
+**Why:** Eliminate friction. Team doesn't need permission for dependencies or tooling.
+
+### 2026-03-13T09:54:02Z: Founder is Non-Technical — Natural Language Only
+**By:** joperezdelreal (via Copilot)
+**Tier:** T0
+**What:** Founder is non-technical engineer, doesn't code or use GitHub. Only natural language + general reasoning. SS takes all technical decisions autonomously. Founder participates only in T0 decisions (new projects, principles) in natural language. Never ask founder to execute commands, review code, or make technical decisions.
+**Why:** Defines human-machine interface. SS operates without technical supervision.
+
+### 2026-03-13T09:16:40Z: FFS Full Ownership Transfer on Takeover
+**By:** joperezdelreal (via Copilot)
+**Tier:** T0
+**What:** When SS takes control of FFS (Gate 5 approved), FFS becomes SS property—end to end. "Don't touch" restriction applies ONLY while FFS runs autonomously without SS oversight. Once SS intervenes, it has full autonomy over all FFS repos.
+**Why:** Clarifies ownership model. SS is not external consultant—it's the operational owner.
+
+### 2026-03-13T10:07:17Z: FFS End-to-End Operational Control
+**By:** joperezdelreal (via Copilot)
+**Tier:** T0
+**What:** SS has total FFS control end-to-end, including team decisions (agents, roles, composition). From Phase 1 onwards. Founder supports only if strictly necessary, doesn't manage.
+**Why:** Clarifies ownership scope. SS is operational owner, not consultant.
+
+### 2026-03-13T10:07:17Z: FFS Hard Requirements from Founder
+**By:** joperezdelreal (via Copilot)
+**Tier:** T0
+**What:** Three non-negotiable requirements for FFS: (1) Keep GitHub Pages running, (2) Keep blog updated, (3) Games must be playable directly on GitHub Page. Everything else is SS decision.
+**Why:** Only deliverables founder evaluates directly.
+
+### 2026-03-13T10:07:17Z: Visibility & Showcase is Priority
+**By:** joperezdelreal (via Copilot)
+**Tier:** T0
+**What:** Most important to founder: visibility of what happens—achievements, problems, progress. Show the world the team's autonomous work. Includes dashboards, updated blogs, GitHub Pages as showcase, visible metrics. This is marketing necessity, not vanity. Applies to both SS and FFS.
+**Why:** Public showcase is proof that autonomy works. Without visibility, project has no external impact.
+
+### 2026-03-13: P1-01 FFS Read-Only Audit Complete
+**By:** Morpheus (Lead/Architect)
+**Status:** COMPLETE
+**What:** FFS constellation grades C overall (0.68). Hub context bloat critical: decisions-archive 627KB (12.5× over 50KB limit), growth-framework 55KB, new-project-playbook 45KB. Downstream repos (ComeRosquillas B, Flora C, ffs-squad-monitor B) have clean context but governance/autonomy gaps. Top 3 remediation priorities: (1) Hub context bloat, (2) triage workflow sync, (3) test infrastructure.
+**Why:** Audit-first approach validates FFS maturity before intervention. C-grade is acceptable per readiness gates.
+
+### 2026-03-14: P1-02 Template Bloat Resolution
+**By:** Morpheus (Lead/Architect)
+**Status:** DECIDED
+**What:** Templates 65KB (31 files, largest 6.7KB) accepted as-is. Framework-provided scaffolding, on-demand loading only, CI already excludes. No individual file violates 15KB limit. Non-template .squad/ files (83.9KB) flagged as separate P1 concern.
+**Why:** Templates are reference material, not operational bloat. Restructuring breaks Squad framework. Limit applies to operational files that inflate context windows.
+
+### 2026-03-13: P1-03 FFS Context Health Map Complete
+**By:** Oracle (Product & Docs)
+**Status:** COMPLETE
+**What:** FFS context health YELLOW (C+). Critical violations: decisions-archive.md (642KB—42× limit), aaa-gap-analysis.md (38KB—2.5× limit). Active governance files healthy (6/7 <15KB with TLDR layers). Remediation: split archives by era, index creation, domain-specific split for gap analysis. Post-remediation frees ~165K tokens/session (27% budget improvement).
+**Why:** Context bloat is bottleneck. Efficient archive structure enables downstream operations at scale.
+
+### 2026-03-13: P1-06 FFS Skills Inventory Complete
+**By:** Oracle (Product & Docs)
+**Status:** COMPLETE
+**What:** 34 FFS skills classified: 22 domain-agnostic (→SS cherry-pick), 12 game-specific (→FFS reference), 3 overlapping (merge), 2 flagged hidden dependencies. Immediate cherry-pick: feature-triage, multi-agent-coordination (CRITICAL for SS parallel work).
+**Why:** Skills classification enables efficient cherry-pick migration without game-baggage bloat.
+
+### 2026-03-13: SS Self-Audit Results
+**By:** Switch (Tester/QA)
+**Status:** BLOCKER
+**What:** SS grades D (0.43/1.0). Critical gaps: #11 no README, #12 minimal .gitignore, #13 72.6KB template violates 25KB limit. Must remediate before credibly auditing FFS.
+**Why:** Can't audit C-grade FFS while SS is D-grade. Fix house first.
+
 ## Governance
 
 | Tier | Authority | Scope | Examples |
