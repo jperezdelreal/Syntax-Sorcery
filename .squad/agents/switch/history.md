@@ -13,3 +13,5 @@
 
 - 2026-03-13: Created `skills/context-hygiene/SKILL.md` with proactive file size limits (6KB/8KB history, 10KB/12KB decisions). Quality gate decision merged to decisions.md.
 - Orchestration log: `2026-03-13T08-48-switch.md`. Context hygiene is now hard gate for merge acceptance.
+- 2026-03-13: Self-audit scored Grade D (0.43). 3 critical findings: no README, .gitignore minimal, 72.6KB template violates own limits. 10 issues filed (#10-#20).
+- 2026-03-13: Lesson — we must fix our own house before auditing FFS. Credibility requires passing our own checklist first.
