@@ -73,3 +73,13 @@
 - Ralph integration: threshold-based monitoring per stage, escalation protocol for stale/blocked pipelines
 - Artifacts: `docs/proposal-to-prototype.md`, `.squad/decisions/inbox/morpheus-proposal-prototype.md`
 
+### 2026-03-15: FFS Total Takeover — Strategy Designed
+- Scanned all 4 FFS repos via GitHub MCP: Hub has 2 draft PRs (#196/#197) blocking everything, satellites have 13 active PRs (domain work), 15 open issues across constellation
+- Critical finding: Hub main is completely untouched by Phase 1 — PRs #196/#197 never merged. This is THE blocker for takeover.
+- Architecture decision: SS→Hub→Satellites chain is correct. Satellites point to Hub (subsquad), Hub points to SS (upstream). Policies cascade naturally. Do NOT rewire satellites to point directly at SS.
+- Designed 4-phase takeover: T1 Hub Foundation (merge PRs + install tooling) → T2 Satellite Cascade (governance alignment) → T3 Pipeline Activation (labels + testing) → T4 Verification (integration test + handoff)
+- 15 completion criteria defined. Minimum viable: criteria 1-8 (Hub governed). Full: all 15.
+- 7 risks identified, highest: PR #197 merge conflicts (mitigated: rebase) and context regrowth (mitigated: CI enforcement + Ralph monitoring)
+- Estimated 6-8h agent time with full parallelism across 5 waves of coordinator-orchestrated work
+- Artifact: `.squad/decisions/inbox/morpheus-ffs-takeover.md`
+
