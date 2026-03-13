@@ -4,11 +4,12 @@
     "jperezdelreal/FirstFrameStudios",
     "jperezdelreal/flora",
     "jperezdelreal/ComeRosquillas",
+    "jperezdelreal/pixel-bounce",
     "jperezdelreal/ffs-squad-monitor"
   ],
   "metadata": {
     "description": "Repository constellation monitored by safety-net workflow",
-    "updated": "2026-03-17",
+    "updated": "2026-03-18",
     "owner": "jperezdelreal"
   }
 }
