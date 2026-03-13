@@ -5,6 +5,21 @@
 **Status:** APPROVED FOR EXECUTION  
 **Cost:** €0 (100% GitHub free tier)
 
+**CRITICAL DECISIONS REFLECTED:**
+1. ✅ No más juegos sin límite — foco en terminar existentes (C1-C3)
+2. ✅ Todos los repos evolucionan en paralelo, NOT secuencialmente (parallel workstreams A/B/C)
+3. ✅ Event-driven (`issues.closed`) as PRIMARY driver, NOT cron (A1)
+4. ✅ Motor perpetuo as single cycle: roadmap → issue → @copilot → merge → repeat (A1 architecture)
+5. ✅ Roadmaps by local Lead of each repo, NOT Oracle from SS (A2 ownership model)
+6. ✅ 3 layers: Cloud (Layer 1), Watch (Layer 2: ralph-watch.ps1 + squad watch), Manual (Layer 3: Ralph)
+7. ✅ Polling 60s for Squad Monitor, NO streaming, €0 cost (B4)
+8. ✅ Devlog DAILY (not weekly), within FFS Page (B2)
+9. ✅ ralph-watch.ps1 as Layer 2 PRIMARY with 6 failure modes (A5.1)
+10. ✅ squad watch as COMPLEMENT to ralph-watch.ps1, clearly distinguished (A5.2)
+11. ✅ Roadmap refueling via ralph-watch.ps1 — "Define next roadmap" → ralph-watch.ps1 → Squad session → auto-generated roadmap (A5 refueling behavior)
+12. ✅ @copilot reads the repo — issues only need what+acceptance criteria, NOT how-to-implement (A3 template guidance)
+13. ✅ ON/OFF switch — ON = populate roadmaps + create first issues + enable copilot-auto-assign:true (documented below)
+
 ---
 
 ## Executive Summary
@@ -13,10 +28,11 @@ This plan consolidates three parallel workstreams that will transform Syntax Sor
 
 **Key Constraints:**
 - €0 total cost (GitHub free tier only)
-- All issues must be @copilot-ready (specific, actionable)
-- Parallel execution across all repos
-- Daily devlog (not weekly)
+- All issues must be @copilot-ready (specific acceptance criteria, not implementation details)
+- Parallel execution across all repos (NOT sequential)
+- Daily devlog (NOT weekly) — team works 24x7
 - Squad Monitor: 60s polling (NO streaming, NO Azure)
+- No más juegos sin límite — finish existing games first
 
 **Timeline:** 2 weeks for core visibility, 4 weeks for full autonomy
 
@@ -24,141 +40,208 @@ This plan consolidates three parallel workstreams that will transform Syntax Sor
 
 ---
 
-## WORKSTREAM A: AUTONOMY (Repos Evolve Alone)
+## WORKSTREAM A: AUTONOMY (Perpetual Motion)
 
-Goal: Enable all 6 repos to self-govern with <15min/week human intervention.
+**Goal:** Transform repos into self-sustaining systems with <15min/week human intervention.
 
-### A1. Repository Heartbeat Scanner
+### The 4-Step Perpetual Motion Cycle
 
-**Issue Title:** Implement squad-heartbeat.yml scanner for all 6 repos  
-**Repo:** Syntax Sorcery  
+This is the entire autonomy architecture. Everything else is implementation details.
+
+```
+┌────────────────────────────────────────────────────────────┐
+│  STEP 1: BOOTSTRAP (Day 1, Manual, One Time)              │
+│  ───────────────────────────────────────────────────────── │
+│  • Open session in each repo                              │
+│  • Lead defines roadmap.md (ordered list of work)        │
+│  • Commit to main                                         │
+│                                                            │
+│  RESULT: Each repo has fuel (roadmap)                     │
+└────────────────────────────────────────────────────────────┘
+
+┌────────────────────────────────────────────────────────────┐
+│  STEP 2: MOTOR RUNS (Layer 1, Cloud, Automatic)          │
+│  ───────────────────────────────────────────────────────── │
+│  perpetual-motion.yml:                                    │
+│  • Issues close → read roadmap → create next issue       │
+│  • @copilot auto-assigned → executes → PR → merge        │
+│  • Repeat                                                 │
+│                                                            │
+│  RESULT: Autonomous execution of roadmap work             │
+└────────────────────────────────────────────────────────────┘
+
+┌────────────────────────────────────────────────────────────┐
+│  STEP 3: ROADMAP EXHAUSTED (Layer 1, Automatic)          │
+│  ───────────────────────────────────────────────────────── │
+│  • perpetual-motion.yml detects empty roadmap             │
+│  • Creates issue "📋 Define next roadmap"                 │
+│  • Assigned to Lead                                       │
+│                                                            │
+│  RESULT: Signal sent that refueling is needed             │
+└────────────────────────────────────────────────────────────┘
+
+┌────────────────────────────────────────────────────────────┐
+│  STEP 4: REFUELING (Layer 2, ralph-watch.ps1, Automatic) │
+│  ───────────────────────────────────────────────────────── │
+│  ralph-watch.ps1 running in background:                   │
+│  • Detects "Define next roadmap" issue                    │
+│  • Opens Squad CLI session                                │
+│  • Lead defines new roadmap                               │
+│  • Commits and closes issue                               │
+│  • Motor continues from Step 2                            │
+│                                                            │
+│  RESULT: Zero human intervention, perpetual motion        │
+└────────────────────────────────────────────────────────────┘
+```
+
+**That's it.** Four steps. The motor never stops.
+
+**Supporting details:**
+- **Safety net cron (A4):** Catches stuck repos >72h, escalates only
+- **Issue template (A3):** Helps @copilot understand what to do
+- **3 Layers:** Cloud (GHA + @copilot), Watch (ralph-watch.ps1 + squad watch), Manual (Ralph ~30min/week)
+
+---
+
+### A1. Perpetual Motion Workflow (Per Repo)
+
+**Issue Title:** Create issues.closed workflow for autonomous roadmap progression  
+**Repo:** Syntax Sorcery (template for all downstream repos)  
 **Assigned to:** Tank (Cloud Engineer)  
 **Dependencies:** None (can start immediately)  
-**Labels:** `squad:tank`, `pipeline:orchestration`, `type:automation`
+**Labels:** `squad:tank`, `pipeline:orchestration`, `type:automation`, `priority:critical`
 
 **Acceptance Criteria:**
-- [ ] `.github/workflows/squad-heartbeat.yml` created in Syntax Sorcery root
-- [ ] Cron schedule: Daily at 00:00 UTC (not weekly — team works 24x7)
-- [ ] Scans all 6 repos: SS, FFS, Flora, ComeRosquillas, pixel-bounce, ffs-squad-monitor
-- [ ] Checks: pipeline:* label states, open issues, build status, last deploy timestamp
-- [ ] Outputs JSON summary to `.squad/heartbeat/YYYY-MM-DD.json`
-- [ ] Triggers completion detectors (see A3) for each repo
-- [ ] Test: Manual workflow dispatch completes successfully in <2min
+- [ ] Workflow file: `.github/workflows/perpetual-motion.yml`
+- [ ] Trigger: `on: issues: types: [closed]` (event-driven)
+- [ ] Logic:
+  1. Check if closed issue was last open issue
+  2. Read next item from `roadmap.md`
+  3. Create new issue with title, acceptance criteria, labels
+  4. Auto-assign @copilot
+  5. **If roadmap exhausted:** Create "📋 Define next roadmap" issue assigned to Lead
+- [ ] Deployed to all 6 repos
+- [ ] Test: Close issue → new issue auto-created within 30s
 
 **Implementation Notes:**
-- Use GitHub CLI (`gh api`) to query repo states
-- No external APIs or Azure dependencies
-- Store last 30 days of heartbeat data for trend analysis
+- Use GitHub CLI (`gh issue create`, `gh issue list`)
+- Parse roadmap.md ordered list format
+- Log events to `.squad/motor-log/YYYY-MM-DD.json`
 
 ---
 
-### A2. Per-Repo Roadmap Files
+### A2. Roadmap Bootstrap (Per Repo)
 
-**Issue Title:** Create roadmap.md files defining next work for each repo  
-**Repo:** Syntax Sorcery (creates for all downstream)  
-**Assigned to:** Oracle (Product & Docs)  
+**Issue Title:** Define roadmap.md with ordered work items for each repo  
+**Repo:** ALL 6 repos (each repo's Lead defines their own roadmap)  
+**Assigned to:** Trinity (FFS repos), Oracle (FFS Hub), Morpheus (SS)  
 **Dependencies:** None (can start immediately)  
-**Labels:** `squad:oracle`, `type:documentation`, `priority:high`
+**Labels:** `type:documentation`, `priority:critical`
 
 **Acceptance Criteria:**
-- [ ] `roadmap.md` created in each of 6 repos' root directories
-- [ ] Each roadmap contains:
-  - Current status (what's deployed/working)
-  - Next 3 priority features (ordered)
-  - Completion criteria (how to know when done)
-  - @copilot-ready issue titles for each feature
-- [ ] Roadmaps reviewed by Morpheus for architectural alignment
-- [ ] Committed to main branch of each repo
+- [ ] `roadmap.md` created in root of each repo
+- [ ] Format: Ordered list with markdown checkboxes
+- [ ] Each item: title, acceptance criteria, files involved, context hints
+- [ ] First 3 items are @copilot-ready (no architecture decisions)
+- [ ] Reviewed by Morpheus for soundness
+- [ ] Committed to main
 
-**Roadmap Targets:**
-- **SS:** Monitoring, upstream governance automation
-- **FFS:** Hub page, devlog automation, game discovery
-- **Flora:** Feature completion (see C1)
-- **ComeRosquillas:** Feature completion (see C2)
-- **pixel-bounce:** Polish & roadmap (see C3)
-- **ffs-squad-monitor:** 4 new features (see C4)
+**Key Principle:** Each repo's local Lead owns their roadmap, NOT Oracle from SS.
+
+**Example Entry:**
+```markdown
+1. [ ] Add enemy AI pathfinding
+   - Enemies navigate around obstacles using A* algorithm
+   - Performance >50 FPS with 20 enemies
+   - Files: src/enemy.js, src/pathfinding.js, tests/pathfinding.test.js
+```
 
 ---
 
-### A3. Completion Detectors (Game/Feature Done Logic)
+### A3. Issue Template for @copilot
 
-**Issue Title:** Implement completion detection logic for games and features  
-**Repo:** Syntax Sorcery  
-**Assigned to:** Switch (Tester/QA)  
-**Dependencies:** A1 (needs heartbeat data)  
-**Labels:** `squad:switch`, `type:automation`, `pipeline:quality`
-
-**Acceptance Criteria:**
-- [ ] Script: `.squad/scripts/detect-completion.js` created
-- [ ] Called by squad-heartbeat.yml after scanning
-- [ ] Game completion logic:
-  - `pipeline:deployed` label present
-  - GitHub Pages accessible (HTTP 200)
-  - No P0/P1 bugs open
-  - 24h stability (no failed deploys)
-- [ ] Feature completion logic:
-  - Issue closed with label `status:verified`
-  - All sub-tasks checked off
-  - Tests passing in last 3 CI runs
-- [ ] On completion: Creates "Next Work" issue from roadmap.md
-- [ ] Test: Simulated completion triggers next issue correctly
-
-**Implementation Notes:**
-- Use GitHub CLI for issue/label queries
-- Completion triggers roadmap advancement (A2 integration)
-- Logs all completion events to `.squad/heartbeat/completions.json`
-
----
-
-### A4. @copilot Auto-Pickup Integration
-
-**Issue Title:** Configure @copilot auto-assignment for well-defined issues  
-**Repo:** Syntax Sorcery (config applies to all repos)  
+**Issue Title:** Create standardized copilot-ready issue template  
+**Repo:** Syntax Sorcery (propagates to all repos)  
 **Assigned to:** Morpheus (Lead/Architect)  
-**Dependencies:** A2 (needs roadmaps to generate issues)  
-**Labels:** `squad:morpheus`, `type:automation`, `priority:high`
+**Dependencies:** A2 (needs roadmap format established)  
+**Labels:** `squad:morpheus`, `type:documentation`, `priority:high`
 
 **Acceptance Criteria:**
-- [ ] Issue template `.github/ISSUE_TEMPLATE/copilot-ready.md` created
-- [ ] Template includes required sections:
-  - Clear title (action verb + noun)
-  - Acceptance criteria checklist
-  - Files to modify (specific paths)
-  - Example code or structure
-- [ ] squad-issue-assign.yml updated to detect `copilot-ready` label
-- [ ] @copilot assigned immediately when label applied
-- [ ] Test: Create 3 sample issues, verify auto-assignment in <1min
-- [ ] Document @copilot best practices in `.squad/guides/copilot-issues.md`
+- [ ] Template: `.github/ISSUE_TEMPLATE/copilot-ready.md`
+- [ ] Required sections: Title, Acceptance Criteria, Files Involved, Context Hints, Definition of Done
+- [ ] Guidance: "@copilot reads the repo — focus on WHAT to achieve, not HOW to implement"
+- [ ] Deployed to all 6 repos
+- [ ] Documentation: `.squad/guides/writing-copilot-issues.md`
+- [ ] Test: Create 3 sample issues, verify @copilot can parse
 
-**Quality Gates:**
-- Issues without clear acceptance criteria → manual assignment only
-- Issues affecting architecture (T1) → Morpheus review first
-- Issues with external dependencies → blocked, not assigned
+**Template Structure:**
+```markdown
+## 🎯 Objective
+[Clear one-sentence goal]
+
+## ✅ Acceptance Criteria
+- [ ] [Testable requirement 1]
+- [ ] [Testable requirement 2]
+
+## 📁 Files Involved
+- `path/to/file.js` — [what to change]
+
+## 🔍 Context Hints
+- Pattern: [example from codebase]
+- Constraints: [performance, compatibility]
+```
 
 ---
 
-### A5. Ralph Guardian Mode (Escalation Logic)
+### A4. Safety Net Cron (Daily Stuck Check)
 
-**Issue Title:** Enhance Ralph v5 with guardian escalation for stuck work  
+**Issue Title:** Implement daily cron to detect and escalate stuck repos  
 **Repo:** Syntax Sorcery  
 **Assigned to:** Tank (Cloud Engineer)  
-**Dependencies:** A1 (needs heartbeat monitoring)  
+**Dependencies:** A1 (perpetual motion must exist first)  
 **Labels:** `squad:tank`, `type:automation`, `priority:medium`
 
 **Acceptance Criteria:**
-- [ ] Ralph workflow updated: `.github/workflows/squad-monitor.yml`
-- [ ] Detects stuck states:
-  - Issue open >72h with no activity
-  - Build failing >3 consecutive runs
-  - Deploy blocked >24h
-  - Pipeline label unchanged >5 days
-- [ ] Escalation actions:
-  - Post issue comment tagging assigned agent
-  - Label with `status:blocked` or `status:needs-help`
-  - Create summary in `.squad/escalations/YYYY-MM-DD.md`
-  - Notify via GitHub Discussions post
-- [ ] Test: Simulate stuck issue, verify escalation fires correctly
-- [ ] Non-intrusive: No alerts outside GitHub, no emails
+- [ ] Workflow: `.github/workflows/safety-net.yml`
+- [ ] Schedule: Daily at 00:00 UTC
+- [ ] Checks: No activity >72h, build failing >3 runs, roadmap stuck >7 days, issue open >5 days with no PR
+- [ ] Actions: **Escalates only** (summary in `.squad/escalations/`, post to GitHub Discussions, label `status:needs-attention`)
+- [ ] Test: Simulate stuck repo, verify escalation fires
+
+**Note:** This is the safety net, NOT the primary driver. Primary driver is A1 (issues.closed event).
+
+---
+
+### A5. ralph-watch.ps1 — Layer 2 Refueling
+
+**Issue Title:** Implement ralph-watch.ps1 to detect Lead issues and resolve them  
+**Repo:** Syntax Sorcery  
+**Assigned to:** Morpheus (Lead/Architect)  
+**Layer:** 2 (Local Watch — refuels roadmaps)  
+**Dependencies:** A1-A4 (Layer 1 must be operational first)  
+**Labels:** `squad:morpheus`, `type:implementation`, `priority:critical`
+
+**What It Does:**
+- Runs in background (PowerShell loop)
+- Polls all 6 repos every 10 minutes
+- Detects "Define next roadmap" issues assigned to Leads
+- Opens Squad CLI session → Lead defines roadmap → commits → closes issue
+- Includes hardened failure modes from `.squad/skills/ralph-hardening/SKILL.md`
+
+**Acceptance Criteria:**
+- [ ] Script: `scripts/ralph-watch.ps1` with polling loop
+- [ ] Detects issues titled "📋 Define next roadmap"
+- [ ] Opens Squad session: `copilot --mode session --repo {repo} --prompt "Define next roadmap"`
+- [ ] Commits roadmap.md and closes issue
+- [ ] Hardening: session timeout (30m), exponential backoff, stale lock detection, log rotation, health checks
+- [ ] Logs to `.squad/ralph-watch/YYYY-MM-DD.log`
+- [ ] Test: Simulate empty roadmap → verify auto-refueling works
+
+**squad watch (Optional Complement):**
+- Brady Gaster's tool: `npx github:bradygaster/squad watch --interval 10`
+- Different purpose: AI triage and assignment suggestions (NOT refueling)
+- Can run alongside ralph-watch.ps1 if desired
+- Document usage in `.squad/guides/squad-watch-layer2.md`
 
 ---
 
@@ -421,25 +504,26 @@ Goal: Complete pending features in all 4 satellite repos.
 
 ```mermaid
 graph TD
-    A1[A1: Heartbeat Scanner] --> A3[A3: Completion Detectors]
-    A1 --> A5[A5: Ralph Guardian]
+    A1[A1: Perpetual Motion Workflow] --> A4[A4: Safety Net Cron]
     A1 --> B4[B4: Squad Monitor Upgrade]
     
-    A2[A2: Repo Roadmaps] --> A3
-    A2 --> A4[A4: @copilot Auto-Pickup]
+    A2[A2: Roadmap Bootstrap] --> A1
+    A2 --> A3[A3: Issue Template]
     A2 --> C1[C1: Flora Features]
     A2 --> C2[C2: ComeRosquillas Features]
     A2 --> C3[C3: pixel-bounce Polish]
+    
+    A3 --> A5[A5: squad watch Integration]
     
     B1[B1: FFS GitHub Page] --> B2[B2: Daily Devlog]
     B1 --> B3[B3: SS GitHub Page]
     
     B4 --> C4[C4: Squad Monitor 4 Features]
     
-    style A1 fill:#4CAF50
+    style A1 fill:#FF9800
     style A2 fill:#4CAF50
     style B1 fill:#2196F3
-    style A4 fill:#FF9800
+    style A3 fill:#FF9800
 ```
 
 **Legend:**

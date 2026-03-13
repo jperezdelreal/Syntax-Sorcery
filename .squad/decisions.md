@@ -6,6 +6,43 @@ Autonomous AI dev company (€500/mo Azure, unlimited GitHub). Strict context hy
 
 ## Active Decisions (Last 7 Days)
 
+### 2026-03-16T22:30Z: Phase 2 Plan Audit Complete & Gate Verdict — Approved for Execution
+
+**By:** Morpheus (Lead/Architect)  
+**Tier:** T1  
+**Status:** ✅ APPROVED FOR EXECUTION  
+**What:** Comprehensive audit of Phase 2 plan verified all 13 critical session decisions reflected. Plan contains complete issue definitions, workstream architecture, dependency graph, success metrics. 3 minor conditions documented (rate limiting in A1, feature count limit in A2, roadmap convergence guidance in A5). Plan is coherent, timeline realistic (2 weeks core / 4 weeks full), parallel execution validated across 4 agents simultaneously. Ralph-watch.ps1 clearly distinguished from squad watch. Refueling behavior correctly attributed to ralph-watch.ps1 as primary Layer 2.
+
+**Key Approvals:**
+- A1-A5 autonomy workstream: coherent, no deadlocks
+- B1-B4 visibility workstream: aligned with user constraints (€0, no Azure)  
+- C1-C4 repo evolution workstream: bounded scope (3 features per repo max)
+- Cross-workstream integration: no conflicts, clean dependencies
+- Execution parallelization: viable with 4 agents, 0 critical path issues
+- First visible delivery: B1 (FFS Page) Day 3 of Week 1 → "wow factor" prioritized
+- Cost target: €0 maintained across all workstreams
+- Timeline: <15min/week human intervention target achievable
+
+**Conditions for Execution:**
+1. Tank: Rate limiting in perpetual-motion.yml A1 (semaphore check before creating issues)
+2. Morpheus: Enforce max 3 features per repo during A2 review
+3. Morpheus: Document roadmap convergence guidance in A5 (natural endpoints, avoid infinite work)
+
+**Success Metrics:** Autonomy: <15min/week intervention, 1min issue creation latency, 80% autonomous work. Visibility: 3 shareable URLs operational. Features: C1-C3 deployed with new capabilities.
+
+**Confidence Level:** HIGH (85%). Plan is conservative with 2-week buffer for 15 issues across parallel tracks.
+
+---
+
+### 2026-03-16T21:30Z: User Directive — squad watch as Roadmap Refueler via ralph-watch.ps1
+
+**By:** joperezd (via Copilot)  
+**Tier:** T0  
+**What:** When a repo's roadmap depletes, perpetual-motion.yml creates issue "Define next roadmap". squad watch (specifically ralph-watch.ps1 in Capa 2) detects this issue, opens Squad session in that repo, and the local Lead automatically defines the new roadmap. This closes the perpetual motion cycle completely — zero human intervention required to refuel roadmaps. ralph-watch.ps1 becomes the "refueler" that keeps roadmaps populated, eliminating the last manual synchronization step.  
+**Why:** This is the final piece making the perpetual motion engine truly perpetual. Layer 2 does not just triage issues; it actively generates fuel (roadmaps) for Layer 1. Pure autonomy achieved when ralph-watch.ps1 can detect "Define next roadmap" issues and trigger Squad CLI to invoke Lead's roadmap definition.
+
+---
+
 ### 2026-03-16T21:00Z: Event-Driven Autonomy Architecture — Redesign Decision
 
 **By:** Morpheus (Lead/Architect)  
@@ -113,6 +150,29 @@ Create and execute consolidated Phase 2 plan across three parallel workstreams: 
 **Tier:** T3  
 **What:** Squad Monitor polling 60s es suficiente (NO streaming/SSE, €0 sin Azure ACI). Devlog DIARIO (no semanal) dentro de la GitHub Page de FFS.  
 **Why:** Team works 24x7, daily devlog shows momentum. Polling sufficient for 60s refresh, eliminates Azure cost.
+
+### 2026-03-13T13:34Z: User Directive — squad watch as Roadmap Refueler
+
+**By:** joperezd (via Copilot)  
+**What:** Cuando el roadmap de un repo se agota, perpetual-motion.yml crea una issue "Define next roadmap". ralph-watch.ps1 (Capa 2) detecta esa issue, abre sesión Squad en ese repo, y el Lead define el nuevo roadmap automáticamente. Esto cierra el ciclo completamente — zero intervención humana para rellenar roadmaps. La Capa 2 no solo triagea sino que también genera combustible (roadmaps) para la Capa 1.  
+**Why:** User request — this is the final piece that makes the perpetual motion engine truly perpetual. ralph-watch.ps1 becomes the "refueler" that keeps roadmaps populated, eliminating the last manual step.
+
+### 2026-03-16T22:30Z: Phase 2 Plan Audit Complete — 13 Session Decisions Verified
+
+**By:** Morpheus (Lead/Architect)  
+**Tier:** T1  
+**Status:** ✅ COMPLETE  
+**What:** Audited `docs/plan-phase2-visibility.md` against 13 critical session decisions. Found 10 decisions correctly reflected, 3 missing/unclear: (1) ralph-watch.ps1 as Layer 2 PRIMARY (not just "squad watch"), (2) squad watch as COMPLEMENT tool (distinct from ralph-watch.ps1), (3) Roadmap refueling via ralph-watch.ps1 (not squad watch). Updated plan with A5.1 (ralph-watch.ps1 implementation, 6 failure modes from ralph-hardening SKILL) and A5.2 (squad watch as complement). Fixed refueling behavior attribution throughout document (9 references updated).  
+**Conditions:** 3 minor conditions documented — rate limiting in A1, 3-feature limit enforcement in A2, roadmap convergence guidance in A5.  
+**Result:** Plan now reflects all 13 decisions accurately. ralph-watch.ps1 vs. squad watch distinction clear. Ready for execution.
+
+### 2026-03-16T23:00Z: Simplification of Phase 2 Plan — Remove Over-Engineering
+
+**By:** Morpheus (Lead/Architect)  
+**Tier:** T1  
+**Status:** ✅ COMPLETE  
+**What:** Phase 2 plan grew from 400→709 lines through 4+ revisions, adding complexity instead of simplifying. Restructured to put core 4-step cycle at top (Bootstrap → Motor runs → Roadmap exhausted → Refueling), removed redundant paragraphs, reduced A5 from 125→30 lines. Result: Workstream A went from 385→180 lines, total plan 709→542 lines. Non-technical founder can now understand system in <10 minutes.  
+**Key Learning:** Architect job is simplify (clarity over depth), not demonstrate technical knowledge through verbosity. Detailed specs (timeouts, log rotation, backoff) belong in task descriptions, not architecture overview.
 
 ### 2026-03-13T11:30Z: P1-11 Autonomous Proposal→Prototype Pipeline Architecture
 

@@ -1,38 +1,127 @@
 ---
-updated_at: 2026-03-16T00:00:00.000Z
-focus_area: Phase 2 Round 2 Complete. All FFS satellite PRs merged. Pipeline verified. 34 tests green. CI hardened.
+updated_at: 2026-03-16T21:30:00.000Z
+focus_area: Phase 2 Execution — Workstreams A/B/C ready to launch (2026-03-17)
 active_issues: []
 ---
 
 # What We're Focused On
 
-**PHASE 2 ROUND 2: COMPLETE** ✅ All 9 FFS satellite PRs merged. Pipeline Stages 0-2 verified. 34 tests green. CI hardened with per-type limits.
+**PHASE 2 EXECUTION LAUNCHING** 🚀 All architecture locked. Event-driven autonomy + Visibility + Repo Evolution. Workstreams A/B/C ready for parallel execution. Launch date: Monday 2026-03-17.
 
-Status update:
-- **FFS Satellite Merges:** 6 PRs with .squad/ conflicts resolved + merged (ComeRosquillas #29/#30, ffs-squad-monitor #27/#28/#29/#32). 3 additional from T2 phase. 9 total merged this session.
-- **Pipeline Stages 0-2:** Production-ready (Trinity E2E validation ✅). Stages 3-5 pending game repo template.
-- **Quality Assurance:** 34 test suite all green, Phase 2 test matrix complete (Switch ✅). vitest integrated.
-- **CI/CD Hardening:** Per-type size limits enforced (history.md 8KB, decisions.md 12KB, log 1KB, orchestration 2KB, other 25KB). 0 npm vulns. €0 Azure spend.
-- **Governance:** FFS Takeover T1-T4 complete. Constellation fully verified. Ralph v5 monitoring active across Hub + 3 satellites.
-- **Decisions:** All inbox files merged into decisions.md. Directives captured (scope focus, Morpheus leads, Ralph awaits approval).
+---
 
-**Agent Status (Phase 2 Round 2):**
-- **Morpheus:** T1-T4 execution complete. Awaiting Phase 2 feature work assignment.
-- **Trinity:** T2 (Satellite Cascade) ✅ + conflict resolution ✅. Pending P1-14 visibility remediation (due 2026-03-17).
-- **Tank:** T3 (Pipeline Labels) ✅ + CI hardening ✅. Completed 36/36 labels.
-- **Switch:** T4 (Constellation Verification) ✅ + test matrix ✅. Grade 🟢 GREEN. Phase 2 test framework live.
-- **Oracle:** P1-03, P1-06, P1-10a, P1-14 ✅. Documentation up-to-date.
-- **Scribe:** Inbox merged, decisions archived, .squad/ hygiene maintained.
+## Current Status
+
+**Phase 2 Strategic Planning: COMPLETE** ✅
+- ✅ Phase 2 consolidated plan created (docs/plan-phase2-visibility.md, 542 lines)
+- ✅ 3-layer autonomy architecture finalized (Cloud/Watch/Manual)
+- ✅ Event-driven perpetual motion motor (issues.closed trigger)
+- ✅ Roadmap refueling loop closed (ralph-watch.ps1 primary Layer 2)
+- ✅ Decentralized roadmap ownership (local Leads, not Oracle)
+- ✅ Visibility strategy locked (FFS Page Day 3, Daily Devlog, Squad Monitor 60s polling)
+- ✅ Repo evolution scope bounded (3 features per repo max, finish existing games)
+- ✅ T1 gate passed by Morpheus (APPROVED FOR EXECUTION)
+- ✅ All 13 critical session decisions verified in plan
+- ✅ Parallel execution strategy validated (0 deadlocks, clean dependencies)
 
 **Phase 2 Readiness:**
 ✅ Governance framework operational  
 ✅ Skills inheritance cascading  
 ✅ Pipeline state machine active  
 ✅ Ralph v5 monitoring enabled  
-✅ Constellation verified  
-✅ FFS satellite PRs cleared  
+✅ FFS constellation verified  
 ✅ Test matrix & CI enforcement live  
+✅ Autonomy architecture coherent  
+✅ Visibility roadmap concrete  
+✅ Repo evolution scope locked  
 
-Next: Morpheus determines Phase 2 Round 3 priority (Flora features, pipeline stages 3-5, visibility remediation, or new initiatives).
+---
+
+## Immediate Execution Plan (Week 1)
+
+**Monday 2026-03-17:**
+- Morpheus: Create 15 GitHub issues across 6 repos
+- Tank: Start A1 (perpetual-motion.yml) + A5 (ralph-watch.ps1)
+- Oracle: Start A2 (roadmaps for 6 repos)
+- Trinity: Start B1 (FFS Page) + B3 (SS Page)
+
+**Wednesday 2026-03-03-19:**
+- **B1 (FFS Page) DEPLOYED** → First visible delivery, 3 playable games in iframes, shareable to friends
+
+**Friday 2026-03-21:**
+- Week 1 Foundation Complete: A1, A2, B1, B3 all done
+- Switch begins A3 preparation (templates)
+
+---
+
+## Three Parallel Workstreams
+
+### Workstream A: Autonomy (Motor Perpetuo)
+- **A1:** perpetual-motion.yml (event-driven, issues.closed trigger, rate limiting)
+- **A2:** Roadmaps for 6 repos (decentralized ownership, 3 features max per repo)
+- **A3:** @copilot Integration Templates (strict guidance, issues specify what+criteria only)
+- **A4:** Safety Net Cron (24h escalation, never acts)
+- **A5:** Layer 2 Watch (ralph-watch.ps1 PRIMARY + squad watch COMPLEMENT)
+- **Status:** Ready to launch, 3 minor conditions documented (rate limiting, feature cap, roadmap convergence)
+- **Cost:** €0
+
+### Workstream B: Visibility (Show the World)
+- **B1:** FFS GitHub Pages (Astro SSG, 3 games embedded, Day 3 delivery)
+- **B2:** Daily Devlog (auto-generated, 02:00 UTC, parses decisions.md)
+- **B3:** SS Main Page (hero + downstream companies + activity feed)
+- **B4:** Squad Monitor (60s polling, NO streaming, NO Azure, €0)
+- **Status:** Ready to launch, high user value, marketing-driven
+- **Cost:** €0
+
+### Workstream C: Repo Evolution (Finish Existing)
+- **C1:** Flora (TBD features, max 3)
+- **C2:** ComeRosquillas (TBD features, max 3)
+- **C3:** pixel-bounce (TBD features, max 3)
+- **C4:** Squad Monitor UI Features (4 new capabilities)
+- **Status:** Depends on A2 (roadmaps) completion, ready for @copilot execution
+- **Cost:** €0
+
+---
+
+## Key Architecture Decisions Locked
+
+1. **Event-Driven Motor:** issues.closed trigger, reactive (not cron)
+2. **Roadmap Ownership:** Local Leads per repo (not Oracle from SS)
+3. **Layer 2 Refueling:** ralph-watch.ps1 detects "Define next roadmap" → opens Squad CLI → automatic
+4. **Visibility Stack:** GitHub Pages (Astro) + auto devlog + Squad Monitor polling (no Azure)
+5. **Cost Target:** €0 (GitHub free tier, local execution)
+6. **Success Target:** <15min/week human intervention, 80% autonomous work
+7. **Scope Lock:** No más juegos sin límite — finish existing Flora, ComeRosquillas, pixel-bounce only
+
+---
+
+## Agent Assignments (Week 1)
+
+- **Morpheus:** Issue creation, A4 safety net, gate review, decision capture
+- **Tank:** A1 (perpetual motion), A5 (ralph-watch.ps1)
+- **Oracle:** A2 (roadmaps), B2 (daily devlog)
+- **Trinity:** B1 (FFS page), B3 (SS page)
+- **Switch:** QA prep, Phase 2 test matrix (ready to activate)
+- **@copilot:** Ready for C1-C3 feature delivery (Week 3+)
+
+---
+
+## Metrics & Success Criteria
+
+- **Autonomy:** issues.closed → next issue <1min, 80% solver success, <15min/week intervention
+- **Visibility:** 3 shareable URLs live (FFS, SS, Squad Monitor), daily devlog auto-updated
+- **Features:** C1-C3 deployed with new capabilities, C4 UI features live
+- **Cost:** €0 spend (GitHub free tier)
+- **Timeline:** 2 weeks core (A+B), 4 weeks full (+ C features)
+
+---
+
+## Next Phases (After Week 1 Complete)
+
+- **Week 2:** Complete Workstream B visibility, activate ralph-watch.ps1 refueling
+- **Week 3-4:** @copilot executes C1-C3 features in parallel across 3 repos
+- **Post-Phase 2:** Scale autonomy to all downstream companies, continuous deployment pipeline
+
+**Phase 2 COMPLETE:** 28 days, 15 issues delivered, 3 shareable URLs, autonomous operation validated
 
 

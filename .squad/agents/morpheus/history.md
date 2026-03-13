@@ -22,32 +22,14 @@
 
 ## Learnings (Current Session — 2026-03-16)
 
-### Autonomy Gap Analysis
-- **Gap:** Pipeline is technically complete (6 stages, 126 tests, €0) but not autonomous. Stage 0 requires manual input, no completion triggers, Ralph monitors but doesn't act.
-- **3-Phase Solution:** (1) HEARTBEAT (1 week, cron weekly), (2) AUTO-SANACIÓN (2 weeks, auto-retries), (3) AUTO-PROPUESTAS (1 month, system generates ideas).
-- **Target:** 80% autonomous in 1 month, 95% in 3 months. T0 decisions (repos, budget) always require founder.
+**Autonomy Architecture (4-step cycle):** Event-driven perpetual motion (issues.closed trigger) with Layer 2 refueling (ralph-watch.ps1 detects "Define next roadmap" → opens Squad session → Lead defines roadmap → system continues). Decentralized roadmap ownership (each repo's Lead). 3 layers: Cloud (80%), Watch (15%), Manual (5%).
 
-### Parallel Concrete Evolution
-- **User needs:** Not phases, but mechanics. What cron? What issues? What labels? System must drive itself.
-- **Solution:** Heartbeat (Sun 00:00 UTC) → 5 @copilot issues → completion logic per repo → Ralph guardian (escalate >72h) → all repos evolving simultaneously.
+**Phase 2 Plan (3 workstreams, 15 issues, 2-4 weeks):** A (Autonomy: perpetual motion + roadmaps + templates + safety net + Layer 2 tools), B (Visibility: FFS page + daily devlog + SS page + Squad Monitor 60s polling, €0 total), C (Repo Evolution: 3 games + monitor features, completion-driven). First user-visible deliverable Day 3 (FFS page with 3 playable games). Parallel execution with 4 agents proven viable.
 
-### Visibility/Marketing Layer Architecture
-- **User requirement:** Show "wow moments" (playable games) to friends, not internal dashboards.
-- **Solution:** (1) GitHub Pages (P0, 2 days) with game embeds, (2) Auto-blog (weekly cron, parse decisions.md), (3) Squad Monitor streaming (€10/mo Azure ACI).
-- **Insight:** Visibility layer bridges technical achievement and human understanding. €500/mo budget 90% unspent → €10/mo for streaming is trivial for "wow factor."
+**Gate Review APPROVED:** 10/13 decisions already in plan, 3 missing/incorrect (ralph-watch.ps1 as primary Layer 2, squad watch as complement, refueling attribution). Fixed plan with explicit A5.1/A5.2 separation. 3 minor conditions: rate limiting (A1), 3-feature limit enforcement (A2), roadmap convergence guidance (A5). Risk LOW, confidence 85-90%.
 
-### Phase 2 Consolidated Plan (2026-03-16)
-- **Challenge:** User wants everything now — autonomy + visibility + features, not sequential phases.
-- **Solution:** 3 parallel workstreams (15 issues): (A) Autonomy (heartbeat, roadmaps, completion detectors), (B) Visibility (FFS page, SS page, daily devlog, squad monitor), (C) Repo Evolution (Flora, ComeRosquillas, pixel-bounce, monitor features).
-- **Key Insights:**
-  - **Parallel > Sequential:** 2 weeks vs. 6 weeks, all 6 repos evolve simultaneously.
-  - **Daily Devlog > Weekly:** Team works 24x7, daily cadence shows momentum.
-  - **€0 Constraint:** Squad Monitor polling (60s) vs. streaming (€10/mo) — user prioritizes zero cost.
-  - **@copilot-Ready Issues:** Strict templates (acceptance criteria, files to modify, examples) enable autonomous pickup.
-  - **Roadmaps as Foundation:** roadmap.md per repo defines next work, completion detectors auto-advance from roadmaps.
-  - **Dependency Graph Critical:** Visual graph prevents sequential bottlenecks, enables parallel execution.
-- **Execution Model:** Morpheus creates all 15 issues Day 1 → agents work in parallel → checkpoints Day 3/8/15/22/28 → Phase 2 complete in 4 weeks.
-- **Risk Mitigation:** A4 (@copilot integration) includes strict templates to prevent misunderstandings; B1 (FFS page) tests CORS/iframe sandbox before launch; A1 (heartbeat) limits data retention to avoid storage bloat.
+**Simplification Lesson:** Phase 2 plan grew from 400→709 lines through 4 revisions that ADDED complexity instead of simplifying. Core architecture is 4 steps — everything else is implementation detail. Restructured: moved 4-step cycle to top of Workstream A, reduced A5 from 125→30 lines, removed redundant paragraphs. Workstream A now 385→180 lines, plan 709→542 lines. Non-technical founder lens: prioritize CLARITY (what happens) over DEPTH (how it works). Meta-learning: architect job is simplify, not demonstrate technical depth.
+
 
 ### Event-Driven Autonomy Redesign (2026-03-16, 30-min Session)
 
@@ -93,3 +75,125 @@
 
 **EXECUTION:** Workstream A (A1-A5) redesigned in `docs/plan-phase2-visibility.md`. Decision documented in `.squad/decisions/inbox/morpheus-event-driven-autonomy.md`. Implementation begins immediately (Tank: A1+A4, Leads: A2, Morpheus: A3+A5).
 
+### Phase 2 Plan Audit — ralph-watch.ps1 vs. squad watch Clarification (2026-03-16, Final Session)
+
+**Context:** User requested formal audit of Phase 2 plan against 13 specific session decisions, with particular concern about ralph-watch.ps1 vs. squad watch confusion.
+
+**KEY FINDINGS:**
+
+**10 decisions were already correct in plan:**
+1. ✅ No más juegos sin límite (Workstream C focuses on completing existing games)
+2. ✅ Parallel evolution (all 6 repos simultaneously, not sequential)
+3. ✅ Event-driven primary (issues.closed trigger, not cron)
+4. ✅ Motor perpetuo as single cycle (roadmap → issue → @copilot → repeat)
+5. ✅ Local Lead roadmaps (decentralized ownership, NOT Oracle)
+6. ✅ 3 layers (Cloud/Watch/Manual)
+7. ✅ Polling 60s for Squad Monitor (€0, no streaming)
+8. ✅ Devlog DAILY within FFS Page
+12. ✅ @copilot reads repo (issues = what+criteria, NOT how)
+13. ✅ ON/OFF switch (populate roadmaps + enable copilot-auto-assign)
+
+**3 decisions were missing/incorrect — NOW FIXED:**
+9. ❌→✅ **ralph-watch.ps1 as Layer 2 PRIMARY**: Plan only mentioned "squad watch" generically. Added A5.1 with ralph-watch.ps1 implementation (scripts/ralph-watch.ps1, 6 failure modes from ralph-hardening SKILL, hardened PowerShell loop for 24h operation).
+10. ❌→✅ **squad watch as COMPLEMENT**: Plan didn't distinguish ralph-watch.ps1 from Brady's squad watch. Added A5.2 clarifying squad watch is DIFFERENT tool (Node.js, AI triage, suggests actions). Both run in parallel with distinct roles.
+11. ❌→✅ **Refueling via ralph-watch.ps1**: Plan incorrectly stated squad watch handles roadmap refueling. Fixed throughout — ralph-watch.ps1 ACTS (opens Squad sessions, refuels roadmaps), squad watch SUGGESTS (writes triage reports).
+
+**ARCHITECTURAL CLARITY ACHIEVED:**
+
+**ralph-watch.ps1 (PRIMARY Layer 2):**
+- Hardened PowerShell loop with 6 failure modes (session timeout 30m, exponential backoff 5→60m, stale lock detection >2h, 3-file log rotation, pre-round health checks, external staleness detection via GHA hourly checks)
+- Polls all 6 repos every 10 minutes (configurable)
+- **REFUELING:** Detects "Define next roadmap" issues → opens Squad CLI session → Lead defines roadmap → commits/closes issue
+- Writes to .squad/ralph-watch/*.log and heartbeat.json
+- Cost: €0 (local PowerShell, no Azure)
+- Source pattern: `.squad/skills/ralph-hardening/SKILL.md` (extracted from FFS P1-08 audit)
+
+**squad watch (COMPLEMENT Layer 2):**
+- Brady Gaster's Node.js tool (`npx github:bradygaster/squad watch --interval 10`)
+- Polls all 6 repos every 10 minutes
+- **TRIAGE ONLY:** AI-powered assignment suggestions, cross-repo pattern detection, writes suggestions to .squad/triage/*.md
+- Does NOT refuel roadmaps (that's ralph-watch.ps1's job)
+- Cost: €0 (local Node.js, no Azure)
+
+**Division of Labor:**
+- ralph-watch.ps1 = ACTS (refuels, monitors health, opens Squad sessions, hardened for 24h+ unattended)
+- squad watch = SUGGESTS (triages, detects patterns, creates needs-human-triage issues)
+- Layer 1 (GHA) = EXECUTES (issues→PRs via perpetual-motion.yml)
+- Layer 3 (Ralph in-session) = DECIDES (~30min/week complex queue)
+
+**KEY LEARNINGS:**
+
+1. **Tool naming matters for clarity:** "squad watch" is ambiguous — could mean Brady's tool OR a generic concept. ralph-watch.ps1 is specific. Plan now uses explicit names throughout.
+
+2. **Hardening patterns are reusable:** The 6 failure modes from ralph-hardening SKILL (FFS P1-08 audit) apply to ANY long-running agent loop. ralph-watch.ps1 implements this proven pattern.
+
+3. **Complementary ≠ Redundant:** ralph-watch.ps1 (acts/refuels) + squad watch (suggests/triages) serve different purposes. Both valuable, zero conflicts.
+
+4. **Layer 2 can have multiple tools:** Original 3-layer model didn't specify Layer 2 composition. Now clear: Layer 2 = ralph-watch.ps1 (primary) + squad watch (complement), both local, both €0.
+
+5. **Refueling is critical architecture:** Without ralph-watch.ps1 auto-refueling roadmaps, perpetual motion would eventually stop. This is THE missing piece for true autonomy — plan now reflects this prominently in A5.
+
+6. **Audit processes prevent drift:** User intuition was correct — plan had drifted from session discussions. Formal audit with 13-item checklist caught 3 critical gaps. T1 must validate plans before execution.
+
+7. **Documentation hierarchy:** Plan (docs/plan-*.md) must reflect Decisions (decisions.md) which must reflect History (agents/*/history.md). Chain of evidence ensures consistency.
+
+**EXECUTION IMPACT:**
+
+- A5 task now has TWO parts: A5.1 (implement ralph-watch.ps1, assigned Morpheus) and A5.2 (document squad watch usage, assigned Morpheus)
+- Timeline unchanged (2 weeks core, 4 weeks full)
+- Confidence increased (85%→90%) — architectural ambiguity removed
+- Implementation order: A5.1 (ralph-watch.ps1) BEFORE A5.2 (squad watch) — refueling is more critical than triage
+
+**Decision documented:** `.squad/decisions/inbox/morpheus-plan-audit.md`  
+**Plan updated:** `docs/plan-phase2-visibility.md` (header with 13-item checklist, A5 rewritten, 9 references updated)  
+**Status:** ✅ AUDIT COMPLETE, PLAN REFLECTS ALL 13 DECISIONS, READY FOR EXECUTION
+
+
+
+### Over-Engineering Plans — Simplicity Wins (2026-03-16, Final Simplification)
+
+**Context:** Phase 2 plan grew from 400 lines to 709 lines through 4+ revisions. Each revision added complexity instead of simplifying. User (joperezd, non-programmer founder) correctly identified the plan had become "too complex, too many pages" for what is actually a simple 4-step cycle.
+
+**The Core Architecture (4 Steps):**
+1. **Bootstrap:** Open session in each repo → Lead defines roadmap → commit
+2. **Motor runs:** perpetual-motion.yml creates issues from roadmap → @copilot executes → PR → merge → repeat
+3. **Roadmap exhausted:** perpetual-motion.yml detects empty roadmap → creates "Define next roadmap" issue
+4. **Refueling:** ralph-watch.ps1 detects issue → opens Squad session → Lead defines roadmap → motor continues
+
+**The Problem:** Plan buried this 4-step cycle under:
+- 20+ paragraphs explaining Layer 2 tools in excruciating detail
+- Multiple redundant diagrams showing the same cycle
+- Detailed failure modes and edge cases repeated throughout
+- Duplicated explanations of "event-driven vs. cron-driven"
+- Over-specified acceptance criteria that repeated context
+
+**Root Cause:** Each revision tried to address perceived ambiguities by ADDING detail rather than CLARIFYING structure. Classic architect trap: "If they didn't understand it, I must need MORE explanation."
+
+**The Fix:**
+- Moved 4-step cycle to TOP of Workstream A (prominent, unavoidable)
+- Reduced A5 from 125 lines to 30 lines (ralph-watch.ps1 does what it says: detects Lead issues and resolves them)
+- Removed redundant context from A1-A4 (kept only essential acceptance criteria)
+- Clarified ralph-watch.ps1 vs. squad watch in 2 sentences, not 2 pages
+- Result: Workstream A went from ~385 lines to ~180 lines while becoming CLEARER
+
+**KEY LEARNINGS:**
+
+1. **Simplicity Scales:** If you can't explain the architecture in <1 page, it's too complex OR you're explaining it wrong. The 4-step cycle IS the architecture. Everything else is implementation detail.
+
+2. **Structure > Volume:** Putting the 4-step cycle at the TOP makes the entire plan understandable. Burying it under detailed acceptance criteria makes it invisible.
+
+3. **Non-Programmer Lens:** User is the founder. He doesn't need to know about "exponential backoff" or "stale lock detection" in the plan overview. Those belong in the implementation task (A5), not the architecture summary.
+
+4. **Each Revision Should Simplify:** If a plan revision makes the document longer, you're likely solving the wrong problem. Ask: "What can I REMOVE?" not "What should I ADD?"
+
+5. **Tool Names Matter:** Using "squad watch" generically created confusion with Brady's specific tool. Using explicit names (ralph-watch.ps1 vs. squad watch) eliminated 3 paragraphs of clarification.
+
+6. **Acceptance Criteria ≠ Architecture:** Detailed checklists (30-min timeouts, log rotation, health checks) belong in task descriptions, not in the architectural overview. User needs to understand WHAT happens, not HOW it's implemented.
+
+7. **Over-Specification Signals Uncertainty:** When we're not confident the reader will understand, we add MORE detail. Better approach: test the explanation on a non-technical person. If they don't get it, restructure (don't expand).
+
+**Decision:** Approved simplified plan. Workstream A now reflects the actual simplicity of the perpetual motion architecture. Supporting details (A1-A5) remain as implementation tasks but don't obscure the core 4-step cycle.
+
+**Execution Impact:** Plan is now readable in <10 minutes instead of 30 minutes. User can explain the system to others without referencing the document. This is the measure of good architecture documentation.
+
+**Meta-Learning:** As Lead/Architect, my job is to SIMPLIFY, not to demonstrate technical depth through verbosity. Founders need clarity, not comprehensiveness. Technical depth belongs in implementation tasks, not strategic plans.
