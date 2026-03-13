@@ -49,3 +49,47 @@
 - **Execution Model:** Morpheus creates all 15 issues Day 1 → agents work in parallel → checkpoints Day 3/8/15/22/28 → Phase 2 complete in 4 weeks.
 - **Risk Mitigation:** A4 (@copilot integration) includes strict templates to prevent misunderstandings; B1 (FFS page) tests CORS/iframe sandbox before launch; A1 (heartbeat) limits data retention to avoid storage bloat.
 
+### Event-Driven Autonomy Redesign (2026-03-16, 30-min Session)
+
+**Context:** Previous Workstream A (cron-driven, 4 separate pieces) was too abstract. User (joperezd, founder) spent 30 minutes refining architecture through conversation.
+
+**KEY ARCHITECTURAL DECISIONS:**
+
+1. **Event-Driven Motor Cycle:** Primary trigger is `on: issues: types: [closed]` (GitHub Actions). When last issue closes → read roadmap.md → create next issue → @copilot assigned → works → PR → merge → issue closed → repeat. Cron is ONLY a safety net (daily check for stuck repos >72h), NOT the primary driver.
+
+2. **Single Perpetual Motion Loop:** Not 4 disconnected pieces. ONE continuous cycle: roadmap → issue → @copilot → code → PR → merge → closed → roadmap. Must feel like ONE machine with ON/OFF switch.
+   - **ON:** Populate roadmaps + create first issues + enable `copilot-auto-assign: true`
+   - **OFF:** Remove auto-assign or close all issues
+
+3. **Roadmaps Owned by Local Leads:** Each downstream repo's Lead defines their own roadmap, NOT Oracle from SS. SS/Morpheus orchestrates WHEN (trigger) and HOW (pipeline), not WHAT (features). Decentralized ownership.
+
+4. **3-Layer Architecture:**
+   - **Layer 1 (Cloud):** GitHub Actions + @copilot (100% cloud, 0 terminals, 80% of well-defined work)
+   - **Layer 2 (Local Watch):** `npx github:bradygaster/squad watch --interval 10` (1 background terminal, monitors all repos, triages, escalates)
+   - **Layer 3 (Manual):** Ralph in-session (~30min/week, drains complex queue, handles 20% that needs deep thinking)
+
+5. **@copilot Reads the Repo:** Issues don't micromanage. @copilot clones repo, reads code, understands patterns. Issues need: clear title + acceptance criteria + WHAT to achieve. NOT HOW to implement.
+
+6. **squad watch as Layer 2:** Brady Gaster's `squad watch` is Layer 2 (local persistent polling). Does what GHA can't: cross-repo patterns, AI triage, proactive escalation, local context. Complements Layer 1, doesn't replace it.
+
+7. **Parallel Execution:** Fan-out is default. Multiple agents work simultaneously on different repos. Serialize only for real data dependencies. €500/mo budget mostly unspent → cost not a constraint.
+
+8. **Safety Net Cron:** Daily check (not primary). Only ESCALATES (summary, GitHub Discussions, labels), never ACTS. Red de seguridad catches repos that fell off the cycle.
+
+**WORKSTREAM A REDESIGNED:**
+- **A1. Perpetual Motion Workflow:** issues.closed trigger, reads roadmap, creates next issue, assigns @copilot. The ENGINE.
+- **A2. Roadmap Bootstrap:** Each repo's Lead defines their roadmap (decentralized ownership).
+- **A3. Issue Template for @copilot:** Focus on acceptance criteria + context, not implementation details.
+- **A4. Safety Net Cron:** Daily stuck-check, escalates only, never acts.
+- **A5. squad watch Integration:** Layer 2 capabilities, how it complements GHA.
+
+**KEY LEARNINGS:**
+- **Event-driven > Cron-driven:** Reactive systems (respond to completion) feel more autonomous than polling systems (check periodically).
+- **Single motor cycle > Modular pieces:** User mental model matters. "One machine with ON/OFF" beats "4 components that work together."
+- **Decentralized roadmaps > Centralized Oracle:** Local Leads know their domain. SS orchestrates infrastructure, not features.
+- **Layered autonomy > Single layer:** 80% (Layer 1) + 15% (Layer 2) + 5% (Layer 3) = 100% coverage with right tool for each complexity level.
+- **Trust @copilot's code understanding:** Issues can be simpler. Acceptance criteria + files involved > line-by-line instructions.
+- **Complementary tools > Replacement:** squad watch + GHA + Ralph work together. Each has unique strengths.
+
+**EXECUTION:** Workstream A (A1-A5) redesigned in `docs/plan-phase2-visibility.md`. Decision documented in `.squad/decisions/inbox/morpheus-event-driven-autonomy.md`. Implementation begins immediately (Tank: A1+A4, Leads: A2, Morpheus: A3+A5).
+

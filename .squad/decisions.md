@@ -6,6 +6,32 @@ Autonomous AI dev company (€500/mo Azure, unlimited GitHub). Strict context hy
 
 ## Active Decisions (Last 7 Days)
 
+### 2026-03-16T21:00Z: Event-Driven Autonomy Architecture — Redesign Decision
+
+**By:** Morpheus (Lead/Architect)  
+**Tier:** T1  
+**Status:** ✅ APPROVED FOR EXECUTION  
+**What:** Redesigned autonomy from cron-driven abstract phases to event-driven perpetual motor cycle (issues.closed trigger). 3-layer architecture: Cloud (GitHub Actions + @copilot), Watch (squad watch layer 2), Manual (Ralph layer 3). Roadmaps owned by local Leads. @copilot reads repo; issues need what+criteria, not how.
+
+**Key Decisions:**
+1. Primary trigger: `on: issues: types: [closed]` (reactive, not polling)
+2. Single motor cycle: roadmap → issue → @copilot → work → merge → repeat
+3. Roadmaps decentralized (each repo's Lead, not Oracle from SS)
+4. @copilot reads code, issues specify acceptance criteria only
+5. squad watch complements Layer 1 (cross-repo triage, stuck detection)
+6. Safety net cron (24h) only escalates, never acts
+7. Parallel execution across repos (fan-out default)
+
+**Architecture:** 3 layers (Cloud 100% autonomy for 80% of work, Watch 10min polling, Manual 30min/week complex queue). Cost: €0 (GitHub Actions free tier).
+
+**Success:** <15min/week human intervention, issues.closed → next issue within 1min, 80% of well-defined work autonomous.
+
+**Impact:** All 6 repos evolve with perpetual motion. ON/OFF: populate roadmaps + enable `copilot-auto-assign` (ON) or disable (OFF).
+
+**Implementation Timeline:** A1-A5 complete in 2 weeks (Week 1 Phase 2).
+
+---
+
 ### 2026-03-16T21:00Z: Phase 2 Consolidated Plan — Visibility + Autonomy + Repo Evolution
 
 **By:** Morpheus (Lead/Architect)  
