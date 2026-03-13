@@ -11,4 +11,5 @@
 
 ## Learnings
 
-<!-- Append entries below as you learn about the project -->
+- 2026-03-13: Created `skills/context-hygiene/SKILL.md` with proactive file size limits (6KB/8KB history, 10KB/12KB decisions). Quality gate decision merged to decisions.md.
+- Orchestration log: `2026-03-13T08-48-switch.md`. Context hygiene is now hard gate for merge acceptance.

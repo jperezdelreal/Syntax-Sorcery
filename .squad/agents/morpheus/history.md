@@ -18,4 +18,5 @@
 - FFS context bloat (642KB decisions) is the #1 engineering problem — solved with hard file size limits (history ≤8KB, decisions ≤15KB, total .squad/ ≤100KB)
 - Gate-based readiness: SS must prove its own hygiene before touching FFS
 - Brady's Squad-IRL has 20+ sample projects; Tamir's squad-monitor is a live dashboard pattern worth tracking
-- Decisions file: `.squad/decisions/inbox/morpheus-phase0-strategy.md`
+- Decisions merged into `.squad/decisions.md`. Orchestration log: `2026-03-13T08-48-morpheus.md`
+- Phase 0 epic (#1) and 4 sub-issues (#2–#5) created on GitHub. Ready for team to work through gates.
