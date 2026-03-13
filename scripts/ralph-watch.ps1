@@ -217,8 +217,8 @@ function Test-SystemHealth {
     }
     
     # Clean up temp files
-    $tempFiles = Get-ChildItem -Path $LOG_DIR -Filter "*.tmp" -File
-    if ($tempFiles) {
+    $tempFiles = @(Get-ChildItem -Path $LOG_DIR -Filter "*.tmp" -File -ErrorAction SilentlyContinue)
+    if ($tempFiles.Count -gt 0) {
         $tempFiles | Remove-Item -Force -ErrorAction SilentlyContinue
         Write-Log "INFO" "Cleaned $($tempFiles.Count) temp file(s)"
     }
@@ -463,6 +463,7 @@ function Invoke-RepoRefueling {
     
     $issues = Get-RefuelingIssues -Repo $Repo
     
+    $issues = @($issues)
     if ($issues.Count -eq 0) {
         return $true  # No issues to process = success
     }
@@ -509,7 +510,7 @@ function Start-RalphWatch {
         Write-Log "WARN" "DRY RUN MODE - No actual refueling will occur"
     }
     
-    $repos = Get-ConstellationRepos
+    $repos = @(Get-ConstellationRepos)
     if ($repos.Count -eq 0) {
         Write-Log "ERROR" "No repositories found in constellation"
         return
