@@ -1,0 +1,68 @@
+[2026-03-13 17:00:08] [INFO] Created log directory: .squad\ralph-watch
+[2026-03-13 17:00:08] [INFO] Acquired process lock (PID: 838932)
+[2026-03-13 17:00:08] [INFO] Ralph-Watch v1.0.0 starting...
+[2026-03-13 17:00:08] [INFO] Poll interval: 10m | Session timeout: 30m
+[2026-03-13 17:00:08] [INFO] Constellation file: .squad\constellation.json
+[2026-03-13 17:00:08] [INFO] Monitoring 6 repositories: jperezdelreal/Syntax-Sorcery, jperezdelreal/FirstFrameStudios, jperezdelreal/flora, jperezdelreal/ComeRosquillas, jperezdelreal/pixel-bounce, jperezdelreal/ffs-squad-monitor
+[2026-03-13 17:00:08] [INFO] === Round 1 started ===
+[2026-03-13 17:00:09] [ERROR] Fatal error: The variable '$LASTEXITCODE' cannot be retrieved because it has not been set.
+[2026-03-13 17:00:09] [ERROR] at Test-SystemHealth, C:\Users\joperezd\GitHub Repos\Syntax Sorcery\scripts\ralph-watch.ps1: line 197
+at Start-RalphWatch, C:\Users\joperezd\GitHub Repos\Syntax Sorcery\scripts\ralph-watch.ps1: line 522
+at <ScriptBlock>, C:\Users\joperezd\GitHub Repos\Syntax Sorcery\scripts\ralph-watch.ps1: line 583
+at <ScriptBlock>, <No file>: line 1
+[2026-03-13 17:00:09] [INFO] Released process lock
+[2026-03-13 17:01:38] [INFO] Acquired process lock (PID: 838932)
+[2026-03-13 17:01:38] [INFO] Ralph-Watch v1.0.0 starting...
+[2026-03-13 17:01:38] [INFO] Poll interval: 10m | Session timeout: 30m
+[2026-03-13 17:01:38] [INFO] Constellation file: .squad\constellation.json
+[2026-03-13 17:01:39] [INFO] Monitoring 6 repositories: jperezdelreal/Syntax-Sorcery, jperezdelreal/FirstFrameStudios, jperezdelreal/flora, jperezdelreal/ComeRosquillas, jperezdelreal/pixel-bounce, jperezdelreal/ffs-squad-monitor
+[2026-03-13 17:01:39] [INFO] === Round 1 started ===
+[2026-03-13 17:01:39] [ERROR] GitHub CLI (gh) not found in PATH
+[2026-03-13 17:01:40] [INFO] Disk space available: 312.89GB
+[2026-03-13 17:01:40] [ERROR] Health check failed, skipping round
+[2026-03-13 17:01:40] [ERROR] Fatal error: The property 'Count' cannot be found on this object. Verify that the property exists.
+[2026-03-13 17:01:40] [ERROR] at Invoke-LogRotation, C:\Users\joperezd\GitHub Repos\Syntax Sorcery\scripts\ralph-watch.ps1: line 119
+at Start-RalphWatch, C:\Users\joperezd\GitHub Repos\Syntax Sorcery\scripts\ralph-watch.ps1: line 555
+at <ScriptBlock>, C:\Users\joperezd\GitHub Repos\Syntax Sorcery\scripts\ralph-watch.ps1: line 583
+at <ScriptBlock>, <No file>: line 1
+[2026-03-13 17:01:40] [INFO] Released process lock
+[2026-03-13 17:02:44] [INFO] Acquired process lock (PID: 838932)
+[2026-03-13 17:02:44] [INFO] Ralph-Watch v1.0.0 starting...
+[2026-03-13 17:02:44] [INFO] Poll interval: 10m | Session timeout: 30m
+[2026-03-13 17:02:44] [INFO] Constellation file: .squad\constellation.json
+[2026-03-13 17:02:44] [INFO] Monitoring 6 repositories: jperezdelreal/Syntax-Sorcery, jperezdelreal/FirstFrameStudios, jperezdelreal/flora, jperezdelreal/ComeRosquillas, jperezdelreal/pixel-bounce, jperezdelreal/ffs-squad-monitor
+[2026-03-13 17:02:44] [INFO] === Round 1 started ===
+[2026-03-13 17:02:44] [INFO] GitHub CLI available: gh version 2.87.3 (2026-02-23)
+[2026-03-13 17:02:44] [INFO] Disk space available: 312.89GB
+[2026-03-13 17:02:44] [INFO] Checking repo: jperezdelreal/Syntax-Sorcery
+[2026-03-13 17:02:45] [ERROR] Exception processing jperezdelreal/Syntax-Sorcery: The property 'Count' cannot be found on this object. Verify that the property exists.
+[2026-03-13 17:02:45] [INFO] Checking repo: jperezdelreal/FirstFrameStudios
+[2026-03-13 17:02:46] [ERROR] Exception processing jperezdelreal/FirstFrameStudios: The property 'Count' cannot be found on this object. Verify that the property exists.
+[2026-03-13 17:02:46] [INFO] Checking repo: jperezdelreal/flora
+[2026-03-13 17:02:47] [ERROR] Exception processing jperezdelreal/flora: The property 'Count' cannot be found on this object. Verify that the property exists.
+[2026-03-13 17:02:47] [INFO] Checking repo: jperezdelreal/ComeRosquillas
+[2026-03-13 17:02:47] [ERROR] Exception processing jperezdelreal/ComeRosquillas: The property 'Count' cannot be found on this object. Verify that the property exists.
+[2026-03-13 17:02:47] [INFO] Checking repo: jperezdelreal/pixel-bounce
+[2026-03-13 17:02:48] [ERROR] Exception processing jperezdelreal/pixel-bounce: The property 'Count' cannot be found on this object. Verify that the property exists.
+[2026-03-13 17:02:48] [INFO] Checking repo: jperezdelreal/ffs-squad-monitor
+[2026-03-13 17:02:49] [ERROR] Exception processing jperezdelreal/ffs-squad-monitor: The property 'Count' cannot be found on this object. Verify that the property exists.
+[2026-03-13 17:02:49] [WARN] Round 1 had failures (consecutive: 1)
+[2026-03-13 17:02:49] [WARN] Applying exponential backoff: 10m (failure count: 1)
+[2026-03-13 17:02:49] [INFO] Sleeping for 10m before next round...
+[2026-03-13 17:02:57] [INFO] Released process lock
+[2026-03-13 17:04:01] [INFO] Acquired process lock (PID: 838932)
+[2026-03-13 17:04:01] [INFO] Ralph-Watch v1.0.0 starting...
+[2026-03-13 17:04:01] [INFO] Poll interval: 10m | Session timeout: 30m
+[2026-03-13 17:04:01] [INFO] Constellation file: .squad\constellation.json
+[2026-03-13 17:04:01] [INFO] Monitoring 6 repositories: jperezdelreal/Syntax-Sorcery, jperezdelreal/FirstFrameStudios, jperezdelreal/flora, jperezdelreal/ComeRosquillas, jperezdelreal/pixel-bounce, jperezdelreal/ffs-squad-monitor
+[2026-03-13 17:04:01] [INFO] === Round 1 started ===
+[2026-03-13 17:04:01] [INFO] GitHub CLI available: gh version 2.87.3 (2026-02-23)
+[2026-03-13 17:04:01] [INFO] Disk space available: 312.88GB
+[2026-03-13 17:04:01] [INFO] Checking repo: jperezdelreal/Syntax-Sorcery
+[2026-03-13 17:04:02] [INFO] Checking repo: jperezdelreal/FirstFrameStudios
+[2026-03-13 17:04:03] [INFO] Checking repo: jperezdelreal/flora
+[2026-03-13 17:04:03] [INFO] Checking repo: jperezdelreal/ComeRosquillas
+[2026-03-13 17:04:04] [INFO] Checking repo: jperezdelreal/pixel-bounce
+[2026-03-13 17:04:05] [INFO] Checking repo: jperezdelreal/ffs-squad-monitor
+[2026-03-13 17:04:05] [SUCCESS] Round 1 completed successfully
+[2026-03-13 17:04:05] [INFO] Sleeping for 10m before next round...
