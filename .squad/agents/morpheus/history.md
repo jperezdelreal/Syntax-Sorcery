@@ -155,3 +155,20 @@
 - Auto-restart via systemd desde día 1
 - ralph-watch.ps1 sigue en PC como fallback
 - Revisión de coste a 30 días
+
+## Learnings — Session 2026-03-18: Monitoring Separation Analysis
+
+**Task:** Diseñar separación concreta de monitorización en 3 capas según jerarquía aprobada por usuario.
+
+**Findings:**
+1. **Capas 1+2 (SS self + downstream) ya están correctas.** constellation.json + safety-net.yml + ralph-watch.ps1 cubren todo. CERO cambios necesarios en SS.
+2. **Capa 3 (Squad Monitor) tiene 1 bug y 2 decisiones pendientes:**
+   - BUG: pixel-bounce FALTA en server/config.js y vite.config.js del Squad Monitor
+   - DECISIÓN A: ¿Quitar FirstFrameStudios del Squad Monitor? (es hub, no juego)
+   - DECISIÓN B: ¿Quitar auto-referencia de ffs-squad-monitor? (circular sin valor)
+3. **Syntax-Sorcery correctamente AUSENTE** de Squad Monitor (server/config.js, vite.config.js, workflows). No hay dependencia circular.
+4. **Squad Monitor workflows (heartbeat, labels, triage) son self-scoped** — usan context.repo, no cross-repo. Correcto.
+
+**Architecture Insight:** La separación de monitorización funciona porque cada capa usa mecanismos diferentes: Capa 1+2 usa constellation.json (config compartida, leída por safety-net.yml y ralph-watch.ps1). Capa 3 usa REPOS hardcoded en JS (desacoplado de constellation.json de SS). Este desacoplamiento es bueno — evita que Squad Monitor dependa de SS para saber qué monitorizar.
+
+**Decision recorded:** `.squad/decisions/inbox/morpheus-monitoring-separation-impl.md`
