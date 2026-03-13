@@ -116,7 +116,7 @@ function Invoke-LogRotation {
     $cutoffDate = (Get-Date).AddDays(-7)
     $oldLogs = $logs | Where-Object { $_.LastWriteTime -lt $cutoffDate }
     
-    if ($oldLogs.Count -gt $LOG_ROTATION_KEEP) {
+    if ($null -ne $oldLogs -and @($oldLogs).Count -gt $LOG_ROTATION_KEEP) {
         $toDelete = $oldLogs | Select-Object -Skip $LOG_ROTATION_KEEP
         foreach ($log in $toDelete) {
             Remove-Item $log.FullName -Force
@@ -193,12 +193,17 @@ function Test-SystemHealth {
     $healthy = $true
     
     # Check gh CLI availability
-    $ghVersion = gh --version 2>&1 | Select-Object -First 1
-    if ($null -eq $LASTEXITCODE -or $LASTEXITCODE -ne 0) {
-        Write-Log "ERROR" "GitHub CLI (gh) not found in PATH"
+    try {
+        $ghVersion = & gh --version 2>&1 | Select-Object -First 1
+        if ($ghVersion -match "gh version") {
+            Write-Log "INFO" "GitHub CLI available: $ghVersion"
+        } else {
+            Write-Log "ERROR" "GitHub CLI (gh) not found in PATH"
+            $healthy = $false
+        }
+    } catch {
+        Write-Log "ERROR" "GitHub CLI (gh) not found in PATH: $_"
         $healthy = $false
-    } else {
-        Write-Log "INFO" "GitHub CLI available: $ghVersion"
     }
     
     # Check disk space
