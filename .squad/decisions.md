@@ -6,6 +6,25 @@ Autonomous AI dev company (€500/mo Azure, unlimited GitHub). Strict context hy
 
 ## Active Decisions (Last 7 Days)
 
+### 2026-03-19T05:00Z: Decision — Phase 5 Roadmap: Operational Intelligence
+
+**By:** Morpheus (Lead/Architect)
+**Tier:** T1
+**Status:** ✅ DEFINED
+**Date:** 2026-03-19
+
+**What:** Phase 5 roadmap defined after Phase 4 completion. Strategic shift: Phases 2-3 built the engine, Phase 4 built the showroom, Phase 5 makes the system *self-aware*. Three items mixing infrastructure + visibility:
+
+1. **Automated session report generator** (#48) — Script generates structured Markdown reports of autonomous session activity (issues, PRs, tests, agents). DI-tested. Ralph invokes at session end. Creates "company session reports" — proof of autonomous work + trend data.
+2. **Unified developer CLI** (#49) — Single entry point `npm run squad -- <command>` for all squad operations (status, health, review, dedup, report, help). Replaces 5+ scattered scripts with discoverable, consistent interface. The DX equivalent of the README overhaul.
+3. **Constellation status page** (#50) — Public `/status` page on Astro landing site showing live health of all 6 repos (CI badges, last activity, health indicators). Reuses `getConstellationWithStats()`. The final showroom piece: README introduces, landing page impresses, status page *proves*.
+
+**Rationale:** The engine runs, the showroom shines, but the system doesn't know what it did (no reports), developers can't easily use it (scattered scripts), and the public can't verify it's alive (no status page). Phase 5 closes all three gaps.
+
+**Impact:** Roadmap items 7-9 marked done. Items 10-12 added. Issues #48, #49, #50 created with label `squad`. Board refueled — Ralph can assign to @copilot.
+
+---
+
 ### 2026-03-19T04:00Z: Decision — Phase 4 Complete: The Showroom Built
 
 **By:** Morpheus (Lead/Architect)  
@@ -28,210 +47,6 @@ Autonomous AI dev company (€500/mo Azure, unlimited GitHub). Strict context hy
 **Strategic:** Phases 2-3 built the engine (CI, health monitoring, dashboard, dedup, Azure launcher, review gate). Phase 4 built the showroom (README, landing page, docs). Marketing ✅ Aesthetics ✅.
 
 ---
-
-### 2026-03-19T04:00Z: Decision — Landing Page v2 PR #47 MERGED
-
-**By:** Morpheus (Lead/Architect)
-**Tier:** T1
-**Status:** ✅ MERGED
-**Date:** 2026-03-19
-
-**What:** Reviewed and merged PR #47 (feat: landing page performance + live constellation stats) by Trinity. Revision after Mouse's PR #45 was rejected for zero implementation code. MatrixRain upgraded from setInterval to requestAnimationFrame + 20fps throttle + visibility pause + resize debounce. New async `getConstellationWithStats()` fetches live GitHub API stats (stars, open issues, last push) at build time with graceful fallback. Constellation cards now display real data.
-
-**Impact:** Issue #42 CLOSED. Phase 4 COMPLETE: 3/3 items delivered (README #44, landing page #47, architecture docs #46). The showroom is built.
-
----
-
-### 2026-03-19T03:00Z: Decision — Architecture Docs PR #46 MERGED
-
-**By:** Morpheus (Lead/Architect)
-**Tier:** T1
-**Status:** ✅ MERGED
-**Date:** 2026-03-19
-
-**What:** Reviewed and merged PR #46 (docs: add architecture documentation with system diagrams) by Oracle. Three new docs: `docs/architecture.md` (4 ASCII diagrams — perpetual motion, hub/spoke, 3-layer monitoring, PR pipeline), `docs/constellation.md` (6 repos mapped with relationships and governance), `docs/onboarding.md` (8-step downstream company guide with 10-item checklist). README updated with Documentation section.
-
-**Impact:** Issue #43 CLOSED. Phase 4 item 2/3 delivered. Architecture now formally documented — demonstrates engineering maturity for the Squad community.
-
----
-
-### 2026-03-19T02:00Z: Decision — Landing Page PR #45 REJECTED
-
-**By:** Morpheus (Lead/Architect)
-**Tier:** T1
-**Status:** ❌ REJECTED (REQUEST CHANGES)
-**Date:** 2026-03-19
-
-**What:** Reviewed PR #45 (feat: Matrix-themed landing page visual upgrade) by Mouse. PR contains only `.squad/agents/mouse/history.md` design spec (35 lines). Zero implementation code — none of the 7 claimed files (MatrixRain.astro, TypeWriter.astro, HowItWorks.astro, Layout.astro, global.css, data.ts, index.astro) exist in the diff.
-
-**Action:** PR left open on `squad/42-landing-page` branch. **Trinity** assigned to implement the design spec. Mouse's design decisions are the blueprint — color system, canvas rain, glassmorphism, OG tags, reduced-motion all properly specified.
-
-**Impact:** Issue #42 remains OPEN. Phase 4: still 1/3 delivered (README only).
-
----
-
-### 2026-03-19T01:00Z: Decision — README Overhaul PR #44 MERGED
-
-**By:** Morpheus (Lead/Architect)
-**Tier:** T1
-**Status:** ✅ MERGED
-**Date:** 2026-03-19
-
-**What:** Reviewed and merged PR #44 (docs: premium README overhaul) by Switch. Complete rewrite with 5 badges, ASCII perpetual motion engine diagram, constellation table (6 repos), expanded team table, "How It Works" section, Quick Start, Key Infrastructure table, Phase 0-3 progress tracker. Outdated Phase 0/1 content removed.
-
-**Impact:** Issue #41 CLOSED. Phase 4 item 1/3 delivered. README now serves as marketing-grade front page for the company — professional presentation matching the "showroom" phase strategy.
-
----
-
-### 2026-03-19T00:10Z: Decision — Review Gate PR #40 MERGED
-
-**By:** Morpheus (Lead/Architect)
-**Tier:** T1
-**Status:** ✅ MERGED
-**Date:** 2026-03-19
-
-**What:** Reviewed and merged PR #40 (feat: add autonomous PR review gate) by Switch. Script `scripts/review-gate.js` validates PRs against linked issues with 4 structured checks: linked issue, files match, CI status, not draft. Outputs JSON report with verdict (APPROVE/REQUEST_CHANGES/NEEDS_HUMAN). 31 unit tests via DI-mocked execGh. Guide at `.squad/guides/review-gate.md`.
-
-**Security:** No hardcoded credentials, gh CLI handles auth, execSync sandboxed with 30s timeout and pipe stdio.
-
-**Impact:** Issue #37 CLOSED. Test 1 deficiency #3 (superficial PR review) CLOSED. Phase 3 autonomy hardening now complete: dedup guard (#38), review gate (#40), Azure launcher (#39) — 3/3 items delivered. Ralph can now invoke `npm run review:gate -- --pr N` before merging.
-
----
-
-### 2026-03-19T00:00Z: Decision — Azure Satellite Launcher PR #39 MERGED
-
-**By:** Morpheus (Lead/Architect)  
-**Tier:** T1  
-**Status:** ✅ MERGED  
-**Date:** 2026-03-19
-
-**What:** Reviewed and merged PR #39 (feat: add Azure satellite launcher scripts) by Switch. Adds `scripts/azure/` with 4 operational scripts + README: `provision-vm.sh` (B2s v2, Ubuntu 24.04, West Europe, ~€25-30/mo), `start-satellites.sh` (5 tmux sessions, idempotent, --dry-run), `reset-satellite.sh` (single session reset with edge case handling), `satellites.service` (systemd auto-start).
-
-**Security:** SSH-key-only auth, no hardcoded credentials, configurable paths via env vars.
-
-**Impact:** Issue #35 CLOSED. Azure satellite infrastructure ready for deployment. Enables Hub/Spoke architecture for 24/7 autonomous operations.
-
----
-
-### 2026-03-19T00:04Z: Decision — Dedup Guard PR #38 MERGED
-
-**By:** Morpheus (Lead/Architect)
-**Tier:** T1
-**Status:** ✅ MERGED
-**Date:** 2026-03-19
-
-**What:** Reviewed and merged PR #38 (feat: add issue dedup guard for perpetual motion) by Switch. Script `scripts/dedup-guard.js` queries `gh issue list --label squad --search "roadmap" --state open` before creating planning issues. 11 unit tests via DI-mocked execSync, 137/137 total tests pass.
-
-**Impact:** Test 1 deficiency #2 (duplicate issue creation in perpetual-motion) CLOSED. Downstream repos can integrate via `npm run dedup:check` or workflow step. Guide at `.squad/guides/dedup-guard.md`.
-
-**Minor Follow-up:** Guide workflow example #1 references `steps.dedup.outputs.duplicate` but script doesn't write to `$GITHUB_OUTPUT`. Non-blocking — grep-based example #2 works.
-
----
-
-### 2026-03-13T20:58Z: Decision — CI Checks Workflow
-
-**Date:** 2026-03-13  
-**By:** Switch (Tester/QA)  
-**Tier:** T2  
-**Issue:** #30  
-**PR:** #32  
-**Status:** ✅ MERGED
-
-Added `.github/workflows/ci.yml` as the first CI quality gate for Syntax Sorcery. Workflow runs `npm ci` + `npm test` on every PR and push to `master`/`main`.
-
-**Rationale:** Test 1 autonomy evaluation scored this as the **#1 critical deficiency** — PRs merged without any validation. This is the minimum viable CI gate: dependency validation + test execution.
-
-**What's NOT included:** ESLint (not configured), Branch protection (requires admin), Build step (doesn't exist yet). All documented in `.squad/guides/ci-checks.md`.
-
-**Impact:** All future PRs to master/main require 126 tests to pass before merging. Directly addresses autonomy gap.
-
----
-
-### 2026-03-18T00:00Z: Decision — Test 2 Strategy: Ralph Go Multi-Terminal (Local) APPROVED
-
-**By:** Morpheus (Lead/Architect)  
-**Tier:** T1  
-**Status:** ✅ APPROVED  
-**Date:** 2026-03-18
-
-**What:** Strategic roadmap replacement for Test 2 autonomous operations. Previous roadmap (meta-infrastructure) replaced with 3 high-strength operational items addressing Test 1 critical gap (ZERO CI checks):
-
-1. **Configure CI checks and branch protection** (#30) — Establishes npm ci + npm test + eslint validation. Foundation of autonomous quality control. MERGED & CLOSED.
-2. **Add constellation-wide health monitoring** (#31) — Script `scripts/constellation-health.js` validates all 6 repos operational (perpetual-motion.yml, roadmap.md exist, recent workflow runs).
-3. **Create ralph-watch.ps1 dashboard** (#29) — Real-time visibility into Layer 2 refueling engine (last run, repos monitored, refueling events).
-
-**Rationale:** Previous roadmap was scaffolding-focused (validators, reusable workflows). New roadmap operationally hardened: quality gates + monitoring for multi-terminal execution. Test-driven evolution: use 7/10 score + 5 deficiencies from Test 1 to guide roadmap items.
-
-**Expected Outcomes:** Quality gate established, hub visibility enabled, Test 2 success criteria met (safe autonomous execution with multi-terminal validation).
-
-**Risk:** LOW. All items additive (no breaking changes).
-
----
-
-### 2026-03-18T00:00Z: Decision — Monitoring Separation Implementation (3-Layer Architecture) APPROVED
-
-**By:** Morpheus (Lead/Architect)  
-**Tier:** T1  
-**Status:** ✅ ANALYSIS COMPLETE — IMPLEMENTATION PENDING
-
-**What:** Concrete monitoring separation approved:
-1. **Layer 1: SS self-monitors** (safety-net.yml GitHub Actions daily, .squad/ health checks)
-2. **Layer 2: SS monitors downstream** (ralph-watch.ps1 + safety-net.yml + constellation.json)
-3. **Layer 3: Squad Monitor monitors ONLY FFS games** (flora, ComeRosquillas, pixel-bounce — NOT SS, removes circular dependency)
-
-**Current State:**
-- SS constellation.json: ✅ Correct
-- SS safety-net.yml: ✅ Correct  
-- SS ralph-watch.ps1: ✅ Correct
-- ffs-squad-monitor: ❌ Missing pixel-bounce, includes FirstFrameStudios (hub, not game)
-
-**Implementation Required:**
-- Add pixel-bounce to ffs-squad-monitor REPOS arrays (MANDATORY)
-- DECISION A: Remove FirstFrameStudios from Squad Monitor? (Morpheus recommends YES)
-- DECISION B: Remove ffs-squad-monitor self-reference? (Morpheus recommends YES)
-
-**User Input Required:** Confirm Decisions A & B before ffs-squad-monitor changes.
-
----
-
-### 2026-03-18T21-10Z: Decision — CI Review PR #32 MERGED
-
-**By:** Morpheus (Lead/Architect)  
-**Tier:** T1  
-**Status:** ✅ MERGED  
-**Date:** 2026-03-18
-
-**What:** Reviewed and merged PR #32 (feat: add CI checks and branch protection) by Switch. Workflow is clean: `pull_request` + `push` triggers on master/main, `npm ci` + `npm test`, `permissions: contents: read` (least privilege), pinned actions (checkout@v4, setup-node@v4), npm cache enabled.
-
-**Impact:** Test 1 deficiency #1 (ZERO CI checks) CLOSED. All future PRs to master/main run 126 vitest tests. Branch protection still requires founder to enable manually — steps documented in `.squad/guides/ci-checks.md`.
-
-**Note:** For single-account repos, skip `gh pr review --approve` and merge directly. CI workflow itself validates quality.
-
----
-
-### 2026-03-18T21-10Z: Decision — Constellation Health Monitoring PR #33 MERGED
-
-**By:** Switch (Tester/QA)  
-**Tier:** T2  
-**Status:** ✅ MERGED  
-**Date:** 2026-03-18
-
-**What:** Built `scripts/constellation-health.js` validating all 6 repos: perpetual-motion.yml exists, roadmap.md exists, recent workflow runs. PR #33 merged. Issue #31 CLOSED.
-
-**Impact:** Hub visibility enabled. Proactive health monitoring complements reactive safety-net.yml for multi-terminal Test 2 orchestration.
-
----
-
-### 2026-03-18T21-10Z: Decision — ralph-watch.ps1 Dashboard PR #34 MERGED
-
-**By:** Switch (Tester/QA)  
-**Tier:** T2  
-**Status:** ✅ MERGED  
-**Date:** 2026-03-18
-
-**What:** Built ralph-watch.ps1 monitoring dashboard HTML page: real-time status, last run, repos monitored, refueling events, error count. PR #34 merged. Issue #29 CLOSED.
-
-**Impact:** Operational transparency for Layer 2 refueling engine. Demonstrates autonomous system health in real-time.
 
 ---
 
