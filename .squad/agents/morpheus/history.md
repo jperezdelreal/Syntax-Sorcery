@@ -31,3 +31,11 @@
 - Created `.squad/identity/readiness-gates.md` (2.8KB) with 5 gates for FFS intervention readiness
 - Self-assessment: Gates 1–4 all PASS. Gate 5 (founder approval) is the only remaining blocker for Phase 1
 - Phase 0 is architecturally complete — all 4 deliverables (#2–#5) shipped with proper branch/PR/merge lifecycle
+
+### 2026-03-13: Phase 1 Decomposition
+- Decomposed PRD Phase 1 into 14 work items across 5 waves (`.squad/decisions/inbox/morpheus-phase1-decomposition.md`)
+- Critical path: Audit → Context Map → Remediation → Governance Swap → GDD Pipeline → Proposal→Prototype → Integration Test → Self-Audit
+- 5 items are @copilot 🟢 (autonomous), 7 are 🟡 (paired), 2 are 🔴 (human-only: template decision + Proposal→Prototype architecture)
+- Key insight: P1-11 (Proposal→Prototype) is the most complex item — will need sub-decomposition once architecture is defined
+- Founder sign-off NOT required for any Phase 1 item — Gate 5 already cleared, all items T1/T2
+- FFS pause required before Wave 2 writes — batch all writes in single intervention window to minimize coordination overhead
