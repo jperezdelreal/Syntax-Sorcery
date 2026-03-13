@@ -1,0 +1,14 @@
+{
+  "repos": [
+    "jperezdelreal/Syntax-Sorcery",
+    "jperezdelreal/FirstFrameStudios",
+    "jperezdelreal/flora",
+    "jperezdelreal/ComeRosquillas",
+    "jperezdelreal/ffs-squad-monitor"
+  ],
+  "metadata": {
+    "description": "Repository constellation monitored by safety-net workflow",
+    "updated": "2026-03-17",
+    "owner": "jperezdelreal"
+  }
+}
