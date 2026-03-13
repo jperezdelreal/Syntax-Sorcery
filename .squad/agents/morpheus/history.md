@@ -133,3 +133,25 @@
 - **Jerarquía clara:** SS → monitoriza FFS repos (via ralph-watch + safety-net). Squad Monitor → monitoriza solo juegos FFS. SS → se monitoriza a sí misma.
 
 **Score del test:** 7/10. Arquitectura validada, implementación con gaps corregibles.
+
+## Learnings — Session 2026-03-13: Hub/Spoke Architecture Evaluation
+
+**Event:** User proposed Hub (PC local con SS) + Spoke (Azure VM con terminales satélite) architecture. Morpheus evaluated and APPROVED with conditions.
+
+**Architecture Decision:** Hub/Spoke APROBADO. SS terminal en PC del usuario = hub de control. Azure VM B2s v2 (~€25-30/mes, Ubuntu 24.04, 2 vCPU, 4GB RAM) = spoke con 5 sesiones Squad persistentes via tmux (1 ventana por repo). Comunicación via SSH + `tmux send-keys`. Context reset automatizado con script `reset-satellite.sh`.
+
+**Key Findings:**
+1. **ROI claro:** €25-50/mes convierte autonomía de "cuando el PC está encendido" (7/10) a "24/7 real" (9/10). En presupuesto de €500/mes, irrelevante.
+2. **tmux > PM2/systemd/screen:** tmux es la herramienta correcta para CLIs interactivos persistentes en Linux. PM2 es para Node servers, systemd es overkill, screen es inferior.
+3. **SSH > GitHub API como bus:** SSH es directo, estándar, sin latencia extra. GitHub API para mensajería hub→spoke sería over-engineering.
+4. **VM es Layer 2.5, no crítico:** Si VM muere, sistema degrada a estado actual (7/10) pero NO se para. Layer 1 (GitHub Actions) y Layer 2 (ralph-watch en PC) siguen funcionando. Degradation graceful, no catastrophic failure.
+5. **Empezar pequeño:** Probar con 1 repo (flora) antes de escalar a 5. Verificar que Squad CLI funciona en Linux VM via tmux.
+6. **constellation.json tiene owner incorrecto:** "jperezdelreal" debe ser "joperezd". Ya documentado pero sigue pendiente.
+
+**Condiciones de aprobación:**
+- B2s v2 para empezar, upgrade solo si necesario
+- Probar con 1 repo primero (flora)
+- Scripts de gestión (start-satellites.sh, reset-satellite.sh) obligatorios
+- Auto-restart via systemd desde día 1
+- ralph-watch.ps1 sigue en PC como fallback
+- Revisión de coste a 30 días
