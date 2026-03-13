@@ -50,6 +50,30 @@
 **Key:** FFS is operationally rich (22 vs expected 13). Critical: multi-agent-coordination (72+ spawns, SS parallel safety blocker), feature-triage (scope), PRD, state machines.
 **Deliverable:** oracle-ffs-skills-inventory.md
 
+### 2026-03-14T14:45Z: P1-10a GDD Template Spec — COMPLETE
+**What:** Defined comprehensive GDD template format (10 sections) and Trinity's machine-executable parsing spec. Template is YAML-frontmatter + 10 markdown sections (High Concept, Design Pillars, Core Mechanics, Art & Visual Style, Audio, Game Loop & Progression, Technical Architecture, Content & Scope, Success Criteria & Testing, Dependencies & Critical Path). Mapping spec covers: section→issue-type rules, label derivation from YAML + sections, blocking dependency linkage, auto-triage logic.
+**Key Findings:**
+- FFS has 3 games with detailed GDDs (Flora, firstPunch, ComeRosquillas) — used as spec examples
+- Flora GDD fits template perfectly: 12 sections, clear MVP scope, identifiable blockers
+- Template is machine-parseable: YAML → issue metadata, H3 headers → issue types, H4 sub-headers → task issues, checklists → acceptance criteria
+- Expected output: 1 epic + 25–40 issues per typical GDD, all auto-labeled and prioritized
+
+**Design Decisions:**
+1. Design Pillars section NOT converted to issues (meta-decision doc; referenced in code review)
+2. Art & Visual Style generates Asset Sprint epic only if `art_required: high` (scope-aware)
+3. All blocking unknowns auto-escalate to P0 + `needs:research` label
+4. Meta-progression is separate task from per-run loop (parallel dev possible)
+5. Frontmatter fields control priority + label derivation (YAML is source of truth for automation)
+
+**Deliverables:**
+- `docs/gdd-template.md` (20.7 KB) — Machine-parseable template with 10 sections, YAML schema, section-to-issue mapping, auto-parsing rules
+- `docs/gdd-issue-mapping.md` (21.3 KB) — Trinity's reference spec: exact parsing logic per section, label rules, blocking dependencies, error handling, implementation checklist, example trace (Flora → 37 issues)
+
+**Readiness for P1-10b (Trinity GDD→Issue Pipeline):**
+- Template is finalized & locked (no further design changes)
+- Mapping spec is executable (Trinity can code directly from it)
+- No unknowns remain (specification is complete)
+
 ### 2026-03-14T14:45Z: P1-14 FFS Visibility & Showcase Audit — COMPLETE
 **What:** Comprehensive visibility audit of FFS's GitHub Pages, blog, and game playability against founder's three hard requirements (games playable, visible, impressive).
 **Key Findings:**
@@ -71,3 +95,11 @@
 **Deadline:** This week (2026-03-17)
 
 **Deliverable:** `.squad/decisions/inbox/oracle-showcase-report.md` (9.3KB)
+
+### 2026-03-14 Wave 3 Sync
+- Trinity completed P1-07 (16 skills migrated, SS total 20). Ready for P1-10b and P1-14 remediation.
+- Tank completed P1-09 (cost alerting live, €0 cost, GHA-based). Founder must activate with secrets.
+- Budget clarified: GitHub unlimited, Azure €500/mo. Cost Alerting, Ralph, GDD Parser all GitHub-first.
+- Decisions merged: 5 inbox files → decisions.md (3.9KB, under 15KB limit). No archival needed.
+- All Wave 3 orchestration logs written. Session log written. Cross-agent sync complete.
+- Next: Trinity's P1-14 remediation (8–12hrs, P0 this week) + P1-10b GDD parser (unblocked by spec).
