@@ -86,36 +86,64 @@ export interface ConstellationRepo {
   description: string;
   url: string;
   type: 'hub' | 'downstream' | 'game' | 'tool';
+  stars?: number;
+  openIssues?: number;
+  lastPush?: string;
 }
 
-export function getConstellation(): ConstellationRepo[] {
+const repoMeta: Record<string, { description: string; type: ConstellationRepo['type'] }> = {
+  'Syntax-Sorcery': { description: 'Hub — Autonomous software company HQ', type: 'hub' },
+  'FirstFrameStudios': { description: 'Downstream — Indie game studio', type: 'downstream' },
+  'flora': { description: 'Game — A botanical adventure', type: 'game' },
+  'ComeRosquillas': { description: 'Game — Arcade donut runner', type: 'game' },
+  'pixel-bounce': { description: 'Game — Pixel art bouncer', type: 'game' },
+  'ffs-squad-monitor': { description: 'Tool — Ops monitoring dashboard', type: 'tool' },
+};
+
+function loadConstellationRepos(): string[] {
   try {
     const constellationPath = path.join(process.cwd(), '../.squad/constellation.json');
     const content = fs.readFileSync(constellationPath, 'utf-8');
-    const data = JSON.parse(content);
-
-    const repoMeta: Record<string, { description: string; type: ConstellationRepo['type'] }> = {
-      'Syntax-Sorcery': { description: 'Hub — Autonomous software company HQ', type: 'hub' },
-      'FirstFrameStudios': { description: 'Downstream — Indie game studio', type: 'downstream' },
-      'flora': { description: 'Game — A botanical adventure', type: 'game' },
-      'ComeRosquillas': { description: 'Game — Arcade donut runner', type: 'game' },
-      'pixel-bounce': { description: 'Game — Pixel art bouncer', type: 'game' },
-      'ffs-squad-monitor': { description: 'Tool — Ops monitoring dashboard', type: 'tool' },
-    };
-
-    return (data.repos || []).map((repo: string) => {
-      const name = repo.split('/')[1] || repo;
-      const meta = repoMeta[name] || { description: 'Repository', type: 'downstream' as const };
-      return {
-        name,
-        fullName: repo,
-        description: meta.description,
-        url: `https://github.com/${repo}`,
-        type: meta.type,
-      };
-    });
-  } catch (error) {
-    console.error('Error reading constellation:', error);
+    return JSON.parse(content).repos || [];
+  } catch {
     return [];
   }
+}
+
+export function getConstellation(): ConstellationRepo[] {
+  return loadConstellationRepos().map((repo: string) => {
+    const name = repo.split('/')[1] || repo;
+    const meta = repoMeta[name] || { description: 'Repository', type: 'downstream' as const };
+    return { name, fullName: repo, description: meta.description, url: `https://github.com/${repo}`, type: meta.type };
+  });
+}
+
+/** Fetch live stats from GitHub API at build time. Falls back to static data on failure. */
+export async function getConstellationWithStats(): Promise<ConstellationRepo[]> {
+  const repos = loadConstellationRepos();
+  const results: ConstellationRepo[] = [];
+
+  for (const repo of repos) {
+    const name = repo.split('/')[1] || repo;
+    const meta = repoMeta[name] || { description: 'Repository', type: 'downstream' as const };
+    const base: ConstellationRepo = { name, fullName: repo, description: meta.description, url: `https://github.com/${repo}`, type: meta.type };
+
+    try {
+      const res = await fetch(`https://api.github.com/repos/${repo}`, {
+        headers: { 'Accept': 'application/vnd.github.v3+json', 'User-Agent': 'SyntaxSorcery-Site' },
+      });
+      if (res.ok) {
+        const data = await res.json();
+        base.stars = data.stargazers_count ?? 0;
+        base.openIssues = data.open_issues_count ?? 0;
+        base.lastPush = data.pushed_at ?? '';
+      }
+    } catch {
+      // Graceful fallback — stats stay undefined
+    }
+
+    results.push(base);
+  }
+
+  return results;
 }

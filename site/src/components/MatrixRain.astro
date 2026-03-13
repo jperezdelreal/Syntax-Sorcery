@@ -43,8 +43,13 @@
         const chars = 'アイウエオカキクケコサシスセソタチツテトナニヌネノハヒフヘホマミムメモヤユヨラリルレロワヲン0123456789ABCDEF{}[]<>/\\';
         const charArray = chars.split('');
         const fontSize = 14;
+        const targetFps = 20;
+        const frameInterval = 1000 / targetFps;
         let columns: number;
         let drops: number[];
+        let animId: number;
+        let lastFrame = 0;
+        let resizeTimer: ReturnType<typeof setTimeout>;
 
         function resize() {
           canvas.width = canvas.parentElement?.offsetWidth || window.innerWidth;
@@ -53,19 +58,27 @@
           drops = Array(columns).fill(1).map(() => Math.random() * -100);
         }
 
-        resize();
-        window.addEventListener('resize', resize);
+        function debouncedResize() {
+          clearTimeout(resizeTimer);
+          resizeTimer = setTimeout(resize, 150);
+        }
 
-        function draw() {
-          if (!ctx) return;
-          ctx.fillStyle = 'rgba(0, 0, 0, 0.05)';
-          ctx.fillRect(0, 0, canvas.width, canvas.height);
-          ctx.fillStyle = '#00ff41';
-          ctx.font = `${fontSize}px monospace`;
+        resize();
+        window.addEventListener('resize', debouncedResize);
+
+        function draw(timestamp: number) {
+          animId = requestAnimationFrame(draw);
+          if (timestamp - lastFrame < frameInterval) return;
+          lastFrame = timestamp;
+
+          ctx!.fillStyle = 'rgba(0, 0, 0, 0.05)';
+          ctx!.fillRect(0, 0, canvas.width, canvas.height);
+          ctx!.fillStyle = '#00ff41';
+          ctx!.font = `${fontSize}px monospace`;
 
           for (let i = 0; i < drops.length; i++) {
             const char = charArray[Math.floor(Math.random() * charArray.length)];
-            ctx.fillText(char, i * fontSize, drops[i] * fontSize);
+            ctx!.fillText(char, i * fontSize, drops[i] * fontSize);
 
             if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) {
               drops[i] = 0;
@@ -74,7 +87,17 @@
           }
         }
 
-        setInterval(draw, 50);
+        // Pause when tab is hidden to save resources
+        document.addEventListener('visibilitychange', () => {
+          if (document.hidden) {
+            cancelAnimationFrame(animId);
+          } else {
+            lastFrame = 0;
+            animId = requestAnimationFrame(draw);
+          }
+        });
+
+        animId = requestAnimationFrame(draw);
       }
     }
   }

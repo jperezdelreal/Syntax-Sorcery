@@ -3,11 +3,11 @@ import Layout from '../layouts/Layout.astro';
 import MatrixRain from '../components/MatrixRain.astro';
 import TypeWriter from '../components/TypeWriter.astro';
 import HowItWorks from '../components/HowItWorks.astro';
-import { getRecentDecisions, getTeamRoster, getConstellation } from '../utils/data';
+import { getRecentDecisions, getTeamRoster, getConstellationWithStats } from '../utils/data';
 
 const decisions = getRecentDecisions(5);
 const team = getTeamRoster();
-const constellation = getConstellation();
+const constellation = await getConstellationWithStats();
 ---
 
 <Layout title="Syntax Sorcery — Autonomous Software Company">
@@ -159,7 +159,18 @@ const constellation = getConstellation();
                 ]} />
                 <h3 class="font-mono text-sm font-bold group-hover:text-matrix-green transition-colors truncate">{repo.name}</h3>
               </div>
-              <p class="text-gray-500 text-xs">{repo.description}</p>
+              <p class="text-gray-500 text-xs mb-2">{repo.description}</p>
+              {(repo.stars !== undefined || repo.openIssues !== undefined) && (
+                <div class="flex items-center gap-3 text-xs text-gray-600 font-mono">
+                  {repo.stars !== undefined && <span>⭐ {repo.stars}</span>}
+                  {repo.openIssues !== undefined && <span>📋 {repo.openIssues} open</span>}
+                  {repo.lastPush && (
+                    <span class="text-matrix-green/40">
+                      {new Date(repo.lastPush).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+                    </span>
+                  )}
+                </div>
+              )}
             </a>
           ))}
         </div>
