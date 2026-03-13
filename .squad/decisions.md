@@ -67,6 +67,9 @@
 
 ## Governance
 
-- All meaningful changes require team consensus
-- Document architectural decisions here
-- Keep history focused on work, decisions focused on direction
+| Tier | Authority | Scope | Examples |
+|------|-----------|-------|----------|
+| T0 | Founder only | New downstream companies, principles changes, critical `.squad/` structural changes | Adding FFS, changing autonomy model |
+| T1 | Lead (Morpheus) | Architecture, quality gates, skills, ceremonies, routing | New agent roles, gate criteria, routing rules |
+| T2 | Agent authority | Implementation details, test strategies, doc updates | Code patterns, test plans, README edits |
+| T3 | Auto-approved | Scribe ops, history updates, log entries | Session logs, history.md appends, orchestration logs |
