@@ -64,3 +64,12 @@
 - Governance: SS T0-T3 tiers now installed in FFS. Clear authority boundaries enable autonomous FFS operation without conflicts.
 - Ready for P1-07 (Skills Cherry-Pick), P1-09 (Cost Alerting), P1-10 (GDD→Issue Pipeline), P1-11 (Proposal→Prototype), P1-14 (Visibility)
 
+### 2026-03-15: P1-11 — Proposal→Prototype Workflow Architecture
+- Designed complete 6-stage autonomous pipeline: Proposal → GDD Gen → Issue Decomp → Implementation → Build → Deploy
+- Key architectural decisions: @copilot for GDD generation (zero Azure cost), per-game repos (matches FFS pattern), static-first build (HTML5 Canvas default), label-based state machine (`pipeline:*` on Epic issues), pipeline logic centralized in Syntax-Sorcery
+- Decomposed into 12 implementation sub-tasks across 4 waves (~20h Trinity work): foundation scripts, orchestration workflows, build/deploy templates, integration testing
+- Critical insight: Stage 3 (Implementation) is the highest-risk stage — @copilot quality varies by game complexity. Architecture-first approach + Trinity fallback mitigates this.
+- Cross-repo orchestration (SS workflows → FFS game repos) is the main technical challenge — requires PAT or repository_dispatch events
+- Ralph integration: threshold-based monitoring per stage, escalation protocol for stale/blocked pipelines
+- Artifacts: `docs/proposal-to-prototype.md`, `.squad/decisions/inbox/morpheus-proposal-prototype.md`
+
