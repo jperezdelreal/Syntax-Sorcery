@@ -40,6 +40,13 @@
 - Founder sign-off NOT required for any Phase 1 item — Gate 5 already cleared, all items T1/T2
 - FFS pause required before Wave 2 writes — batch all writes in single intervention window to minimize coordination overhead
 
+### 2026-03-13: P1-01 — FFS Read-Only Audit Complete
+- FFS constellation grades C overall (0.68). Hub context bloat is the #1 blocker: decisions-archive 627KB, growth-framework 55KB, new-project-playbook 45KB — all at 🛑 HARD STOP
+- Downstream repos (ComeRosquillas B, Flora C, ffs-squad-monitor B) have clean context but governance/autonomy gaps
+- 3 remediation priorities: (1) Hub context bloat, (2) triage workflow sync across 3 repos, (3) test infrastructure for game repos
+- Skills are duplicated verbatim (same SHA) across all 4 repos — many game-specific skills irrelevant to monitor repo
+- Report: `.squad/decisions/inbox/morpheus-ffs-audit-report.md`
+
 ### 2026-03-14: P1-02 — Template Bloat Resolution
 - Decision: Option A — Accept templates/ (65KB, 31 files) as-is. No restructuring.
 - Rationale: Framework scaffolding from Brady Gaster, already excluded from CI enforcement, on-demand loading only, max file 6.7KB (well under 15KB limit)
