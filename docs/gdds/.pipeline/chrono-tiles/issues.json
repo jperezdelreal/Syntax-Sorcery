@@ -1,0 +1,188 @@
+[
+  {
+    "number": "dry-1773403948886",
+    "title": "[Epic] Game: Chrono Tiles",
+    "type": "epic",
+    "url": "(dry-run)"
+  },
+  {
+    "number": "dry-1773403948886",
+    "title": "Implement Tile Movement",
+    "type": "feature",
+    "url": "(dry-run)"
+  },
+  {
+    "number": "dry-1773403948887",
+    "title": "Implement Time Manipulation",
+    "type": "feature",
+    "url": "(dry-run)"
+  },
+  {
+    "number": "dry-1773403948887",
+    "title": "Implement Collection System",
+    "type": "feature",
+    "url": "(dry-run)"
+  },
+  {
+    "number": "dry-1773403948887",
+    "title": "Art Specification: Chrono Tiles",
+    "type": "art",
+    "url": "(dry-run)"
+  },
+  {
+    "number": "dry-1773403948888",
+    "title": "Audio Design (Procedural): Chrono Tiles",
+    "type": "audio",
+    "url": "(dry-run)"
+  },
+  {
+    "number": "dry-1773403948888",
+    "title": "Implement Per-Run Loop: Chrono Tiles",
+    "type": "feature",
+    "url": "(dry-run)"
+  },
+  {
+    "number": "dry-1773403948888",
+    "title": "Implement Meta-Progression: Chrono Tiles",
+    "type": "feature",
+    "url": "(dry-run)"
+  },
+  {
+    "number": "dry-1773403948888",
+    "title": "Architecture Design: Chrono Tiles",
+    "type": "technical",
+    "url": "(dry-run)"
+  },
+  {
+    "number": "dry-1773403948889",
+    "title": "Feature: Tile grid movement system",
+    "type": "feature",
+    "url": "(dry-run)"
+  },
+  {
+    "number": "dry-1773403948890",
+    "title": "Feature: 3 time manipulation abilities (rewind, pause, fast-forward)",
+    "type": "feature",
+    "url": "(dry-run)"
+  },
+  {
+    "number": "dry-1773403948890",
+    "title": "Feature: 20 levels across 3 worlds",
+    "type": "feature",
+    "url": "(dry-run)"
+  },
+  {
+    "number": "dry-1773403948890",
+    "title": "Feature: Crystal collection system",
+    "type": "feature",
+    "url": "(dry-run)"
+  },
+  {
+    "number": "dry-1773403948890",
+    "title": "Feature: Level select / world map",
+    "type": "feature",
+    "url": "(dry-run)"
+  },
+  {
+    "number": "dry-1773403948890",
+    "title": "Feature: Energy system for rewind",
+    "type": "feature",
+    "url": "(dry-run)"
+  },
+  {
+    "number": "dry-1773403948891",
+    "title": "Feature: Basic particle effects for time abilities",
+    "type": "feature",
+    "url": "(dry-run)"
+  },
+  {
+    "number": "dry-1773403948891",
+    "title": "Feature (Post-MVP): 20 additional levels (worlds 4-5)",
+    "type": "feature",
+    "url": "(dry-run)"
+  },
+  {
+    "number": "dry-1773403948891",
+    "title": "Feature (Post-MVP): Speed-run timer and leaderboard",
+    "type": "feature",
+    "url": "(dry-run)"
+  },
+  {
+    "number": "dry-1773403948891",
+    "title": "Feature (Post-MVP): Level editor",
+    "type": "feature",
+    "url": "(dry-run)"
+  },
+  {
+    "number": "dry-1773403948892",
+    "title": "Feature (Post-MVP): Color-blind mode",
+    "type": "feature",
+    "url": "(dry-run)"
+  },
+  {
+    "number": "dry-1773403948892",
+    "title": "Exploration: Time-split mechanic (create temporal clone)",
+    "type": "research",
+    "url": "(dry-run)"
+  },
+  {
+    "number": "dry-1773403948892",
+    "title": "Exploration: Daily challenge levels",
+    "type": "research",
+    "url": "(dry-run)"
+  },
+  {
+    "number": "dry-1773403948892",
+    "title": "Testing: Chrono Tiles Functional Requirements",
+    "type": "qa",
+    "url": "(dry-run)"
+  },
+  {
+    "number": "dry-1773403948893",
+    "title": "Testing: Chrono Tiles Quality Gates & Blockers",
+    "type": "qa",
+    "url": "(dry-run)"
+  },
+  {
+    "number": "dry-1773403948893",
+    "title": "Investigation: Time-rewind memory cost",
+    "type": "research",
+    "url": "(dry-run)"
+  },
+  {
+    "number": "dry-1773403948893",
+    "title": "Investigation: Pause interaction edge cases",
+    "type": "research",
+    "url": "(dry-run)"
+  },
+  {
+    "number": "dry-1773403948894",
+    "title": "[Milestone] Chrono Tiles Development Path",
+    "type": "milestone",
+    "url": "(dry-run)"
+  },
+  {
+    "number": "dry-1773403948894",
+    "title": "Phase: Design Phase (1-2 days)",
+    "type": "milestone",
+    "url": "(dry-run)"
+  },
+  {
+    "number": "dry-1773403948895",
+    "title": "Phase: Prototype Phase (2-3 days)",
+    "type": "milestone",
+    "url": "(dry-run)"
+  },
+  {
+    "number": "dry-1773403948895",
+    "title": "Phase: Core Implementation (4-6 days)",
+    "type": "milestone",
+    "url": "(dry-run)"
+  },
+  {
+    "number": "dry-1773403948895",
+    "title": "Phase: Polish & Testing (2-3 days)",
+    "type": "milestone",
+    "url": "(dry-run)"
+  }
+]
