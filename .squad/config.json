@@ -1,4 +1,18 @@
 {
   "version": 1,
-  "teamRoot": "C:\\Users\\joperezd\\GitHub Repos\\Syntax Sorcery"
+  "teamRoot": "C:\\Users\\joperezd\\GitHub Repos\\Syntax Sorcery",
+  "ralph-watch": {
+    "enabled": true,
+    "interval": "5m",
+    "repos": [
+      "jperezdelreal/Syntax-Sorcery",
+      "jperezdelreal/FirstFrameStudios"
+    ],
+    "checks": [
+      "context-size",
+      "issue-staleness",
+      "workflow-health"
+    ],
+    "heartbeat": ".squad/ralph-heartbeat.json"
+  }
 }
