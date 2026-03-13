@@ -41,68 +41,85 @@ Delivered in PR #40 (merged 2026-03-19). Issue #37 CLOSED.
 
 ---
 
-## 7. [ ] README premium overhaul — company-grade presentation
+## ~~7. [x] README premium overhaul — company-grade presentation~~ ✅
 
-**Acceptance Criteria:**
-- GitHub badges at top: CI status, test count (168+), license, Node version
-- Accurate current status: Phase 3 complete, 6 repos in constellation, 168 tests, 6 PRs merged autonomously
-- ASCII architecture diagram showing the perpetual motion engine cycle (issue → agent → PR → review gate → merge → roadmap depletion → refuel)
-- Constellation overview: table of all 6 downstream repos with status, description, and links
-- "How It Works" section: 3-step explanation of autonomous operation
-- Quick start guide: clone → npm install → npm test → run constellation health check
-- Professional tone, concise, scannable — befitting a company that builds autonomous software
-- Remove outdated "Phase 0 complete / Phase 1 preparing" content
-
-**Files:**
-- `README.md` (rewrite)
-
-**Context:**
-The README is the most visible artifact of the entire company. Every visitor, contributor, and potential collaborator sees it first. Currently it says "Phase 0 complete, Phase 1 preparing" — 3 phases behind reality. The founder asked for marketing and aesthetics: this is marketing item #1. A premium README signals engineering maturity and autonomous capability.
+Delivered in PR #44 (merged 2026-03-19). Issue #41 CLOSED.
 
 ---
 
-## 8. [ ] Landing page visual upgrade — Matrix-themed premium design
+## ~~8. [x] Landing page visual upgrade — Matrix-themed premium design~~ ✅
 
-**Acceptance Criteria:**
-- Matrix-inspired CSS digital rain animation in hero background (pure CSS/JS, no dependencies)
-- Animated typing effect for the company tagline
-- "How It Works" section with 3-step visual flow: perpetual motion engine explained for visitors
-- Constellation live status: build-time GitHub API data showing real repo stats (stars, last activity, open issues) instead of hardcoded placeholders
-- Open Graph meta tags (og:title, og:description, og:image) for professional social media sharing
-- Improved micro-interactions: hover effects on cards, smooth scroll, fade-in animations on scroll
-- Mobile-optimized: all animations respect `prefers-reduced-motion`
-- Footer with links to GitHub org, documentation, and constellation repos
-
-**Files:**
-- `site/src/pages/index.astro` (major update)
-- `site/src/styles/global.css` (add animations)
-- `site/src/components/MatrixRain.astro` (create — hero background effect)
-- `site/src/components/TypeWriter.astro` (create — animated tagline)
-- `site/src/components/HowItWorks.astro` (create — 3-step flow)
-- `site/src/utils/data.ts` (update — add GitHub API constellation stats)
-- `site/src/layouts/Layout.astro` (update — add OG meta tags)
-
-**Context:**
-The founder specifically requested "marketing y estética." The landing page is the public face of Syntax Sorcery — the first thing investors, collaborators, and the Squad community see. Current page is functional but static with hardcoded metrics. A Matrix-themed visual upgrade aligns with the team's universe, creates memorability, and demonstrates that autonomous AI can produce beautiful, not just functional, output. Mouse (UI/UX) is available for this task.
+Delivered in PR #47 (merged 2026-03-19). Issue #42 CLOSED.
 
 ---
 
-## 9. [ ] Architecture documentation with visual system diagrams
+## ~~9. [x] Architecture documentation with visual system diagrams~~ ✅
+
+Delivered in PR #46 (merged 2026-03-19). Issue #43 CLOSED.
+
+---
+
+## 10. [ ] Automated session report generator
 
 **Acceptance Criteria:**
-- `docs/architecture.md`: Complete system architecture document covering 3-layer monitoring model, perpetual motion engine lifecycle, hub/spoke topology, and quality gate pipeline
-- ASCII diagrams for: (1) perpetual motion cycle, (2) hub/spoke deployment (PC hub ↔ Azure VM satellites), (3) 3-layer monitoring stack, (4) PR review pipeline flow
-- `docs/onboarding.md`: Step-by-step guide for adding a new downstream company to the constellation — from repo creation to perpetual-motion integration
-- `docs/constellation.md`: Map of all repos, their relationships, data flows, and responsibilities
-- Cross-linked from README and landing page
-- Professional formatting: table of contents, numbered sections, consistent heading hierarchy
-- All diagrams use ASCII art (no external image dependencies)
+- Script `scripts/session-report.js` generates a structured report of autonomous session activity
+- Captures via `gh` CLI: issues opened/closed in time window, PRs merged/rejected, current test count (parse `npm test` output), agents involved (from PR authors/branches)
+- Output format: Markdown report with frontmatter (date, duration, phase, agent count) + sections for Issues, PRs, Tests, Summary
+- Writes report to `docs/reports/YYYY-MM-DD-session.md` (creates directory if needed)
+- CLI flags: `--since <ISO date>` (default: 24h ago), `--until <ISO date>` (default: now), `--dry-run` (print to stdout, don't write file)
+- Add `npm run report:session` script to package.json
+- Unit tests (vitest) with DI-mocked `gh` CLI calls, consistent with existing test patterns (dedup-guard, review-gate)
+- Exit code 0 on success, 1 on API error
 
 **Files:**
-- `docs/architecture.md` (create)
-- `docs/onboarding.md` (create)
-- `docs/constellation.md` (create)
-- `README.md` (add links to new docs)
+- `scripts/session-report.js` (create)
+- `scripts/__tests__/session-report.test.js` (create)
+- `package.json` (add npm script)
 
 **Context:**
-Engineering maturity is visible through documentation quality. SS has sophisticated architecture (3-layer monitoring, perpetual motion, hub/spoke, review gates) but it's scattered across decisions.md, history files, and tribal knowledge. Consolidating into professional architecture docs transforms SS from "a repo with scripts" into "a documented autonomous system." Oracle (Product & Docs) is available for this task. This also enables future contributors and the Squad community to understand and adopt the patterns.
+The autonomous engine runs, but there's no structured record of what it accomplished. After 9 issues closed and 10 PRs processed in a single session, the only evidence is scattered across GitHub events. A report generator creates a "company quarterly report" after each session — concrete proof of autonomous work for the founder, trend data for operational analysis, and marketing gold for demonstrating real AI output. Ralph can invoke this at session end. Consistent DI pattern with existing scripts.
+
+---
+
+## 11. [ ] Unified developer CLI for all squad operations
+
+**Acceptance Criteria:**
+- Script `scripts/squad-cli.js` provides a single entry point for all squad operations
+- Commands: `status` (open issues + PR state from `gh`), `health` (runs constellation-health.js), `review <PR#>` (runs review-gate.js), `dedup` (runs dedup-guard.js), `report [--since] [--until]` (runs session-report.js), `help` (lists all commands with descriptions)
+- Consistent output: human-readable by default, `--json` flag for machine-readable JSON output
+- Built-in help: `npm run squad` with no args shows usage + available commands
+- Error handling: unknown commands show help + exit 1, missing required args show usage for that command
+- Add `npm run squad` script to package.json (passes args via `--`)
+- Unit tests for command routing, help output, error handling, and JSON output flag
+- No new dependencies — uses existing scripts via require() or child_process
+
+**Files:**
+- `scripts/squad-cli.js` (create)
+- `scripts/__tests__/squad-cli.test.js` (create)
+- `package.json` (add npm script)
+
+**Context:**
+Currently there are 5+ separate npm scripts (`check:constellation`, `review:gate`, `dedup:check`, `dashboard:ralph`, `test:validate-squad`) with inconsistent naming and no discoverability. A developer joining the project has to read package.json to find them. A unified CLI with `npm run squad -- help` makes every operation discoverable from a single command. This is the developer experience equivalent of the README overhaul — making the system not just functional but *usable*. Critical for Squad community adoption.
+
+---
+
+## 12. [ ] Constellation status page on landing site
+
+**Acceptance Criteria:**
+- New Astro page at `site/src/pages/status.astro` — the company's public operational status page
+- Displays all 6 constellation repos with: name, description, CI badge (GitHub Actions), last activity (from GitHub API at build time), open issue count, health indicator (green/yellow/red based on last activity age)
+- Health logic: green = active within 7 days, yellow = 7-30 days, red = 30+ days inactive
+- Reuses existing `getConstellationWithStats()` from `site/src/utils/data.ts` (extend if needed)
+- Summary bar at top: total repos, total healthy, total tests (168+), current phase
+- Consistent Matrix theme with existing landing page (dark background, green accents, #00ff41)
+- Mobile responsive, `prefers-reduced-motion` respected
+- Navigation: linked from main landing page and README
+- No external dependencies — pure Astro/CSS/JS
+
+**Files:**
+- `site/src/pages/status.astro` (create)
+- `site/src/pages/index.astro` (add navigation link to /status)
+- `README.md` (add link to status page)
+
+**Context:**
+Every serious company has a status page. Syntax Sorcery monitors 6 repos but the health data is only visible via CLI (`npm run check:constellation`) or ralph-watch dashboard (local HTML). A public `/status` page transforms internal monitoring into external proof — visitors can see the constellation is alive, repos are active, CI is green. This is the final piece of the "showroom" started in Phase 4: the README introduces, the landing page impresses, the status page *proves*. Reuses existing `getConstellationWithStats()` for data consistency.
