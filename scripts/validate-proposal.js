@@ -6,25 +6,6 @@ const path = require('path');
 const yaml = require('js-yaml');
 
 // ---------------------------------------------------------------------------
-// CLI args
-// ---------------------------------------------------------------------------
-const args = process.argv.slice(2);
-const proposalFile = (() => {
-  const idx = args.indexOf('--file');
-  return idx !== -1 ? args[idx + 1] : null;
-})();
-
-if (!proposalFile) {
-  console.error('Usage: node validate-proposal.js --file <path-to-proposal.md>');
-  process.exit(1);
-}
-
-if (!fs.existsSync(proposalFile)) {
-  console.error(`Error: Proposal file not found: ${proposalFile}`);
-  process.exit(1);
-}
-
-// ---------------------------------------------------------------------------
 // Validation
 // ---------------------------------------------------------------------------
 function parseFrontmatter(content) {
@@ -108,35 +89,58 @@ function validate(filePath) {
 }
 
 // ---------------------------------------------------------------------------
-// Run
+// Exports for testing
 // ---------------------------------------------------------------------------
-const result = validate(proposalFile);
+module.exports = { parseFrontmatter, isKebabCase, validate };
 
-console.log(`\n${'═'.repeat(50)}`);
-console.log(`  Proposal Validation: ${path.basename(proposalFile)}`);
-console.log(`${'═'.repeat(50)}\n`);
+// ---------------------------------------------------------------------------
+// CLI entry point (only when executed directly)
+// ---------------------------------------------------------------------------
+if (require.main === module) {
+  const args = process.argv.slice(2);
+  const proposalFile = (() => {
+    const idx = args.indexOf('--file');
+    return idx !== -1 ? args[idx + 1] : null;
+  })();
 
-if (result.valid) {
-  console.log(`✅ VALID — slug: ${result.slug}, words: ${result.wordCount}`);
-} else {
-  console.log('❌ INVALID');
+  if (!proposalFile) {
+    console.error('Usage: node validate-proposal.js --file <path-to-proposal.md>');
+    process.exit(1);
+  }
+
+  if (!fs.existsSync(proposalFile)) {
+    console.error(`Error: Proposal file not found: ${proposalFile}`);
+    process.exit(1);
+  }
+
+  const result = validate(proposalFile);
+
+  console.log(`\n${'═'.repeat(50)}`);
+  console.log(`  Proposal Validation: ${path.basename(proposalFile)}`);
+  console.log(`${'═'.repeat(50)}\n`);
+
+  if (result.valid) {
+    console.log(`✅ VALID — slug: ${result.slug}, words: ${result.wordCount}`);
+  } else {
+    console.log('❌ INVALID');
+  }
+
+  if (result.errors.length > 0) {
+    console.log('\nErrors:');
+    result.errors.forEach(e => console.log(`  ✗ ${e}`));
+  }
+
+  if (result.warnings.length > 0) {
+    console.log('\nWarnings:');
+    result.warnings.forEach(w => console.log(`  ⚠ ${w}`));
+  }
+
+  // Output JSON for CI consumption
+  const jsonOutput = JSON.stringify(result, null, 2);
+  if (process.env.GITHUB_OUTPUT) {
+    fs.appendFileSync(process.env.GITHUB_OUTPUT, `validation_result=${JSON.stringify(result)}\n`);
+  }
+
+  console.log(`\n${jsonOutput}\n`);
+  process.exit(result.valid ? 0 : 1);
 }
-
-if (result.errors.length > 0) {
-  console.log('\nErrors:');
-  result.errors.forEach(e => console.log(`  ✗ ${e}`));
-}
-
-if (result.warnings.length > 0) {
-  console.log('\nWarnings:');
-  result.warnings.forEach(w => console.log(`  ⚠ ${w}`));
-}
-
-// Output JSON for CI consumption
-const jsonOutput = JSON.stringify(result, null, 2);
-if (process.env.GITHUB_OUTPUT) {
-  fs.appendFileSync(process.env.GITHUB_OUTPUT, `validation_result=${JSON.stringify(result)}\n`);
-}
-
-console.log(`\n${jsonOutput}\n`);
-process.exit(result.valid ? 0 : 1);

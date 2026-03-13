@@ -16,14 +16,16 @@ const gddFile = (() => {
   return idx !== -1 ? args[idx + 1] : null;
 })();
 
-if (!gddFile) {
-  console.error('Usage: node gdd-to-issues.js --file <path-to-gdd.md> [--dry-run]');
-  process.exit(1);
-}
+if (require.main === module) {
+  if (!gddFile) {
+    console.error('Usage: node gdd-to-issues.js --file <path-to-gdd.md> [--dry-run]');
+    process.exit(1);
+  }
 
-if (!fs.existsSync(gddFile)) {
-  console.error(`Error: GDD file not found: ${gddFile}`);
-  process.exit(1);
+  if (!fs.existsSync(gddFile)) {
+    console.error(`Error: GDD file not found: ${gddFile}`);
+    process.exit(1);
+  }
 }
 
 // ---------------------------------------------------------------------------
@@ -115,6 +117,11 @@ function scopeLabel(scope) {
     default: return null;
   }
 }
+
+// ---------------------------------------------------------------------------
+// Exports for testing
+// ---------------------------------------------------------------------------
+module.exports = { slugify, kebabCase, parseFrontmatter, parseSections, extractChecklistItems, extractListItems, hasBlockingUnknown, statusLabel, scopeLabel };
 
 // ---------------------------------------------------------------------------
 // Issue creation via `gh` CLI
@@ -691,4 +698,6 @@ function run() {
   return report;
 }
 
-run();
+if (require.main === module) {
+  run();
+}

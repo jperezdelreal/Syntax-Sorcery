@@ -79,10 +79,13 @@
     "zod": "^4.3.6"
   },
   "devDependencies": {
-    "@bradygaster/squad-cli": "^0.8.25"
+    "@bradygaster/squad-cli": "^0.8.25",
+    "vitest": "^4.1.0"
   },
   "scripts": {
-    "test": "node scripts/validate-squad.js"
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:validate-squad": "node scripts/validate-squad.js"
   },
   "repository": {
     "type": "git",
