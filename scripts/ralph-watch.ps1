@@ -194,7 +194,7 @@ function Test-SystemHealth {
     
     # Check gh CLI availability
     $ghVersion = gh --version 2>&1 | Select-Object -First 1
-    if ($LASTEXITCODE -ne 0) {
+    if ($null -eq $LASTEXITCODE -or $LASTEXITCODE -ne 0) {
         Write-Log "ERROR" "GitHub CLI (gh) not found in PATH"
         $healthy = $false
     } else {
@@ -277,7 +277,7 @@ function Get-RefuelingIssues {
         --json number,title,createdAt `
         2>&1
     
-    if ($LASTEXITCODE -ne 0) {
+    if ($null -eq $LASTEXITCODE -or $LASTEXITCODE -ne 0) {
         Write-Log "ERROR" "Failed to list issues for $Repo`: $issues"
         return @()
     }
