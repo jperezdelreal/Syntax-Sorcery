@@ -62,6 +62,22 @@
 
 **Board Status:** Dedup guard delivered (1/3 Phase 3 items). Review gate and Azure launcher pending.
 
+## Session 2026-03-19 — PR #40 Review Gate: Reviewed & Merged
+
+**Task:** Review PR #40 (feat: add autonomous PR review gate) by Switch. Closes #37.
+
+**Deliverables:**
+1. PR #40 (Review Gate) — ✅ APPROVED + MERGED (squash). Script `scripts/review-gate.js` validates PRs against linked issues with 4 checks: linked issue, files match, CI status, not draft. DI pattern (execGh injection) for testability. Structured JSON output with verdict (APPROVE/REQUEST_CHANGES/NEEDS_HUMAN). Exit codes 0/1/2. 31 unit tests. Guide at `.squad/guides/review-gate.md`. Issue #37 CLOSED.
+
+**Review Notes:**
+- Code: Clean. DI pattern consistent with dedup-guard.js. execSync with 30s timeout, stdio piped. No credentials exposed.
+- Tests: 31 tests across 8 describe blocks. Integration tests mock gh CLI via DI. Edge cases covered (null body, empty rollup, cancelled checks, undefined refs). 168/168 total tests pass.
+- Guide: Clear documentation with usage, checks, output format, Ralph integration.
+- Minor (non-blocking): fetchPR includes `files` in --json query but runReviewGate calls fetchPRFiles separately — redundant API call. Can optimize as follow-up.
+- CI: Build & Test GREEN. Squad Size Check failure pre-existing (.squad/ 232KB vs 100KB limit) — unrelated.
+
+**Board Status:** Review gate delivered (2/3 Phase 3 items). Azure launcher previously merged. Phase 3 complete: dedup guard (#38), review gate (#40), Azure launcher (#39) — all 3 items delivered.
+
 ## Learnings
 
 ### 2026-03-18 — Roadmap Refresh: Phase 3 Autonomy Hardening
