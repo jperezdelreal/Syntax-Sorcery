@@ -83,3 +83,11 @@
 - Estimated 6-8h agent time with full parallelism across 5 waves of coordinator-orchestrated work
 - Artifact: `.squad/decisions/inbox/morpheus-ffs-takeover.md`
 
+### 2026-03-15: FFS Takeover T1 — Hub Foundation COMPLETE
+- **T1.1 DONE**: Reviewed and merged PR #196 (Ralph v5 hardening). All checks passing, Ralph now 24h autonomous with alert escalation, auto-restart on failure, color-coded Discord notifications.
+- **T1.2 DONE**: Reviewed and merged PR #197 (Context Remediation + Governance Swap). upstream.json installed on FFS main with 19 inherited skills from SS. Context 2618KB → 126KB (95% reduction).
+- **T1.3 VERIFIED**: Hub main now has upstream.json live, .squad/ structure healthy, zero open PRs. FFS Hub is now SS-governed.
+- **T1.4 T2 REQUIREMENTS**: All 3 satellites (ComeRosquillas, Flora, ffs-squad-monitor) have outdated upstream.json format (subsquad-only, no skill inheritance). ComeRosquillas has 5 open PRs (4 game features + 1 triage sync), Flora has 1 PR (triage sync), ffs-squad-monitor has 7 PRs (features + docs + triage sync). All three need: (1) upstream.json upgrade to v2 format with FFS as upstream, (2) squad-triage.yml sync (PRs #27, #29, #30 address this), (3) .squad/identity/squad-agent-hash.txt refresh from Hub.
+- **Key insight**: T2 Satellite Cascade is straightforward — merge triage sync PRs first (already prepared), then upgrade upstream.json format on all three repos to point at FFS as upstream (not SS directly). Hub→Satellite chain preserves subsquad model while enabling skill inheritance.
+- Decision: Morpheus approved both merges after diff review. Ralph v5 and SS governance are now the production reality on FFS Hub.
+
