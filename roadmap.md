@@ -5,59 +5,63 @@ Each item becomes a GitHub issue assigned to @copilot.
 
 ---
 
-## 1. [ ] Add perpetual-motion workflow template validation
+## 1. [ ] Configure CI checks and branch protection
 
 **Acceptance Criteria:**
-- Validation script checks all `.github/workflows/perpetual-motion.yml` files exist in downstream repos
-- Script verifies workflow has correct trigger: `on: issues: types: [closed]`
-- Script validates roadmap.md parsing logic matches standardized format
-- Script reports missing or misconfigured perpetual-motion workflows with actionable errors
-- Add to existing `scripts/validate-squad.js` or create `scripts/validate-perpetual-motion.js`
+- GitHub Actions workflow `.github/workflows/ci.yml` runs on pull_request events
+- Workflow validates package.json dependencies are installed (npm ci)
+- Workflow runs existing tests if vitest.config.js is present (npm test)
+- Workflow lints JavaScript files with eslint (or skips if not configured)
+- Branch protection rule on master/main branch requires ci workflow to pass before merge
+- Documentation in `.squad/guides/ci-checks.md` explains what checks run and how to add new ones
+- Test the workflow by opening a test PR and verifying checks run
 
 **Files:**
-- `scripts/validate-perpetual-motion.js` (create new validator)
-- `package.json` (add test:validate-perpetual-motion script)
-- `.squad/skills/perpetual-motion/SKILL.md` (document validation patterns)
+- `.github/workflows/ci.yml` (create)
+- `.squad/guides/ci-checks.md` (create)
+- `package.json` (add test script if missing)
 
 **Context:**
-Perpetual motion workflows are the backbone of autonomy (A1 from Phase 2 plan). This validation ensures all 6 repos have correctly configured perpetual-motion.yml files that can create issues from roadmap.md when prior issues close. The validator prevents silent failures where a repo stops progressing because the workflow is misconfigured.
+Test 1 identified ZERO CI checks as the #1 critical deficiency — PRs merged without validation. This is the highest priority fix for Test 2. Branch protection with required status checks ensures @copilot PRs are validated before merge, preventing broken code from entering master. This is the foundation of autonomous quality control.
 
 ---
 
-## 2. [ ] Create roadmap depletion detection utility
+## 2. [ ] Add constellation-wide health monitoring
 
 **Acceptance Criteria:**
-- Utility function reads roadmap.md and counts unchecked items
-- Returns true if roadmap has 0 unchecked items remaining
-- Utility can be called from GitHub Actions workflow context
-- Documentation includes usage examples for perpetual-motion.yml integration
-- Unit tests cover empty roadmap, partially complete roadmap, fully complete roadmap scenarios
+- Script `scripts/constellation-health.js` reads `.squad/constellation.json` and checks all downstream repos
+- For each repo, validates: perpetual-motion.yml exists, roadmap.md exists, at least 1 workflow run in last 7 days
+- Script outputs a health report with GREEN (healthy) / YELLOW (warning) / RED (critical) status per repo
+- Can run via `npm run check:constellation`
+- Add optional GitHub Actions workflow `.github/workflows/constellation-health.yml` (manual trigger) that runs the script
+- Documentation in `.squad/guides/constellation-monitoring.md` explains health checks
 
 **Files:**
-- `scripts/check-roadmap-status.js` (new utility)
-- `scripts/__tests__/check-roadmap-status.test.js` (unit tests)
-- `.squad/guides/roadmap-management.md` (document usage patterns)
+- `scripts/constellation-health.js` (create)
+- `package.json` (add check:constellation script)
+- `.github/workflows/constellation-health.yml` (create, optional)
+- `.squad/guides/constellation-monitoring.md` (create)
 
 **Context:**
-This utility enables perpetual-motion.yml (A1) to detect when a roadmap is exhausted and trigger creation of "📋 Define next roadmap" issues. ralph-watch.ps1 (A5) depends on this signal to know when to refuel a repo. Without this utility, perpetual motion workflows cannot detect depletion and the refueling cycle breaks.
+SS is the orchestrator hub for 6 repositories. This health check provides a single command to verify the entire constellation is operational. Complements safety-net.yml (reactive escalation) with proactive validation. Enables quick diagnosis when a satellite repo stops progressing. Critical for multi-terminal Test 2 where each repo runs independently.
 
 ---
 
-## 3. [ ] Implement GitHub Actions reusable workflow for issue creation
+## 3. [ ] Create ralph-watch.ps1 monitoring dashboard
 
 **Acceptance Criteria:**
-- Reusable workflow file: `.github/workflows/create-issue-from-roadmap.yml`
-- Input parameters: roadmap_path (default: roadmap.md), assignee (default: @copilot), label_prefix (default: copilot-ready)
-- Workflow parses next unchecked item from roadmap, extracts title, acceptance criteria, files list
-- Creates GitHub issue with extracted content, assigns to specified user, applies labels
-- Returns created issue number and URL as outputs
-- Can be called from perpetual-motion.yml with: `uses: ./.github/workflows/create-issue-from-roadmap.yml`
-- Test demonstrates calling the workflow and verifying issue creation
+- HTML page `site/ralph-watch-status.html` displays live status of ralph-watch.ps1 monitoring
+- Dashboard shows: last run timestamp, repos monitored, recent refueling events, error count
+- Reads from `logs/ralph-watch.log` (must parse last 100 lines)
+- Auto-refreshes every 30 seconds via JavaScript
+- Dashboard accessible via `npm run dashboard:ralph` (opens in browser)
+- Styling matches existing Syntax Sorcery brand (dark theme)
 
 **Files:**
-- `.github/workflows/create-issue-from-roadmap.yml` (reusable workflow)
-- `.github/workflows/test-issue-creation.yml` (test workflow, can be manual trigger)
-- `.squad/guides/reusable-workflows.md` (document pattern for other workflows)
+- `site/ralph-watch-status.html` (create)
+- `scripts/parse-ralph-logs.js` (create helper to extract structured data from logs)
+- `package.json` (add dashboard:ralph script)
+- `site/styles/dashboard.css` (create or extend existing styles)
 
 **Context:**
-Perpetual-motion.yml needs to create issues automatically. Rather than duplicating issue creation logic across all 6 repos, this reusable workflow provides a single source of truth. All downstream repos can call this workflow, reducing maintenance burden and ensuring consistent issue format across the constellation.
+ralph-watch.ps1 is the Layer 2 refueling engine running 24/7 in the background. Currently, monitoring requires tailing logs manually. This dashboard provides real-time visibility into the autonomous refueling process. Essential for Test 2 where we validate that the hub (SS terminal) is actively monitoring and refueling satellite repos. Demonstrates operational transparency for autonomous systems.
