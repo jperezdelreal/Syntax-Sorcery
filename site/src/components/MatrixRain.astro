@@ -1,0 +1,81 @@
+---
+/**
+ * Matrix-style digital rain background animation.
+ * Pure CSS/JS — no dependencies.
+ * Respects prefers-reduced-motion.
+ */
+---
+
+<div class="matrix-rain" aria-hidden="true">
+  <canvas id="matrix-canvas"></canvas>
+</div>
+
+<style>
+  .matrix-rain {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+    z-index: 0;
+    pointer-events: none;
+  }
+
+  #matrix-canvas {
+    display: block;
+    width: 100%;
+    height: 100%;
+    opacity: 0.12;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    #matrix-canvas {
+      display: none;
+    }
+  }
+</style>
+
+<script>
+  const canvas = document.getElementById('matrix-canvas') as HTMLCanvasElement;
+  if (canvas) {
+    const ctx = canvas.getContext('2d');
+    if (ctx) {
+      const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      if (!prefersReduced) {
+        const chars = 'アイウエオカキクケコサシスセソタチツテトナニヌネノハヒフヘホマミムメモヤユヨラリルレロワヲン0123456789ABCDEF{}[]<>/\\';
+        const charArray = chars.split('');
+        const fontSize = 14;
+        let columns: number;
+        let drops: number[];
+
+        function resize() {
+          canvas.width = canvas.parentElement?.offsetWidth || window.innerWidth;
+          canvas.height = canvas.parentElement?.offsetHeight || window.innerHeight;
+          columns = Math.floor(canvas.width / fontSize);
+          drops = Array(columns).fill(1).map(() => Math.random() * -100);
+        }
+
+        resize();
+        window.addEventListener('resize', resize);
+
+        function draw() {
+          if (!ctx) return;
+          ctx.fillStyle = 'rgba(0, 0, 0, 0.05)';
+          ctx.fillRect(0, 0, canvas.width, canvas.height);
+          ctx.fillStyle = '#00ff41';
+          ctx.font = `${fontSize}px monospace`;
+
+          for (let i = 0; i < drops.length; i++) {
+            const char = charArray[Math.floor(Math.random() * charArray.length)];
+            ctx.fillText(char, i * fontSize, drops[i] * fontSize);
+
+            if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) {
+              drops[i] = 0;
+            }
+            drops[i]++;
+          }
+        }
+
+        setInterval(draw, 50);
+      }
+    }
+  }
+</script>

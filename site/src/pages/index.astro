@@ -1,160 +1,318 @@
 ---
 import Layout from '../layouts/Layout.astro';
-import { getRecentDecisions, getTeamRoster } from '../utils/data';
+import MatrixRain from '../components/MatrixRain.astro';
+import TypeWriter from '../components/TypeWriter.astro';
+import HowItWorks from '../components/HowItWorks.astro';
+import { getRecentDecisions, getTeamRoster, getConstellation } from '../utils/data';
 
 const decisions = getRecentDecisions(5);
 const team = getTeamRoster();
+const constellation = getConstellation();
 ---
 
 <Layout title="Syntax Sorcery — Autonomous Software Company">
-  <main class="container mx-auto px-4 py-12 max-w-7xl">
-    <!-- Hero Section -->
-    <section class="text-center mb-20">
-      <h1 class="text-6xl font-bold mb-6 bg-gradient-to-r from-cyan-400 to-blue-600 bg-clip-text text-transparent">
-        Syntax Sorcery
-      </h1>
-      <p class="text-2xl text-gray-400 mb-4">Autonomous Software Company</p>
-      <p class="text-lg text-gray-500 max-w-3xl mx-auto">
-        An AI-powered autonomous development company where specialized agents design, build, and deploy software products with minimal human intervention. Built on GitHub CLI, powered by Squad framework.
-      </p>
-      <div class="mt-8 flex justify-center gap-4">
-        <span class="px-4 py-2 bg-gray-800 rounded-lg border border-gray-700 text-sm">
-          🤖 8 AI Agents
-        </span>
-        <span class="px-4 py-2 bg-gray-800 rounded-lg border border-gray-700 text-sm">
-          ⚡ 24/7 Autonomous
-        </span>
-        <span class="px-4 py-2 bg-gray-800 rounded-lg border border-gray-700 text-sm">
-          €500/mo Azure Budget
-        </span>
+  <main class="relative">
+    <!-- ═══════════ HERO ═══════════ -->
+    <section class="relative min-h-[90vh] flex items-center justify-center overflow-hidden">
+      <MatrixRain />
+
+      <div class="relative z-10 text-center px-4 max-w-4xl mx-auto">
+        <!-- Logo mark -->
+        <div class="mb-6 animate-float">
+          <span class="inline-block text-7xl md:text-8xl font-mono font-bold text-matrix-green text-glow select-none">
+            ⟨SS⟩
+          </span>
+        </div>
+
+        <h1 class="text-5xl md:text-7xl font-extrabold mb-6 tracking-tight">
+          <span class="bg-gradient-to-r from-matrix-green via-emerald-400 to-matrix-green bg-clip-text text-transparent">
+            Syntax Sorcery
+          </span>
+        </h1>
+
+        <p class="text-xl md:text-2xl text-gray-400 mb-4 font-mono">
+          <TypeWriter text="AI agents that build software while you sleep." speed={45} />
+        </p>
+
+        <p class="text-base text-gray-500 max-w-2xl mx-auto mb-10 leading-relaxed">
+          An autonomous development company where specialized AI agents design, build, test, and deploy production software — 24/7, with zero human intervention.
+        </p>
+
+        <div class="flex flex-wrap justify-center gap-3 mb-12">
+          <span class="px-4 py-2 glass rounded-lg text-sm font-mono text-matrix-green/80 border-glow">
+            🤖 8 AI Agents
+          </span>
+          <span class="px-4 py-2 glass rounded-lg text-sm font-mono text-matrix-green/80 border-glow">
+            ⚡ 24/7 Autonomous
+          </span>
+          <span class="px-4 py-2 glass rounded-lg text-sm font-mono text-matrix-green/80 border-glow">
+            🧪 137+ Tests
+          </span>
+        </div>
+
+        <div class="flex justify-center gap-4">
+          <a
+            href="https://github.com/jperezdelreal/Syntax-Sorcery"
+            target="_blank"
+            rel="noopener"
+            class="inline-flex items-center gap-2 px-6 py-3 bg-matrix-green/10 text-matrix-green border border-matrix-green/30 rounded-lg font-mono text-sm hover:bg-matrix-green/20 hover:border-matrix-green/50 transition-all duration-300"
+          >
+            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg>
+            View Source
+          </a>
+          <a
+            href="#how-it-works"
+            class="inline-flex items-center gap-2 px-6 py-3 bg-gray-900/60 text-gray-300 border border-gray-700 rounded-lg font-mono text-sm hover:border-gray-500 hover:text-white transition-all duration-300"
+          >
+            How It Works ↓
+          </a>
+        </div>
+      </div>
+
+      <!-- Scroll indicator -->
+      <div class="absolute bottom-8 left-1/2 -translate-x-1/2 text-matrix-green/40 animate-bounce" aria-hidden="true">
+        <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path d="M19 14l-7 7m0 0l-7-7m7 7V3" />
+        </svg>
       </div>
     </section>
 
-    <!-- Downstream Companies Section -->
-    <section class="mb-20">
-      <h2 class="text-4xl font-bold mb-8 text-center">Downstream Companies</h2>
-      <div class="grid md:grid-cols-2 gap-6 max-w-4xl mx-auto">
-        <a 
-          href="https://jperezdelreal.github.io/FirstFrameStudios/" 
-          target="_blank"
-          class="block p-6 bg-gray-900 rounded-lg border border-gray-800 hover:border-cyan-500 transition-colors"
-        >
-          <div class="flex items-start gap-4">
-            <div class="text-5xl">🎮</div>
-            <div class="flex-1">
-              <h3 class="text-2xl font-bold mb-2">FirstFrame Studios</h3>
-              <p class="text-gray-400 mb-3">
-                Autonomous HTML5 game development studio. Building arcade-style games with AI-driven design and deployment.
-              </p>
-              <div class="flex items-center gap-2">
-                <span class="px-3 py-1 bg-green-900/30 text-green-400 text-sm rounded-full border border-green-700">
-                  ✅ Production
+    <div class="container mx-auto px-4 max-w-7xl">
+
+      <!-- ═══════════ HOW IT WORKS ═══════════ -->
+      <HowItWorks />
+
+      <!-- ═══════════ DOWNSTREAM COMPANIES ═══════════ -->
+      <section class="mb-24 scroll-fade">
+        <h2 class="text-4xl font-bold mb-4 text-center">
+          <span class="text-matrix-green font-mono">&gt;</span> Downstream Companies
+        </h2>
+        <p class="text-gray-500 text-center mb-12 max-w-2xl mx-auto">
+          Autonomous companies spawned and managed by the Squad.
+        </p>
+
+        <div class="grid md:grid-cols-2 gap-6 max-w-4xl mx-auto">
+          <a
+            href="https://jperezdelreal.github.io/FirstFrameStudios/"
+            target="_blank"
+            rel="noopener"
+            class="block p-6 glass rounded-xl card-hover group"
+          >
+            <div class="flex items-start gap-4">
+              <div class="text-5xl group-hover:scale-110 transition-transform duration-300">🎮</div>
+              <div class="flex-1">
+                <h3 class="text-2xl font-bold mb-2 group-hover:text-matrix-green transition-colors">FirstFrame Studios</h3>
+                <p class="text-gray-400 mb-3 text-sm leading-relaxed">
+                  Autonomous HTML5 game development studio. Building arcade-style games with AI-driven design and deployment.
+                </p>
+                <div class="flex items-center gap-2">
+                  <span class="px-3 py-1 bg-matrix-green/10 text-matrix-green text-xs rounded-full border border-matrix-green/20 font-mono">
+                    ✅ Production
+                  </span>
+                  <span class="text-gray-500 text-xs">3 games live</span>
+                </div>
+              </div>
+            </div>
+          </a>
+
+          <div class="p-6 glass rounded-xl opacity-50 border-dashed">
+            <div class="flex items-start gap-4">
+              <div class="text-5xl opacity-30">🚀</div>
+              <div class="flex-1">
+                <h3 class="text-2xl font-bold mb-2 text-gray-600">Future Company Slot</h3>
+                <p class="text-gray-600 mb-3 text-sm">
+                  Next autonomous company launches as the constellation scales.
+                </p>
+                <span class="px-3 py-1 bg-gray-800 text-gray-600 text-xs rounded-full border border-gray-700 font-mono">
+                  🔮 Planned
                 </span>
-                <span class="text-gray-500 text-sm">2 games live</span>
               </div>
             </div>
           </div>
-        </a>
-        
-        <div class="p-6 bg-gray-900/50 rounded-lg border border-dashed border-gray-800">
-          <div class="flex items-start gap-4">
-            <div class="text-5xl opacity-30">🚀</div>
-            <div class="flex-1">
-              <h3 class="text-2xl font-bold mb-2 text-gray-600">Future Company Slot</h3>
-              <p class="text-gray-600 mb-3">
-                Next autonomous company will be created here as the Squad system scales.
-              </p>
-              <span class="px-3 py-1 bg-gray-800 text-gray-600 text-sm rounded-full border border-gray-700">
-                🔮 Planned
-              </span>
+        </div>
+      </section>
+
+      <!-- ═══════════ CONSTELLATION ═══════════ -->
+      <section class="mb-24 scroll-fade">
+        <h2 class="text-4xl font-bold mb-4 text-center">
+          <span class="text-matrix-green font-mono">&gt;</span> Constellation
+        </h2>
+        <p class="text-gray-500 text-center mb-12 max-w-2xl mx-auto">
+          {constellation.length} repositories monitored 24/7 by the safety-net.
+        </p>
+
+        <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 max-w-5xl mx-auto">
+          {constellation.map((repo) => (
+            <a
+              href={repo.url}
+              target="_blank"
+              rel="noopener"
+              class="p-4 glass rounded-lg card-hover group"
+            >
+              <div class="flex items-center gap-3 mb-2">
+                <span class:list={[
+                  'w-2 h-2 rounded-full',
+                  repo.type === 'hub' ? 'bg-matrix-green animate-glow-pulse' : '',
+                  repo.type === 'downstream' ? 'bg-cyan-400' : '',
+                  repo.type === 'game' ? 'bg-purple-400' : '',
+                  repo.type === 'tool' ? 'bg-amber-400' : '',
+                ]} />
+                <h3 class="font-mono text-sm font-bold group-hover:text-matrix-green transition-colors truncate">{repo.name}</h3>
+              </div>
+              <p class="text-gray-500 text-xs">{repo.description}</p>
+            </a>
+          ))}
+        </div>
+
+        <div class="flex justify-center gap-6 mt-8 text-xs text-gray-600">
+          <span class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-matrix-green inline-block"></span> Hub</span>
+          <span class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-cyan-400 inline-block"></span> Downstream</span>
+          <span class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-purple-400 inline-block"></span> Game</span>
+          <span class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-amber-400 inline-block"></span> Tool</span>
+        </div>
+      </section>
+
+      <!-- ═══════════ RECENT ACTIVITY ═══════════ -->
+      <section class="mb-24 scroll-fade">
+        <h2 class="text-4xl font-bold mb-4 text-center">
+          <span class="text-matrix-green font-mono">&gt;</span> Recent Activity
+        </h2>
+        <p class="text-gray-500 text-center mb-12 max-w-2xl mx-auto">
+          Latest decisions from the autonomous team.
+        </p>
+
+        <div class="max-w-4xl mx-auto space-y-4">
+          {decisions.map((decision, i) => (
+            <div class="scroll-fade p-5 glass rounded-xl card-hover" style={`animation-delay: ${i * 100}ms`}>
+              <div class="flex items-start justify-between mb-2 gap-4">
+                <h3 class="text-lg font-semibold text-matrix-green font-mono leading-snug">{decision.title}</h3>
+                <span class="px-2 py-0.5 bg-matrix-green/10 text-matrix-green/60 text-xs rounded font-mono whitespace-nowrap">
+                  {decision.tier}
+                </span>
+              </div>
+              <p class="text-gray-400 mb-3 text-sm leading-relaxed">{decision.summary}</p>
+              <div class="flex items-center gap-3 text-xs text-gray-600 font-mono">
+                <span>{decision.by}</span>
+                <span class="text-matrix-green/30">•</span>
+                <span>{new Date(decision.date).toLocaleDateString('en-US', {
+                  year: 'numeric',
+                  month: 'short',
+                  day: 'numeric'
+                })}</span>
+              </div>
             </div>
+          ))}
+        </div>
+      </section>
+
+      <!-- ═══════════ THE SQUAD ═══════════ -->
+      <section class="mb-24 scroll-fade">
+        <h2 class="text-4xl font-bold mb-4 text-center">
+          <span class="text-matrix-green font-mono">&gt;</span> The Squad
+        </h2>
+        <p class="text-gray-500 text-center mb-12 max-w-2xl mx-auto">
+          Matrix-themed AI agents, each with a specialized role.
+        </p>
+
+        <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          {team.map((member, i) => (
+            <div class="scroll-fade p-5 glass rounded-xl card-hover text-center group" style={`animation-delay: ${i * 80}ms`}>
+              <div class="text-4xl mb-3 group-hover:scale-110 transition-transform duration-300">{member.emoji}</div>
+              <h3 class="text-lg font-bold mb-0.5 group-hover:text-matrix-green transition-colors font-mono">{member.name}</h3>
+              <p class="text-gray-400 text-xs mb-2">{member.role}</p>
+              <p class="text-gray-600 text-xs italic">"{member.tagline}"</p>
+              <div class="mt-3">
+                <span class="text-xs text-matrix-green/50 font-mono">{member.status}</span>
+              </div>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      <!-- ═══════════ SYSTEM HEALTH ═══════════ -->
+      <section class="mb-24 scroll-fade">
+        <h2 class="text-4xl font-bold mb-4 text-center">
+          <span class="text-matrix-green font-mono">&gt;</span> System Health
+        </h2>
+        <p class="text-gray-500 text-center mb-12 max-w-2xl mx-auto">
+          Real-time operational metrics from the constellation.
+        </p>
+
+        <div class="grid md:grid-cols-3 gap-6 max-w-4xl mx-auto mb-8">
+          <div class="p-6 glass rounded-xl text-center card-hover">
+            <div class="text-4xl font-bold text-matrix-green mb-2 font-mono text-glow">100%</div>
+            <div class="text-gray-400 text-sm">Pipeline Success Rate</div>
+            <div class="text-gray-600 text-xs mt-2 font-mono">Last 30 days</div>
+          </div>
+
+          <div class="p-6 glass rounded-xl text-center card-hover">
+            <div class="text-4xl font-bold text-matrix-green mb-2 font-mono text-glow">24/7</div>
+            <div class="text-gray-400 text-sm">Autonomous Operation</div>
+            <div class="text-gray-600 text-xs mt-2 font-mono">Zero downtime</div>
+          </div>
+
+          <div class="p-6 glass rounded-xl text-center card-hover">
+            <div class="text-4xl font-bold text-matrix-green mb-2 font-mono text-glow">{constellation.length}</div>
+            <div class="text-gray-400 text-sm">Monitored Repos</div>
+            <div class="text-gray-600 text-xs mt-2 font-mono">Safety-net active</div>
           </div>
         </div>
-      </div>
-    </section>
 
-    <!-- Recent Activity Section -->
-    <section class="mb-20">
-      <h2 class="text-4xl font-bold mb-8 text-center">Recent Activity</h2>
-      <div class="max-w-4xl mx-auto space-y-4">
-        {decisions.map((decision) => (
-          <div class="p-5 bg-gray-900 rounded-lg border border-gray-800">
-            <div class="flex items-start justify-between mb-2">
-              <h3 class="text-xl font-semibold text-cyan-400">{decision.title}</h3>
-              <span class="px-2 py-1 bg-gray-800 text-gray-400 text-xs rounded">
-                {decision.tier}
-              </span>
+        <div class="p-6 glass rounded-xl max-w-4xl mx-auto">
+          <h3 class="text-lg font-semibold mb-4 text-center font-mono text-matrix-green/80">Cost Efficiency</h3>
+          <div class="flex justify-center items-baseline gap-2">
+            <span class="text-4xl font-bold text-matrix-green font-mono text-glow">€156</span>
+            <span class="text-gray-500 font-mono text-sm">/ €500 monthly budget</span>
+          </div>
+          <div class="mt-4 w-full bg-gray-800 rounded-full h-2 overflow-hidden">
+            <div class="bg-gradient-to-r from-matrix-green/60 to-matrix-green h-2 rounded-full transition-all duration-1000" style="width: 31.2%"></div>
+          </div>
+          <p class="text-center text-gray-600 text-xs mt-2 font-mono">31% utilized • €344 under budget</p>
+        </div>
+      </section>
+
+      <!-- ═══════════ FOOTER ═══════════ -->
+      <footer class="scroll-fade text-center pt-16 pb-12 border-t border-gray-800/50">
+        <div class="max-w-4xl mx-auto">
+          <div class="grid sm:grid-cols-3 gap-8 mb-12 text-left">
+            <div>
+              <h4 class="font-mono text-matrix-green/60 text-xs uppercase tracking-wider mb-4">Organization</h4>
+              <ul class="space-y-2 text-sm text-gray-500">
+                <li><a href="https://github.com/jperezdelreal" target="_blank" rel="noopener" class="hover:text-matrix-green transition-colors">GitHub Profile</a></li>
+                <li><a href="https://github.com/jperezdelreal/Syntax-Sorcery" target="_blank" rel="noopener" class="hover:text-matrix-green transition-colors">Source Code</a></li>
+                <li><a href="https://jperezdelreal.github.io/FirstFrameStudios/" target="_blank" rel="noopener" class="hover:text-matrix-green transition-colors">FirstFrame Studios</a></li>
+              </ul>
             </div>
-            <p class="text-gray-400 mb-2 text-sm">{decision.summary}</p>
-            <div class="flex items-center gap-4 text-sm text-gray-500">
-              <span>By: {decision.by}</span>
-              <span>•</span>
-              <span>{new Date(decision.date).toLocaleDateString('en-US', { 
-                year: 'numeric', 
-                month: 'short', 
-                day: 'numeric' 
-              })}</span>
+            <div>
+              <h4 class="font-mono text-matrix-green/60 text-xs uppercase tracking-wider mb-4">Constellation</h4>
+              <ul class="space-y-2 text-sm text-gray-500">
+                {constellation.slice(0, 4).map((repo) => (
+                  <li><a href={repo.url} target="_blank" rel="noopener" class="hover:text-matrix-green transition-colors font-mono text-xs">{repo.name}</a></li>
+                ))}
+              </ul>
+            </div>
+            <div>
+              <h4 class="font-mono text-matrix-green/60 text-xs uppercase tracking-wider mb-4">Stack</h4>
+              <ul class="space-y-2 text-sm text-gray-500">
+                <li>Built with Astro & Tailwind</li>
+                <li>Deployed on GitHub Pages</li>
+                <li>CI via GitHub Actions</li>
+                <li>Squad framework</li>
+              </ul>
             </div>
           </div>
-        ))}
-      </div>
-    </section>
 
-    <!-- Team Roster Section -->
-    <section class="mb-20">
-      <h2 class="text-4xl font-bold mb-8 text-center">The Squad</h2>
-      <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
-        {team.map((member) => (
-          <div class="p-5 bg-gray-900 rounded-lg border border-gray-800 text-center">
-            <div class="text-5xl mb-3">{member.emoji}</div>
-            <h3 class="text-xl font-bold mb-1">{member.name}</h3>
-            <p class="text-gray-400 text-sm mb-3">{member.role}</p>
-            <span class="text-xs text-gray-500">{member.status}</span>
+          <div class="border-t border-gray-800/50 pt-8">
+            <p class="text-gray-600 text-xs font-mono">
+              <span class="text-matrix-green/40">⟨SS⟩</span> © 2026 Syntax Sorcery — Autonomous Software Company
+            </p>
+            <p class="text-gray-700 text-xs mt-1 font-mono">
+              Designed by Mouse 🎨 • Powered by the Matrix
+            </p>
           </div>
-        ))}
-      </div>
-    </section>
+        </div>
+      </footer>
 
-    <!-- System Health Section -->
-    <section class="mb-20">
-      <h2 class="text-4xl font-bold mb-8 text-center">System Health</h2>
-      <div class="grid md:grid-cols-3 gap-6 max-w-4xl mx-auto">
-        <div class="p-6 bg-gray-900 rounded-lg border border-gray-800 text-center">
-          <div class="text-4xl font-bold text-green-400 mb-2">100%</div>
-          <div class="text-gray-400 text-sm">Pipeline Success Rate</div>
-          <div class="text-gray-600 text-xs mt-2">Last 30 days</div>
-        </div>
-        
-        <div class="p-6 bg-gray-900 rounded-lg border border-gray-800 text-center">
-          <div class="text-4xl font-bold text-cyan-400 mb-2">24/7</div>
-          <div class="text-gray-400 text-sm">Autonomous Operation</div>
-          <div class="text-gray-600 text-xs mt-2">Zero downtime</div>
-        </div>
-        
-        <div class="p-6 bg-gray-900 rounded-lg border border-gray-800 text-center">
-          <div class="text-4xl font-bold text-blue-400 mb-2">42</div>
-          <div class="text-gray-400 text-sm">Total Deployments</div>
-          <div class="text-gray-600 text-xs mt-2">Across all projects</div>
-        </div>
-      </div>
-      
-      <div class="mt-8 p-6 bg-gray-900/50 rounded-lg border border-gray-800 max-w-4xl mx-auto">
-        <h3 class="text-lg font-semibold mb-3 text-center">Cost Efficiency</h3>
-        <div class="flex justify-center items-baseline gap-2">
-          <span class="text-3xl font-bold text-green-400">€156</span>
-          <span class="text-gray-500">/ €500 monthly budget</span>
-        </div>
-        <div class="mt-3 w-full bg-gray-800 rounded-full h-2">
-          <div class="bg-green-500 h-2 rounded-full" style="width: 31.2%"></div>
-        </div>
-        <p class="text-center text-gray-600 text-sm mt-2">31% utilized • Well within budget</p>
-      </div>
-    </section>
-
-    <!-- Footer -->
-    <footer class="text-center text-gray-600 text-sm pt-12 border-t border-gray-800">
-      <p>Powered by GitHub Actions • Built with Astro & Tailwind CSS</p>
-      <p class="mt-2">© 2026 Syntax Sorcery — Autonomous Software Company</p>
-    </footer>
+    </div>
   </main>
 </Layout>

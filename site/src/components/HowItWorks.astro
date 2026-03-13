@@ -1,0 +1,70 @@
+---
+/**
+ * "How It Works" section with 3-step visual flow.
+ * Matrix-themed with terminal aesthetic.
+ */
+const steps = [
+  {
+    number: '01',
+    icon: '⚡',
+    title: 'Issue Created',
+    description: 'A GitHub Issue defines the work. Ralph, our autonomous monitor, detects it and routes to the right agent.',
+    terminal: '$ gh issue create --title "feat: new feature"',
+  },
+  {
+    number: '02',
+    icon: '🤖',
+    title: 'Squad Executes',
+    description: 'Specialized AI agents collaborate autonomously — architect reviews, developer codes, tester validates, designer polishes.',
+    terminal: '> morpheus: PR #42 approved ✓\n> switch: 137 tests passing ✓',
+  },
+  {
+    number: '03',
+    icon: '🚀',
+    title: 'Ship & Monitor',
+    description: 'Code merges, CI deploys, constellation health monitors everything 24/7. Zero human intervention required.',
+    terminal: '✓ deployed to production\n✓ health check: all systems nominal',
+  },
+];
+---
+
+<section class="mb-24 scroll-fade" id="how-it-works">
+  <h2 class="text-4xl font-bold mb-4 text-center">
+    <span class="text-matrix-green font-mono">&gt;</span> How It Works
+  </h2>
+  <p class="text-gray-500 text-center mb-12 max-w-2xl mx-auto">
+    From issue to production — fully autonomous software delivery.
+  </p>
+
+  <div class="relative max-w-5xl mx-auto">
+    <!-- Connection line -->
+    <div class="hidden md:block absolute top-24 left-[16.66%] right-[16.66%] h-px bg-gradient-to-r from-matrix-green/0 via-matrix-green/40 to-matrix-green/0" aria-hidden="true"></div>
+
+    <div class="grid md:grid-cols-3 gap-8">
+      {steps.map((step, index) => (
+        <div class="scroll-fade group relative" style={`animation-delay: ${index * 150}ms`}>
+          <div class="relative p-6 bg-gray-900/80 rounded-xl border border-gray-800 hover:border-matrix-green/50 transition-all duration-300 hover:-translate-y-1">
+            <!-- Step number -->
+            <div class="flex items-center justify-between mb-4">
+              <span class="text-matrix-green font-mono text-sm opacity-60">{step.number}</span>
+              <span class="text-3xl">{step.icon}</span>
+            </div>
+
+            <!-- Dot on timeline -->
+            <div class="hidden md:block absolute -top-0 left-1/2 -translate-x-1/2 -translate-y-[calc(100%+1.5rem)]">
+              <div class="w-3 h-3 rounded-full bg-matrix-green/60 group-hover:bg-matrix-green transition-colors ring-4 ring-gray-950"></div>
+            </div>
+
+            <h3 class="text-xl font-bold mb-2">{step.title}</h3>
+            <p class="text-gray-400 text-sm mb-4 leading-relaxed">{step.description}</p>
+
+            <!-- Terminal snippet -->
+            <div class="bg-gray-950 rounded-lg p-3 border border-gray-800 font-mono text-xs text-matrix-green/70 whitespace-pre-wrap">
+              {step.terminal}
+            </div>
+          </div>
+        </div>
+      ))}
+    </div>
+  </div>
+</section>

@@ -1,0 +1,89 @@
+---
+/**
+ * Animated typing effect for taglines.
+ * Types out text character by character, then holds.
+ * Respects prefers-reduced-motion (shows full text immediately).
+ */
+interface Props {
+  text: string;
+  speed?: number;
+  class?: string;
+}
+
+const { text, speed = 60, class: className = '' } = Astro.props;
+---
+
+<span
+  class:list={['typewriter', className]}
+  data-text={text}
+  data-speed={speed}
+  aria-label={text}
+>
+  <span class="typewriter-text"></span>
+  <span class="typewriter-cursor" aria-hidden="true">_</span>
+</span>
+
+<style>
+  .typewriter {
+    display: inline;
+  }
+
+  .typewriter-cursor {
+    animation: blink 1s step-end infinite;
+    color: #00ff41;
+    font-weight: bold;
+  }
+
+  @keyframes blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .typewriter-cursor {
+      animation: none;
+      display: none;
+    }
+  }
+</style>
+
+<script>
+  document.querySelectorAll('.typewriter').forEach((el) => {
+    const textEl = el.querySelector('.typewriter-text') as HTMLElement;
+    const cursorEl = el.querySelector('.typewriter-cursor') as HTMLElement;
+    const fullText = el.getAttribute('data-text') || '';
+    const speed = parseInt(el.getAttribute('data-speed') || '60', 10);
+    const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    if (prefersReduced) {
+      textEl.textContent = fullText;
+      return;
+    }
+
+    let i = 0;
+    function type() {
+      if (i < fullText.length) {
+        textEl.textContent += fullText.charAt(i);
+        i++;
+        setTimeout(type, speed);
+      } else {
+        // Keep cursor blinking after typing finishes
+        setTimeout(() => {
+          if (cursorEl) cursorEl.style.display = 'none';
+        }, 3000);
+      }
+    }
+
+    // Start typing when element is in viewport
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          type();
+          observer.disconnect();
+        }
+      });
+    }, { threshold: 0.5 });
+
+    observer.observe(el);
+  });
+</script>
