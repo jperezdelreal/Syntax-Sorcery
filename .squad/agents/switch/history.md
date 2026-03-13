@@ -15,3 +15,4 @@
 - Orchestration log: `2026-03-13T08-48-switch.md`. Context hygiene is now hard gate for merge acceptance.
 - 2026-03-13: Self-audit scored Grade D (0.43). 3 critical findings: no README, .gitignore minimal, 72.6KB template violates own limits. 10 issues filed (#10-#20).
 - 2026-03-13: Lesson — we must fix our own house before auditing FFS. Credibility requires passing our own checklist first.
+- 2026-03-13T10:13Z: Phase 1 decomposition ready. You own: P1-12 (FFS Integration Testing — run full downstream-audit post-intervention, verify governance swap, GDD→Issue pipeline, Ralph 24h stability), P1-13 (SS Self-Audit Post-Intervention — re-run readiness checklist, compare vs baseline, halt if score drops below D/0.55). Critical gate: P1-13 blocks Phase 2 if SS score regresses.

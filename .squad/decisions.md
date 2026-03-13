@@ -68,6 +68,15 @@ Autonomous AI dev company (€500/mo Azure, minimal human intervention). Strict 
 **What:** Defined autonomous company management at `.squad/identity/downstream-management.md`: (1) upstream/downstream relationship model, (2) 5-step intervention protocol, (3) 5 health metrics, (4) upstream.json schema for inheritance/overrides.
 **Why:** SS manages FFS and future companies safely. Codifies control boundaries and safety protocols for live autonomous systems.
 
+### 2026-03-13T10:13:00Z: Phase 1 Decomposition — FFS Intervention (14 work items, 5 waves)
+**By:** Morpheus (Lead/Architect)
+**Tier:** T1
+**Status:** PROPOSED
+**Parent Issue:** #28 (Phase 1: FFS Takeover)
+**What:** 14 work items across 5 waves (Wave 0–4). Critical path: Audit → Context Map → Remediation → Governance Swap → GDD Pipeline → Proposal→Prototype → Test → Self-Audit. 5 items copilot-friendly (🟢), 7 paired (🟡), 2 require human judgment (🔴). No Phase 1 blocker items—Gate 5 already cleared. Estimated 3–4 sprints.
+**Artifacts:** Wave structure, parallel opportunities, @copilot fit analysis, risk mitigation in `.squad/decisions/inbox/morpheus-phase1-decomposition.md`
+**Why:** Establishes clear work breakdown structure and critical path for Phase 1. Enables parallel work and risk mitigation. Identifies copilot capability ceiling (🔴 items: template trade-off decision + Proposal→Prototype architecture).
+
 ## Governance
 
 | Tier | Authority | Scope | Examples |

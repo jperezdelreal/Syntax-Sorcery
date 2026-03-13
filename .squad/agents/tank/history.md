@@ -13,3 +13,4 @@
 ## Learnings
 
 <!-- Append entries below as you learn about the project -->
+- 2026-03-13T10:13Z: Phase 1 decomposition ready. You own: P1-08 (Ralph-Watch Hardening — audit config, define target cycle time, implement hardened config for 24h unattended operation), P1-09 (Cost Alerting — Azure alert at 80%/€400, escalation thresholds: €450 → notify, €480 → auto-kill idle). Key: test hardened config on SS first, then apply to FFS. Ralph is critical for autonomous operation.
