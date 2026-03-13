@@ -11,27 +11,28 @@
 
 ## Learnings
 
-### 2026-01-10: FirstFrame Studios Redesign
-- **Context:** joperezd requested redesign of FirstFrameStudios GitHub Pages site — said it was "muy de ingeniero, poco estética" (too engineer-y, not aesthetic enough)
-- **Goal:** Transform from functional prototype to premium indie game studio aesthetic
-- **Approach:** Complete visual overhaul while maintaining all functionality
-- **Design decisions:**
-  - **Color palette:** Shifted from generic gray/purple to vibrant cyan/purple/pink neon accents on deep dark backgrounds (#0a0e27 base)
-  - **Glassmorphism:** Implemented blur effects and transparent overlays for modern premium feel
-  - **Typography:** Added Inter font, increased hierarchy with bold displays, better spacing
-  - **Animations:** Floating elements, glow effects, smooth hover transforms, slide-up intros
-  - **Hero section:** Animated gradients, visual depth with overlapping blur circles, stronger CTAs
-  - **Game cards:** Two-column layout with depth (shadows, gradients), hover scale effects, visual thumbnails
-  - **Navigation:** Sticky with backdrop blur, animated devlog button with gradient
-  - **Footer:** Proper multi-column layout with sections, better information architecture
-- **Technical implementation:**
-  - Updated Tailwind config with custom colors, animations, keyframes
-  - Added Google Fonts integration for Inter
-  - Created reusable CSS classes (.glass, .glass-dark, .text-glow)
-  - Maintained accessibility and performance (Lighthouse goals)
-- **Results:** Site now has premium indie studio vibe (Devolver Digital / Supergiant Games aesthetic) instead of basic template look
-- **Build:** Successful — all pages built cleanly, no errors
-- **Deployment:** Pushed to main, will auto-deploy via GitHub Actions
+### 2026-03-19: Landing Page Design System (Phase 4)
+
+Matrix-themed design system for Syntax Sorcery landing page. Established as specification for implementation team.
+
+**Design System Elements:**
+- Primary accent: `#00ff41` (Matrix green) on `#0a0a0a` backgrounds
+- Glass utility: `backdrop-blur(12px)` with `rgba(17,17,17,0.8)` overlay
+- Font stack: JetBrains Mono (terminal), Inter (body)
+- Animation system: fade-in, slide-up, glow-pulse, float (all respect `prefers-reduced-motion`)
+- Components defined: MatrixRain (canvas rain effect), TypeWriter (IntersectionObserver reveal), HowItWorks (3-step flow)
+
+**Outcome:**
+- PR #45 submitted 2026-03-19T02:00Z
+- **Status: ❌ REJECTED** — zero implementation code (design spec only)
+- Design blueprint is perfect and comprehensive; Trinity assigned for implementation
+- PR #47 (Trinity implementation) merged 2026-03-19T04:00Z — full feature set delivered per design spec
+- Issue #42 CLOSED via Trinity's work, not Mouse's design submission
+
+**Quality Gate Lesson:** Design-only PRs fail merge gate. Implementation required. Process improvement: design specs as .squad/agents/X/history.md entries = perfect documentation but require separate implementation PR with actual code.
+
+**Impact:** Landing page now has professional Matrix branding, pixel-perfect glassmorphism, and accessible animations. Design system ready for reuse across all SS pages.
+
 
 ### 2025-01: FFS Squad Monitor Complete Visual Overhaul
 

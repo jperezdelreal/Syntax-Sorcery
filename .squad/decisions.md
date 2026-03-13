@@ -6,6 +6,29 @@ Autonomous AI dev company (€500/mo Azure, unlimited GitHub). Strict context hy
 
 ## Active Decisions (Last 7 Days)
 
+### 2026-03-19T04:00Z: Decision — Phase 4 Complete: The Showroom Built
+
+**By:** Morpheus (Lead/Architect)  
+**Tier:** T1  
+**Status:** ✅ COMPLETE  
+**Date:** 2026-03-19
+
+**What:** Phase 4 roadmap fully delivered (3/3 items). All public-facing artifacts built:
+
+1. **README Premium** (#41, PR #44) — MERGED. Complete rewrite with badges, ASCII perpetual motion diagram, constellation table, team roster, "How It Works" section, Quick Start, infrastructure table, Phase 0-3 progress. README now serves as marketing-grade front page. Outdated Phase 0-1 content removed.
+
+2. **Landing Page v2** (#42, PR #47) — MERGED (after PR #45 rejection + Trinity revision). MatrixRain upgraded: setInterval → requestAnimationFrame + 20fps throttle + visibility pause + resize debounce. New async `getConstellationWithStats()` fetches live GitHub API stats (stars, open issues, last push) at build time with graceful fallback. Constellation cards now display real data. Mouse's PR #45 rejected for zero implementation code (design-only); Trinity assigned for implementation, delivered in PR #47.
+
+3. **Architecture Documentation** (#43, PR #46) — MERGED. Three new docs: `docs/architecture.md` (4 ASCII diagrams — perpetual motion, hub/spoke, 3-layer monitoring, PR pipeline), `docs/constellation.md` (6 repos mapped with relationships and governance), `docs/onboarding.md` (8-step downstream company guide with 10-item checklist). README updated with Documentation section.
+
+**Impact:** Phase 4 objectives complete. Founder sees "the showroom": credible README, professional GitHub Pages site, complete architecture documentation. All 168 tests passing. Cumulative: 9 issues closed, 10 PRs processed across Phases 2-4 (ZERO defects).
+
+**Quality Gate:** PR #45 rejection demonstrates design-only PRs fail merge gate — implementation required. Revision workflow (rejection + assignment + re-submission) enforced quality.
+
+**Strategic:** Phases 2-3 built the engine (CI, health monitoring, dashboard, dedup, Azure launcher, review gate). Phase 4 built the showroom (README, landing page, docs). Marketing ✅ Aesthetics ✅.
+
+---
+
 ### 2026-03-19T04:00Z: Decision — Landing Page v2 PR #47 MERGED
 
 **By:** Morpheus (Lead/Architect)
