@@ -88,6 +88,7 @@
     "test:validate-squad": "node scripts/validate-squad.js",
     "check:constellation": "node scripts/constellation-health.js",
     "dashboard:ralph": "node scripts/parse-ralph-logs.js",
+    "review:gate": "node scripts/review-gate.js",
     "dedup:check": "node scripts/dedup-guard.js"
   },
   "repository": {
