@@ -87,7 +87,8 @@
     "test:watch": "vitest",
     "test:validate-squad": "node scripts/validate-squad.js",
     "check:constellation": "node scripts/constellation-health.js",
-    "dashboard:ralph": "node scripts/parse-ralph-logs.js"
+    "dashboard:ralph": "node scripts/parse-ralph-logs.js",
+    "dedup:check": "node scripts/dedup-guard.js"
   },
   "repository": {
     "type": "git",
