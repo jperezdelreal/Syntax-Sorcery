@@ -115,3 +115,21 @@
 **Architectural Insight:** Activation guide emphasizes "flip the switch" moment — Phase 2 is fully BUILT (code exists), but NOT ACTIVATED (workflows not running in GitHub). User controls when to push and activate. This is correct: build-then-activate is safer than build-in-production.
 
 **Next:** Tank completes 3 gaps → user follows guide → system goes live.
+
+## Learnings — Session 2026-03-13: First Autonomous Test Evaluation
+
+**Event:** User left, system ran autonomously. ralph-watch.ps1 detected 3 @copilot PRs, coordinator reviewed/merged all 3, perpetual motion triggered, new roadmap issues created. End-to-end ~10 seconds.
+
+**Findings:**
+1. **Motor perpetuo funciona** — el ciclo completo (issue → @copilot → PR → merge → perpetual-motion → new issue) se completó en 3 repos simultáneamente. Arquitectura VALIDADA.
+2. **CI checks ausentes** — los PRs se mergearon sin CI real (solo heartbeat checks o ninguno). Esto es el gap más crítico. Branch protection con required status checks es OBLIGATORIO antes del próximo test.
+3. **Race condition en flora** — perpetual-motion.yml generó issues duplicados (#35 + #37). Necesita deduplicación o semáforo más robusto.
+4. **Workflows rotos pre-existentes** — ComeRosquillas Squad Release (CHANGELOG.md), pixel-bounce safety-net.yml (0 jobs). Ruido que genera falsa alarma.
+5. **Review sin agente especializado** — coordinator leyó diffs directamente. Para PRs grandes (757 líneas flora) esto es insuficiente. Necesitamos spawn de reviewer agent.
+
+**Architectural Decisions:**
+- **Multi-terminal (1 per repo):** APROBADO. Cada repo con su Squad session, ownership descentralizado. SS terminal = coordinadora, satélites = trabajadores. ralph-watch.ps1 como fallback.
+- **SS fuera de Squad Monitor:** CORRECTO. SS se auto-monitoriza. Squad Monitor solo monitoriza repos FFS. Evita dependencia circular (downstream monitorizando upstream).
+- **Jerarquía clara:** SS → monitoriza FFS repos (via ralph-watch + safety-net). Squad Monitor → monitoriza solo juegos FFS. SS → se monitoriza a sí misma.
+
+**Score del test:** 7/10. Arquitectura validada, implementación con gaps corregibles.
