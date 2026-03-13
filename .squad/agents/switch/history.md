@@ -20,8 +20,6 @@
 - 2026-03-13T11:30Z: **P1-11 ARCHITECTURE READY — Morpheus designed Proposal→Prototype pipeline for Phase 1 integration testing (P1-12). 6 stages: proposal (YAML)→GDD via @copilot→Issues (gdd-to-issues.js)→code (@copilot)→build (GHA)→deploy (GitHub Pages). Label-based state machine (pipeline:*) for Ralph monitoring. Trinity handling implementation; your P1-12 prep: (1) Dry-run full pipeline with test proposal, (2) Verify Ralph pipeline:* label monitoring, (3) Test end-to-end integration with one FFS game repo, (4) Document integration assumptions for cross-repo triggers (gh CLI or repository_dispatch).**
 
 
-### 2026-03-13: Self-Audit Results Filed — Critical Blocker
-- SS grades D (0.43/1.0) on readiness checklist. Cannot credibly audit FFS (C grade, 0.68) while SS is D.
-- 3 critical gaps: #11 no README (file exists but missing?), #12 minimal .gitignore, #13 72.6KB templates violate own 25KB hard limit.
-- Issues #10-#20 filed for tracking. P1 remediation required before Phase 1 FFS intervention begins.
-- Decision: Fix house (SS→C) before FFS work. Blocker enforced by Morpheus readiness gate (Gate 4: Team Operational).
+- 2026-03-14: P1-12 Integration Testing complete. 3 PASS, 4 WARNING, 0 FAIL. All artifacts exist; FFS PRs #196/#197 unmerged (blocker). Reports at `.squad/decisions/inbox/switch-integration-report.md`.
+- 2026-03-14: P1-13 Self-Audit complete. SS grade: **B (0.71)** — up from D (0.43). Architecture/code quality is F (0.33): zero tests, 19 outdated deps. Oracle history.md at 8.6KB violates 8KB hard limit. CI size-check doesn't enforce per-type limits from context-hygiene SKILL.
+- 2026-03-14: Lesson — CI/SKILL limit mismatch is a systemic gap. squad-size-check.yml uses 15KB generic limit but SKILL specifies 8KB for history.md. Scribe auto-archive is policy, not automation. Founder's "systemic not manual" directive not yet fully met.
