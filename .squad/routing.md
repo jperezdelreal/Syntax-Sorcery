@@ -23,6 +23,7 @@ How to decide who handles what.
 | Documentation | Oracle | README, API docs, guides, architecture docs |
 | Research & analysis | Oracle | Technology evaluation, competitive analysis, feasibility |
 | Skill extraction | Oracle | Identify and document reusable patterns from work |
+| UI/UX design, aesthetics, branding | Mouse | Visual polish, CSS, responsive design, animations, color palettes |
 | Async issue work (bugs, tests, small features) | @copilot 🤖 | Well-defined tasks matching capability profile |
 | Session logging | Scribe | Automatic — never needs routing |
 

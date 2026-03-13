@@ -17,6 +17,7 @@
 | Tank | Cloud Engineer | [.squad/agents/tank/charter.md](.squad/agents/tank/charter.md) | ✅ Active |
 | Switch | Tester/QA | [.squad/agents/switch/charter.md](.squad/agents/switch/charter.md) | ✅ Active |
 | Oracle | Product & Docs | [.squad/agents/oracle/charter.md](.squad/agents/oracle/charter.md) | ✅ Active |
+| Mouse | UI/UX Designer | [.squad/agents/mouse/charter.md](.squad/agents/mouse/charter.md) | ✅ Active |
 | @copilot | Coding Agent | — | 🤖 Autonomous |
 | Scribe | Session Logger | [.squad/agents/scribe/charter.md](.squad/agents/scribe/charter.md) | 📋 Silent |
 | Ralph | Work Monitor | — | 🔄 Monitor |
