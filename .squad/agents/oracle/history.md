@@ -20,6 +20,8 @@
 
 ## Recent Learnings (Phase 2)
 
+- **2026-03-17 B2 Devlog Implementation Complete:** Built daily auto-generated devlog within FFS GitHub Page. Route `/devlog` displays chronological feed (grouped by repo, color-coded, type icons). Generation script aggregates closed issues, merged PRs, deploys, and decisions.md changes across 5 constellation repos via GitHub API/gh CLI. GitHub Actions workflow runs daily 02:00 UTC + manual trigger. Cost €0 (free tier). Navigation updated, homepage promotion added. 100% automated — zero manual writing. Day counter from 2026-03-16 (project start).
+
 - **2026-03-16 Phase 2 Round 2:** Focused on decision capture and inbox consolidation. All directives merged (budget scope, context hygiene, Morpheus leads, Ralph approval gate, phase 2 scope focus). Inbox files: copilot-directive (2), morpheus-ffs-triage-t5 (5.11KB), switch-test-matrix, tank-ci-hardening, trinity-e2e-pipeline-test. All merged into decisions.md. Documentation remains up-to-date with phase transitions.
 
 
