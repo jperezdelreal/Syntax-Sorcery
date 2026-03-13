@@ -26,3 +26,8 @@
 - Created `.squad/identity/downstream-management.md` (<4KB) defining SS→downstream governance
 - Key design: policies always cascade and can't be overridden; skills can be overridden; domain stays local
 - Intervention protocol is the critical safety mechanism — 5 steps, no shortcuts except P0 emergencies
+
+### 2026-03-13: D4 — Readiness Gates (#5)
+- Created `.squad/identity/readiness-gates.md` (2.8KB) with 5 gates for FFS intervention readiness
+- Self-assessment: Gates 1–4 all PASS. Gate 5 (founder approval) is the only remaining blocker for Phase 1
+- Phase 0 is architecturally complete — all 4 deliverables (#2–#5) shipped with proper branch/PR/merge lifecycle
