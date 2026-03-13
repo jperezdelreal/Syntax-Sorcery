@@ -36,6 +36,20 @@
 
 **Test 2 Score Target:** 9/10 (up from Test 1: 7/10). Critical deficiency #1 (ZERO CI checks) FIXED. Multi-terminal orchestration infrastructure enabled.
 
+## Session 2026-03-19 — PR #38 Dedup Guard: Reviewed & Merged
+
+**Task:** Review PR #38 (feat: add issue dedup guard for perpetual motion) by Switch.
+
+**Deliverables:**
+1. PR #38 (Dedup Guard) — ✅ APPROVED + MERGED (squash). Script `scripts/dedup-guard.js` prevents perpetual-motion from creating duplicate planning issues. Queries `gh issue list` for open issues with label `squad` + title containing "roadmap". 11 unit tests via DI-mocked execSync. Guide at `.squad/guides/dedup-guard.md`. Issue #36 CLOSED.
+
+**Review Notes:**
+- Code: Clean. DI pattern for testability, proper error handling (exit 1 on API error), timeouts on execSync (15s), no external deps. 137/137 tests pass.
+- Minor doc issue (non-blocking): Guide workflow example #1 references `steps.dedup.outputs.duplicate` but script doesn't write to `$GITHUB_OUTPUT`. Grep-based example #2 works correctly. Can fix as follow-up.
+- Test 1 deficiency #2 (duplicate issue creation) now CLOSED.
+
+**Board Status:** Dedup guard delivered (1/3 Phase 3 items). Review gate and Azure launcher pending.
+
 ## Learnings
 
 ### 2026-03-18 — Roadmap Refresh: Phase 3 Autonomy Hardening
