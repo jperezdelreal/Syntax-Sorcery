@@ -66,3 +66,17 @@ at <ScriptBlock>, <No file>: line 1
 [2026-03-13 17:04:05] [INFO] Checking repo: jperezdelreal/ffs-squad-monitor
 [2026-03-13 17:04:05] [SUCCESS] Round 1 completed successfully
 [2026-03-13 17:04:05] [INFO] Sleeping for 10m before next round...
+[2026-03-13 17:14:06] [INFO] === Round 2 started ===
+[2026-03-13 17:14:06] [INFO] GitHub CLI available: gh version 2.87.3 (2026-02-23)
+[2026-03-13 17:14:06] [INFO] Disk space available: 312.88GB
+[2026-03-13 17:14:06] [INFO] Checking repo: jperezdelreal/Syntax-Sorcery
+[2026-03-13 17:14:06] [INFO] Checking repo: jperezdelreal/FirstFrameStudios
+[2026-03-13 17:14:07] [INFO] Checking repo: jperezdelreal/flora
+[2026-03-13 17:14:08] [INFO] Checking repo: jperezdelreal/ComeRosquillas
+[2026-03-13 17:14:08] [INFO] Checking repo: jperezdelreal/pixel-bounce
+[2026-03-13 17:14:09] [INFO] Checking repo: jperezdelreal/ffs-squad-monitor
+[2026-03-13 17:14:10] [INFO] Found 1 refueling issue(s) in jperezdelreal/ffs-squad-monitor
+[2026-03-13 17:14:10] [ERROR] Exception processing jperezdelreal/ffs-squad-monitor: Method invocation failed because [System.Management.Automation.PSCustomObject] does not contain a method named 'ContainsKey'.
+[2026-03-13 17:14:10] [WARN] Round 2 had failures (consecutive: 1)
+[2026-03-13 17:14:10] [WARN] Applying exponential backoff: 10m (failure count: 1)
+[2026-03-13 17:14:10] [INFO] Sleeping for 10m before next round...
