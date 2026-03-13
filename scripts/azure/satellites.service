@@ -1,0 +1,18 @@
+[Unit]
+Description=Syntax Sorcery Satellite Launcher (tmux sessions)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=forking
+User=ssadmin
+Group=ssadmin
+Environment=SATELLITE_BASE_DIR=/home/ssadmin/repos
+ExecStart=/home/ssadmin/scripts/azure/start-satellites.sh
+ExecStop=/usr/bin/tmux kill-server
+RemainAfterExit=yes
+Restart=on-failure
+RestartSec=30
+
+[Install]
+WantedBy=multi-user.target
