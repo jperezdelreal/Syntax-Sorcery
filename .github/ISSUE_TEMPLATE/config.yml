@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: "💬 Squad Discussion"
+    url: "https://github.com/joperezd/Syntax-Sorcery/discussions"
+    about: "Questions, ideas, or general discussion about Syntax Sorcery"
+  - name: "📚 Documentation"
+    url: "https://github.com/joperezd/Syntax-Sorcery/tree/main/.squad"
+    about: "Browse .squad/ directory for guides, skills, and team documentation"

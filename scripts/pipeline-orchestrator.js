@@ -4,22 +4,6 @@
 const fs = require('fs');
 const path = require('path');
 
-// ---------------------------------------------------------------------------
-// CLI args
-// ---------------------------------------------------------------------------
-const args = process.argv.slice(2);
-const command = args[0]; // status, transition, list
-const slug = (() => {
-  const idx = args.indexOf('--slug');
-  return idx !== -1 ? args[idx + 1] : null;
-})();
-const stage = (() => {
-  const idx = args.indexOf('--stage');
-  return idx !== -1 ? args[idx + 1] : null;
-})();
-
-const PIPELINE_DIR = path.join(__dirname, '..', '.pipeline');
-
 const VALID_STAGES = ['proposal', 'gdd', 'issues', 'implementation', 'build', 'deploy'];
 const STAGE_LABELS = {
   proposal: 'pipeline:proposal',
@@ -30,30 +14,56 @@ const STAGE_LABELS = {
   deploy: 'pipeline:deployed'
 };
 
+const DEFAULT_PIPELINE_DIR = path.join(__dirname, '..', '.pipeline');
+
 // ---------------------------------------------------------------------------
 // Helpers
 // ---------------------------------------------------------------------------
-function getStatusPath(gameSlug) {
-  return path.join(PIPELINE_DIR, gameSlug, 'status.json');
+function getStatusPath(gameSlug, pipelineDir) {
+  return path.join(pipelineDir || DEFAULT_PIPELINE_DIR, gameSlug, 'status.json');
 }
 
-function readStatus(gameSlug) {
-  const statusPath = getStatusPath(gameSlug);
+function readStatus(gameSlug, pipelineDir) {
+  const statusPath = getStatusPath(gameSlug, pipelineDir);
   if (!fs.existsSync(statusPath)) return null;
   return JSON.parse(fs.readFileSync(statusPath, 'utf8'));
 }
 
-function writeStatus(gameSlug, status) {
-  const dir = path.join(PIPELINE_DIR, gameSlug);
+function writeStatus(gameSlug, status, pipelineDir) {
+  const dir = path.join(pipelineDir || DEFAULT_PIPELINE_DIR, gameSlug);
   if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
-  fs.writeFileSync(getStatusPath(gameSlug), JSON.stringify(status, null, 2), 'utf8');
+  fs.writeFileSync(getStatusPath(gameSlug, pipelineDir), JSON.stringify(status, null, 2), 'utf8');
+}
+
+function parseCliArgs(argv) {
+  const args = argv.slice(2);
+  const command = args[0];
+  const getArg = (name) => {
+    const idx = args.indexOf(`--${name}`);
+    return idx !== -1 ? args[idx + 1] : null;
+  };
+  return { command, slug: getArg('slug'), stage: getArg('stage'), title: getArg('title'), reason: getArg('reason') };
+}
+
+function isValidStage(stage) {
+  return VALID_STAGES.includes(stage);
+}
+
+function isValidTransition(currentStage, newStage) {
+  const currentIdx = VALID_STAGES.indexOf(currentStage);
+  const newIdx = VALID_STAGES.indexOf(newStage);
+  return currentIdx !== -1 && newIdx !== -1;
+}
+
+function getLabelForStage(stage) {
+  return STAGE_LABELS[stage] || null;
 }
 
 // ---------------------------------------------------------------------------
 // Commands
 // ---------------------------------------------------------------------------
-function showStatus(gameSlug) {
-  const status = readStatus(gameSlug);
+function showStatus(gameSlug, pipelineDir) {
+  const status = readStatus(gameSlug, pipelineDir);
   if (!status) {
     console.error(`No pipeline found for slug: ${gameSlug}`);
     process.exit(1);
@@ -72,13 +82,13 @@ function showStatus(gameSlug) {
   console.log('');
 }
 
-function transitionStage(gameSlug, newStage) {
+function transitionStage(gameSlug, newStage, pipelineDir) {
   if (!VALID_STAGES.includes(newStage)) {
     console.error(`Invalid stage: ${newStage}. Valid: ${VALID_STAGES.join(', ')}`);
     process.exit(1);
   }
 
-  const status = readStatus(gameSlug);
+  const status = readStatus(gameSlug, pipelineDir);
   if (!status) {
     console.error(`No pipeline found for slug: ${gameSlug}`);
     process.exit(1);
@@ -111,7 +121,7 @@ function transitionStage(gameSlug, newStage) {
     status.block_reason = null;
   }
 
-  writeStatus(gameSlug, status);
+  writeStatus(gameSlug, status, pipelineDir);
   console.log(`✅ ${gameSlug}: transitioned to ${newStage} (label: ${STAGE_LABELS[newStage]})`);
 
   // Output for GHA
@@ -119,10 +129,12 @@ function transitionStage(gameSlug, newStage) {
     fs.appendFileSync(process.env.GITHUB_OUTPUT, `pipeline_label=${STAGE_LABELS[newStage]}\n`);
     fs.appendFileSync(process.env.GITHUB_OUTPUT, `current_stage=${newStage}\n`);
   }
+
+  return status;
 }
 
-function blockPipeline(gameSlug, reason) {
-  const status = readStatus(gameSlug);
+function blockPipeline(gameSlug, reason, pipelineDir) {
+  const status = readStatus(gameSlug, pipelineDir);
   if (!status) {
     console.error(`No pipeline found for slug: ${gameSlug}`);
     process.exit(1);
@@ -130,39 +142,44 @@ function blockPipeline(gameSlug, reason) {
   status.blocked = true;
   status.block_reason = reason || 'Unknown failure';
   status.stages[status.current_stage].status = 'blocked';
-  writeStatus(gameSlug, status);
+  writeStatus(gameSlug, status, pipelineDir);
   console.log(`🚫 ${gameSlug}: BLOCKED at ${status.current_stage} — ${status.block_reason}`);
+  return status;
 }
 
-function listPipelines() {
-  if (!fs.existsSync(PIPELINE_DIR)) {
+function listPipelines(pipelineDir) {
+  const dir = pipelineDir || DEFAULT_PIPELINE_DIR;
+  if (!fs.existsSync(dir)) {
     console.log('No pipelines found.');
-    return;
+    return [];
   }
-  const dirs = fs.readdirSync(PIPELINE_DIR).filter(d =>
-    fs.statSync(path.join(PIPELINE_DIR, d)).isDirectory()
+  const dirs = fs.readdirSync(dir).filter(d =>
+    fs.statSync(path.join(dir, d)).isDirectory()
   );
 
   if (dirs.length === 0) {
     console.log('No pipelines found.');
-    return;
+    return [];
   }
 
   console.log(`\n${'═'.repeat(60)}`);
   console.log('  Active Pipelines');
   console.log(`${'═'.repeat(60)}\n`);
 
-  for (const dir of dirs) {
-    const status = readStatus(dir);
+  const pipelines = [];
+  for (const d of dirs) {
+    const status = readStatus(d, pipelineDir);
     if (status) {
       const icon = status.blocked ? '🚫' : '🎮';
       console.log(`  ${icon} ${status.title} (${status.slug}) → ${status.current_stage}`);
+      pipelines.push(status);
     }
   }
   console.log('');
+  return pipelines;
 }
 
-function initPipeline(gameSlug, title) {
+function initPipeline(gameSlug, title, pipelineDir) {
   const status = {
     slug: gameSlug,
     title: title || gameSlug,
@@ -180,14 +197,46 @@ function initPipeline(gameSlug, title) {
     blocked: false,
     block_reason: null
   };
-  writeStatus(gameSlug, status);
+  writeStatus(gameSlug, status, pipelineDir);
   console.log(`✅ Pipeline initialized for: ${gameSlug}`);
+  return status;
 }
 
 // ---------------------------------------------------------------------------
-// Main
+// Exports for testing
 // ---------------------------------------------------------------------------
-const USAGE = `Usage: node pipeline-orchestrator.js <command> [options]
+module.exports = {
+  VALID_STAGES,
+  STAGE_LABELS,
+  parseCliArgs,
+  isValidStage,
+  isValidTransition,
+  getLabelForStage,
+  readStatus,
+  writeStatus,
+  initPipeline,
+  transitionStage,
+  blockPipeline,
+  listPipelines,
+  showStatus
+};
+
+// ---------------------------------------------------------------------------
+// CLI entry point (only when executed directly)
+// ---------------------------------------------------------------------------
+if (require.main === module) {
+  const args = process.argv.slice(2);
+  const command = args[0];
+  const slug = (() => {
+    const idx = args.indexOf('--slug');
+    return idx !== -1 ? args[idx + 1] : null;
+  })();
+  const stage = (() => {
+    const idx = args.indexOf('--stage');
+    return idx !== -1 ? args[idx + 1] : null;
+  })();
+
+  const USAGE = `Usage: node pipeline-orchestrator.js <command> [options]
 
 Commands:
   status     --slug <slug>                    Show pipeline status
@@ -198,29 +247,30 @@ Commands:
 
 Stages: ${VALID_STAGES.join(', ')}`;
 
-switch (command) {
-  case 'status':
-    if (!slug) { console.error('--slug required'); process.exit(1); }
-    showStatus(slug);
-    break;
-  case 'transition':
-    if (!slug || !stage) { console.error('--slug and --stage required'); process.exit(1); }
-    transitionStage(slug, stage);
-    break;
-  case 'block':
-    if (!slug) { console.error('--slug required'); process.exit(1); }
-    const reason = (() => { const idx = args.indexOf('--reason'); return idx !== -1 ? args[idx + 1] : null; })();
-    blockPipeline(slug, reason);
-    break;
-  case 'init':
-    if (!slug) { console.error('--slug required'); process.exit(1); }
-    const title = (() => { const idx = args.indexOf('--title'); return idx !== -1 ? args[idx + 1] : null; })();
-    initPipeline(slug, title);
-    break;
-  case 'list':
-    listPipelines();
-    break;
-  default:
-    console.log(USAGE);
-    process.exit(command ? 1 : 0);
+  switch (command) {
+    case 'status':
+      if (!slug) { console.error('--slug required'); process.exit(1); }
+      showStatus(slug);
+      break;
+    case 'transition':
+      if (!slug || !stage) { console.error('--slug and --stage required'); process.exit(1); }
+      transitionStage(slug, stage);
+      break;
+    case 'block':
+      if (!slug) { console.error('--slug required'); process.exit(1); }
+      const reason = (() => { const idx = args.indexOf('--reason'); return idx !== -1 ? args[idx + 1] : null; })();
+      blockPipeline(slug, reason);
+      break;
+    case 'init':
+      if (!slug) { console.error('--slug required'); process.exit(1); }
+      const title = (() => { const idx = args.indexOf('--title'); return idx !== -1 ? args[idx + 1] : null; })();
+      initPipeline(slug, title);
+      break;
+    case 'list':
+      listPipelines();
+      break;
+    default:
+      console.log(USAGE);
+      process.exit(command ? 1 : 0);
+  }
 }
