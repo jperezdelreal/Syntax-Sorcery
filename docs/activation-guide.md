@@ -52,7 +52,7 @@ nothing to commit, working tree clean
 
 ### Gap 2: constellation.json con Owners Correctos ✅
 
-**Estado:** Tank actualizando el owner de "jperezdelreal" → "joperezd" en constellation.json
+**Estado:** Verificado — constellation.json usa el owner correcto.
 
 **Archivo:** `.squad/constellation.json` (en Syntax Sorcery)
 
@@ -60,21 +60,27 @@ nothing to commit, working tree clean
 ```json
 {
   "repos": [
-    "joperezd/Syntax-Sorcery",
-    "joperezd/FirstFrameStudios",
-    "joperezd/flora",
-    "joperezd/ComeRosquillas",
-    "joperezd/ffs-squad-monitor"
+    "jperezdelreal/Syntax-Sorcery",
+    "jperezdelreal/FirstFrameStudios",
+    "jperezdelreal/flora",
+    "jperezdelreal/ComeRosquillas",
+    "jperezdelreal/ffs-squad-monitor"
   ],
   "metadata": {
     "description": "Repository constellation monitored by safety-net workflow",
-    "updated": "2026-03-17",
-    "owner": "joperezd"
+    "updated": "2026-03-18",
+    "owner": "jperezdelreal"
   }
 }
 ```
 
-**Por qué importa:** ralph-watch.ps1 y safety-net.yml usan esto para saber qué repos monitorear.
+**⚠️ IMPORTANT — No confundir usernames:**
+- `jperezdelreal` = **GitHub account owner** (cuenta oficial donde están los repos públicos)
+- `joperezd` = **Local Windows PC username** (solo para git config user.name en tu máquina)
+
+**constellation.json SIEMPRE debe usar `jperezdelreal`** — es el owner real en GitHub.
+
+**Por qué importa:** ralph-watch.ps1 y safety-net.yml usan esto para saber qué repos monitorear en GitHub.
 
 ---
 
