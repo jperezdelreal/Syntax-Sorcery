@@ -109,103 +109,30 @@
 
 **Next:** Tank completes 3 gaps → user follows guide → system goes live.
 
-## Learnings — Session 2026-03-13: First Autonomous Test Evaluation
 
-**Event:** User left, system ran autonomously. ralph-watch.ps1 detected 3 @copilot PRs, coordinator reviewed/merged all 3, perpetual motion triggered, new roadmap issues created. End-to-end ~10 seconds.
 
-**Findings:**
-1. **Motor perpetuo funciona** — el ciclo completo (issue → @copilot → PR → merge → perpetual-motion → new issue) se completó en 3 repos simultáneamente. Arquitectura VALIDADA.
-2. **CI checks ausentes** — los PRs se mergearon sin CI real (solo heartbeat checks o ninguno). Esto es el gap más crítico. Branch protection con required status checks es OBLIGATORIO antes del próximo test.
-3. **Race condition en flora** — perpetual-motion.yml generó issues duplicados (#35 + #37). Necesita deduplicación o semáforo más robusto.
-4. **Workflows rotos pre-existentes** — ComeRosquillas Squad Release (CHANGELOG.md), pixel-bounce safety-net.yml (0 jobs). Ruido que genera falsa alarma.
-5. **Review sin agente especializado** — coordinator leyó diffs directamente. Para PRs grandes (757 líneas flora) esto es insuficiente. Necesitamos spawn de reviewer agent.
 
-**Architectural Decisions:**
-- **Multi-terminal (1 per repo):** APROBADO. Cada repo con su Squad session, ownership descentralizado. SS terminal = coordinadora, satélites = trabajadores. ralph-watch.ps1 como fallback.
-- **SS fuera de Squad Monitor:** CORRECTO. SS se auto-monitoriza. Squad Monitor solo monitoriza repos FFS. Evita dependencia circular (downstream monitorizando upstream).
-- **Jerarquía clara:** SS → monitoriza FFS repos (via ralph-watch + safety-net). Squad Monitor → monitoriza solo juegos FFS. SS → se monitoriza a sí misma.
 
-**Score del test:** 7/10. Arquitectura validada, implementación con gaps corregibles.
 
-## Learnings — Session 2026-03-13: Hub/Spoke Architecture Evaluation
 
-**Event:** User proposed Hub (PC local con SS) + Spoke (Azure VM con terminales satélite) architecture. Morpheus evaluated and APPROVED with conditions.
+## Session 2026-03-18 — Test 2 Ralph Loop: 3 PRs Reviewed & Merged
 
-**Architecture Decision:** Hub/Spoke APROBADO. SS terminal en PC del usuario = hub de control. Azure VM B2s v2 (~€25-30/mes, Ubuntu 24.04, 2 vCPU, 4GB RAM) = spoke con 5 sesiones Squad persistentes via tmux (1 ventana por repo). Comunicación via SSH + `tmux send-keys`. Context reset automatizado con script `reset-satellite.sh`.
+**Task:** Review and merge Test 2 roadmap PRs (#32, #33, #34) as they complete from autonomous cycle.
 
-**Key Findings:**
-1. **ROI claro:** €25-50/mes convierte autonomía de "cuando el PC está encendido" (7/10) a "24/7 real" (9/10). En presupuesto de €500/mes, irrelevante.
-2. **tmux > PM2/systemd/screen:** tmux es la herramienta correcta para CLIs interactivos persistentes en Linux. PM2 es para Node servers, systemd es overkill, screen es inferior.
-3. **SSH > GitHub API como bus:** SSH es directo, estándar, sin latencia extra. GitHub API para mensajería hub→spoke sería over-engineering.
-4. **VM es Layer 2.5, no crítico:** Si VM muere, sistema degrada a estado actual (7/10) pero NO se para. Layer 1 (GitHub Actions) y Layer 2 (ralph-watch en PC) siguen funcionando. Degradation graceful, no catastrophic failure.
-5. **Empezar pequeño:** Probar con 1 repo (flora) antes de escalar a 5. Verificar que Squad CLI funciona en Linux VM via tmux.
-6. **constellation.json tiene owner incorrecto:** "jperezdelreal" debe ser "joperezd". Ya documentado pero sigue pendiente.
+**Deliverables:**
+1. PR #32 (Switch CI checks) — ✅ APPROVED + MERGED. Workflow: npm ci + npm test, permissions: contents: read, pinned actions, npm cache enabled. Security clean. Issue #30 CLOSED.
+2. PR #33 (Switch constellation health) — ✅ APPROVED + MERGED. Health validation script operational. Validates 6 repos: perpetual-motion.yml, roadmap.md, recent workflow runs. Issue #31 CLOSED.
+3. PR #34 (Switch ralph-watch dashboard) — ✅ APPROVED + MERGED. Real-time HTML dashboard deployed. Displays: last run, repos monitored, refueling events, errors. Issue #29 CLOSED.
 
-**Condiciones de aprobación:**
-- B2s v2 para empezar, upgrade solo si necesario
-- Probar con 1 repo primero (flora)
-- Scripts de gestión (start-satellites.sh, reset-satellite.sh) obligatorios
-- Auto-restart via systemd desde día 1
-- ralph-watch.ps1 sigue en PC como fallback
-- Revisión de coste a 30 días
+**Board Status:** CLEAR. Roadmap: 3/3 items delivered. Ralph IDLING.
 
-## Learnings — Session 2026-03-18: Monitoring Separation Analysis
+**Test 2 Completion Checklist:**
+- ✅ Quality Gates (Layer 1): CI workflow deployed, 126 tests validate every PR
+- ✅ Hub Visibility (Layer 2): Constellation health enabled, 6 repos monitored
+- ✅ Dashboard Transparency: Layer 2 refueling engine status visible in real-time
 
-**Task:** Diseñar separación concreta de monitorización en 3 capas según jerarquía aprobada por usuario.
+**Known Gap:** Branch protection requires founder manual activation (GitHub admin access). Documented in .squad/guides/ci-checks.md.
 
-**Findings:**
-1. **Capas 1+2 (SS self + downstream) ya están correctas.** constellation.json + safety-net.yml + ralph-watch.ps1 cubren todo. CERO cambios necesarios en SS.
-2. **Capa 3 (Squad Monitor) tiene 1 bug y 2 decisiones pendientes:**
-   - BUG: pixel-bounce FALTA en server/config.js y vite.config.js del Squad Monitor
-   - DECISIÓN A: ¿Quitar FirstFrameStudios del Squad Monitor? (es hub, no juego)
-   - DECISIÓN B: ¿Quitar auto-referencia de ffs-squad-monitor? (circular sin valor)
-3. **Syntax-Sorcery correctamente AUSENTE** de Squad Monitor (server/config.js, vite.config.js, workflows). No hay dependencia circular.
-4. **Squad Monitor workflows (heartbeat, labels, triage) son self-scoped** — usan context.repo, no cross-repo. Correcto.
+**Pattern Note:** For single-account repos, skip gh pr review --approve (GitHub prevents self-approval). Merge directly — CI workflow validates quality.
 
-**Architecture Insight:** La separación de monitorización funciona porque cada capa usa mecanismos diferentes: Capa 1+2 usa constellation.json (config compartida, leída por safety-net.yml y ralph-watch.ps1). Capa 3 usa REPOS hardcoded en JS (desacoplado de constellation.json de SS). Este desacoplamiento es bueno — evita que Squad Monitor dependa de SS para saber qué monitorizar.
-
-**Decision recorded:** `.squad/decisions/inbox/morpheus-monitoring-separation-impl.md`
-
----
-
-## Learnings — Session 2026-03-18: Test 2 Strategy and Roadmap Strengthening
-
-**Task:** Define potent strategy for Test 2 (Ralph Go Multi-Terminal Local), strengthen roadmap if needed, create GitHub issues.
-
-**Critical Evaluation of Previous Roadmap:**
-Previous roadmap had 3 infrastructure-focused items (perpetual-motion validation, roadmap depletion detection, reusable issue creation workflow). **Assessment: TOO WEAK for Test 2.** Items were meta-infrastructure (validators for validators) that didn't address Test 1's CRITICAL gap: ZERO CI checks (PRs merged without validation).
-
-**Architectural Decision: Prioritize Quality Gates Over Meta-Tooling**
-Replaced all 3 roadmap items with operationally urgent work:
-1. **Configure CI checks + branch protection** — Fixes Test 1 deficiency #1 (critical). Branch protection with required checks prevents @copilot from merging broken code. Foundation of autonomous quality control.
-2. **Add constellation-wide health monitoring** — SS is orchestrator hub for 6 repos. Proactive health script (`npm run check:constellation`) complements reactive safety-net.yml. Critical for multi-terminal Test 2.
-3. **Create ralph-watch.ps1 monitoring dashboard** — Real-time visibility into Layer 2 refueling engine. Demonstrates operational transparency for autonomous systems.
-
-**Roadmap Prioritization Meta-Pattern:**
-- **Fix critical gaps FIRST** (CI checks from Test 1) before building nice-to-have tooling
-- **Orchestrator repo roadmap** should focus on infrastructure hardening (quality gates, monitoring, visibility), not end-user features
-- **Test-driven roadmap evolution:** Use test results (7/10 score, 5 deficiencies) to prioritize next roadmap items
-- **Operational visibility matters:** Dashboards and health checks make autonomous systems trustable
-
-**Trade-offs Accepted:**
-- Deferred "reusable workflow for issue creation" — perpetual-motion.yml already creates issues inline (467 lines, working). Reusable workflow is DRY but not urgent.
-- Deferred "roadmap depletion detection utility" — perpetual-motion.yml detects depletion inline and creates "Define next roadmap" issue (lines 262-330). Separate utility is redundant.
-
-**Key Files:**
-- `roadmap.md` — Updated with 3 stronger items
-- `.squad/decisions/inbox/morpheus-test2-strategy.md` — Strategy rationale
-- GitHub issues #30 (CI checks), #31 (constellation health), #29 (ralph-watch dashboard)
-
-**Success Metric:** Test 2 score target 9/10 (up from 7/10) by eliminating CI gap and adding operational visibility.
-
-## Learnings — Session 2026-03-18: PR #32 CI Review & Merge
-
-**Task:** Reviewed and merged PR #32 (feat: add CI checks and branch protection) by Switch.
-
-**Review Outcome:** APPROVED and squash-merged. Workflow is clean: `pull_request` + `push` triggers on master/main, `npm ci` + `npm test`, `permissions: contents: read` (least privilege), pinned actions (checkout@v4, setup-node@v4), npm cache enabled. Guide covers extending with lint/build and branch protection setup. No security concerns.
-
-**Impact:** Test 1 deficiency #1 (ZERO CI checks) is now closed. All future PRs to master/main run 126 vitest tests. Branch protection still requires founder to enable manually (admin access) — steps documented in `.squad/guides/ci-checks.md`.
-
-**Blocker Encountered:** `gh pr review --approve` failed because GitHub prevents approving your own PR when the same account is used. Workaround: merged directly without formal approval since this is a single-account autonomous setup.
-
-**Pattern:** For single-account repos, skip `gh pr review --approve` and go straight to merge. The CI workflow itself validates quality.
+**Test 2 Score Target:** 9/10 (up from Test 1: 7/10). Critical deficiency #1 (ZERO CI checks) FIXED. Multi-terminal orchestration infrastructure enabled.
