@@ -6,6 +6,22 @@ Autonomous AI dev company (€500/mo Azure, unlimited GitHub). Strict context hy
 
 ## Active Decisions (Last 7 Days)
 
+### 2026-03-16T21:00Z: Phase 2 Consolidated Plan — Visibility + Autonomy + Repo Evolution
+
+**By:** Morpheus (Lead/Architect)  
+**Tier:** T1  
+**Status:** ✅ APPROVED FOR EXECUTION  
+**What:**  
+Create and execute consolidated Phase 2 plan across three parallel workstreams: (A) Autonomy (5 issues), (B) Visibility (4 issues), (C) Repo Evolution (6 issues). All 6 repositories evolve simultaneously with 15 specific @copilot-ready issues.
+
+**Constraints:** €0 total cost (GitHub free tier only), parallel execution, daily devlog, Squad Monitor 60s polling (no Azure).
+
+**Timeline:** 2 weeks for visibility core, 4 weeks for full autonomy (execution begins 2026-03-17).
+
+**Deliverable:** `/docs/plan-phase2-visibility.md` with complete issue definitions, acceptance criteria, dependency graph, success metrics.
+
+**Approved by:** Morpheus (T1 authority) + joperezd user directives merged.
+
 ### 2026-03-16T20:00Z: User Directive — No More Unlimited Games, Finish Existing + Full Autonomy
 
 **By:** joperezd (via Copilot)  
@@ -64,6 +80,13 @@ Autonomous AI dev company (€500/mo Azure, unlimited GitHub). Strict context hy
 **What:** Installed 12 pipeline:* labels across all 4 FFS repos (36/36, 100%); verified all repos for integrity, governance cascade, Ralph v5 workflows. Grade: 🟢 GREEN (9.8/10). FFS Takeover T1-T4 fully complete.
 
 **Outcomes:** Constellation ready for Phase 2 game production (proposal→prototype pipeline operational). Governance enforces quality gates, skills inheritance cascades domain expertise, Ralph monitors all label transitions + pipeline health.
+
+### 2026-03-13T13:34Z: User Directive — Visibility Layer Details
+
+**By:** joperezd (via Copilot)  
+**Tier:** T3  
+**What:** Squad Monitor polling 60s es suficiente (NO streaming/SSE, €0 sin Azure ACI). Devlog DIARIO (no semanal) dentro de la GitHub Page de FFS.  
+**Why:** Team works 24x7, daily devlog shows momentum. Polling sufficient for 60s refresh, eliminates Azure cost.
 
 ### 2026-03-13T11:30Z: P1-11 Autonomous Proposal→Prototype Pipeline Architecture
 

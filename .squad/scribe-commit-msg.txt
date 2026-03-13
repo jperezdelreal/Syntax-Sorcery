@@ -1,0 +1,14 @@
+chore(.squad): Merge Phase 2 plan, merge decisions inbox, add session logs
+
+- Merge morpheus-phase2-consolidated-plan.md to decisions.md (Active Decisions, T1 approved)
+- Merge joperezd visibility directives (polling, daily devlog) to decisions.md (T3)
+- Delete .squad/decisions/inbox/ files after merge
+- Add orchestration-log: 2026-03-16T2100Z-morpheus.md (plan consolidation)
+- Add session-log: 2026-03-16T2100Z-phase2-plan-merge.md
+- No decisions.md archive needed (6.2KB, under 10KB limit)
+- No history.md summarization needed (all agents <6KB)
+
+Phase 2 execution begins 2026-03-17 with 15 @copilot-ready issues across 3 workstreams.
+€0 cost, parallel execution, daily devlog cadence, Squad Monitor 60s polling (no Azure).
+
+Co-authored-by: Copilot <223556219+Copilot@users.noreply.github.com>
