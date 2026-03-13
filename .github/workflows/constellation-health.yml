@@ -1,0 +1,39 @@
+name: Constellation Health
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '0 6 * * 1' # Weekly Monday 06:00 UTC
+
+permissions:
+  contents: read
+
+jobs:
+  health-check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Run constellation health check
+        env:
+          GH_TOKEN: ${{ secrets.SAFETY_NET_TOKEN || secrets.GITHUB_TOKEN }}
+        run: node scripts/constellation-health.js
+
+      - name: JSON report artifact
+        if: always()
+        env:
+          GH_TOKEN: ${{ secrets.SAFETY_NET_TOKEN || secrets.GITHUB_TOKEN }}
+        run: |
+          mkdir -p reports
+          node scripts/constellation-health.js --json > reports/constellation-health.json || true
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: constellation-health-report
+          path: reports/constellation-health.json
+          retention-days: 30

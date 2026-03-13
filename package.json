@@ -85,7 +85,8 @@
   "scripts": {
     "test": "vitest run",
     "test:watch": "vitest",
-    "test:validate-squad": "node scripts/validate-squad.js"
+    "test:validate-squad": "node scripts/validate-squad.js",
+    "check:constellation": "node scripts/constellation-health.js"
   },
   "repository": {
     "type": "git",
