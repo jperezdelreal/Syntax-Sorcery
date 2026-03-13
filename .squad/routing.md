@@ -1,5 +1,8 @@
 # Work Routing
 
+## TLDR
+Work routes by domain: Morpheus (architecture), Trinity (full-stack code), Tank (infra/CI), Switch (testing/QA), Oracle (docs/research), @copilot (well-defined async tasks). Issues triaged via `squad` label → `squad:{member}` assignment.
+
 How to decide who handles what.
 
 ## Routing Table
