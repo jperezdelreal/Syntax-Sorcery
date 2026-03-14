@@ -144,3 +144,35 @@
 
 **Status:** READY for founder approval and launch phase.
 
+## Session 2026-03-21T14:00Z — Ecosystem Research: Awesome-Copilot, Azure, MCP Patterns
+
+**Task:** Research GitHub repos and community resources for ideas to enhance Syntax Sorcery platform (Issue #93 / #74).
+
+**Execution:** Conducted 7 parallel GitHub searches:
+1. **awesome-copilot:** Primary resource (25,108 ⭐) + specialized collections (awesome-copilot-agents: 435, awesome-copilot-chatmodes: 312)
+2. **MCP Servers:** awesome-mcp-servers (83,051 ⭐) + top servers (playwright-mcp: 28,865, github-mcp-server: 27,878, fastmcp: 23,664)
+3. **Copilot Extensions:** copilot-explorer (707), github-models-extension (127), azure-devops-copilot-extension (74)
+4. **Azure Ecosystem:** awesome-azure-architecture (1,684), azure-ai-agents-labs (72), mcp-server-azure-ai-agents (54)
+5. **Multi-Agent Frameworks:** MetaGPT (65,138), LobeHub (73,624), ChatDev (31,621), agents (31,213)
+
+**Deliverable:** `docs/ecosystem-research.md` — 17KB comprehensive research document (11 sections)
+
+**Key Findings:**
+
+- **Squad MCP (#73):** github-mcp-server (27,878 ⭐) is gold standard reference. Architecture: stateless tools wrapping state operations (list_issues, get_decisions, get_metrics, trigger_sprint_planning).
+- **Gameplay Testing (#75):** playwright-mcp (28,865 ⭐) + mcp-chrome (10,758 ⭐) establish browser automation pattern. Stack: Puppeteer/Playwright + MCP wrapper (github-mcp-server template) + Canvas mocks for Game class unit testing.
+- **Plugin Marketplace (#74):** awesome-copilot's 25K+ custom instruction culture is proof-of-concept. Design: JSON manifest registry + tag-based discovery + git clone + npm install + .squad/plugins/ registration.
+- **Multi-Agent Architecture:** MetaGPT (65,138 ⭐) role-based pipeline + ChatDev (31,621 ⭐) review cycles validate Squad's team structure. Semantic Kernel (azure-ai-agents-labs) enables Phase 8+ Azure AI Agent Service migration.
+- **Downstream Quality (#72):** Both MetaGPT and ChatDev emphasize output validation at each stage. Applied to ComeRosquillas/flora/pixel-bounce: T0-T4 test tiers + mandatory Game class instantiation.
+- **Azure Readiness:** B2s v2 (€25-30/mo) + Application Insights (included) + Key Vault (free) + Container Instances (€10-20/mo optional) well within €500/mo budget. Semantic Kernel adoption (Phase 9+) would add €20-50/mo for Azure Cognitive Services.
+
+**Strategic Insight:** SS platform roadmap aligns with 45+ analyzed repositories. No novel patterns needed — leverage established references:
+- #73: Copy github-mcp-server architecture
+- #75: Apply playwright-mcp + Canvas mock patterns
+- #74: Adopt awesome-copilot discovery UI + tagging model
+- Phase 8+: Evaluate Semantic Kernel (Azure AI Agent Service native integration)
+
+**PR Created:** #100 → master (Closes #93)
+
+**Status:** Research complete. All 4 issues (#72, #73, #74, #75) have concrete reference implementations and architectural patterns documented.
+
