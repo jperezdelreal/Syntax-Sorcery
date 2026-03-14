@@ -6,6 +6,23 @@ Autonomous AI dev company (€500/mo Azure, unlimited GitHub). Strict context hy
 
 ## Active Decisions (Last 7 Days)
 
+### 2026-03-14T09:14Z: User corrections + directive — Test 2 post-mortem
+
+**By:** jperezdelreal (via Copilot)
+
+**What:**
+
+**Correcciones al post-mortem de Test 2:**
+1. FFS (FirstFrameStudios) NO fue ejecutado intencionalmente — el founder tenía dudas sobre si tenía sentido, así que no lanzó la terminal. No fue un fallo técnico.
+2. El setup real fue: en cada terminal se pidió al Lead local que trabajase en un plan a 8 horas de distancia, y que ejecutase "Ralph, go" si el proceso se paraba. Esto NO funcionó como se esperaba.
+
+**Directiva — Perpetual motion roadmap refueling:**
+La idea de que Ralph Go sea el que genere el issue "Define next roadmap" NO ha funcionado bien. La duplicación masiva (41 en flora, 16 en ComeRosquillas) demuestra que este enfoque es fundamentalmente problemático. Hay que replantear el mecanismo de refueling del roadmap.
+
+**Why:** Correcciones factuales del founder + lección aprendida sobre arquitectura de autonomía. Crítico para diseñar Test 3 correctamente.
+
+---
+
 ### 2026-03-14T09:00Z: Decision — Post-Mortem Test 2: Ralph Go Multi-Terminal
 
 **By:** Morpheus (Lead/Architect)
@@ -55,25 +72,6 @@ Autonomous AI dev company (€500/mo Azure, unlimited GitHub). Strict context hy
 3. Auto-merge without review risky at scale (86 PRs). Branch protection mandatory.
 4. Hub repos need concrete, actionable issues — not strategic roadmaps.
 5. Local PC not viable for 24/7 operation. Azure confirmed necessary.
-
----
-
-### 2026-03-20T04:00Z: Decision — Phase 7 Roadmap: Elite Readiness
-
-**By:** Morpheus (Lead/Architect)
-**Tier:** T1
-**Status:** ✅ DEFINED
-**Date:** 2026-03-20
-
-**What:** Phase 7 roadmap defined after Phase 6 completion. Strategic shift: Phases 2-3 built the engine, Phase 4 built the showroom, Phase 5 built operational intelligence, Phase 6 made the system self-proving, Phase 7 makes the system *elite-ready* — secure, community-open, and fully automated end-to-end. Three items mixing deep infrastructure + visible polish + automation completion:
-
-1. **Security hardening — dependency audit, secret scanning, SBOM** (#62) — GitHub Actions workflow + local script for supply chain security. `npm audit` fails CI on high/critical vulns. Regex-based secret scanning catches leaked tokens. CycloneDX SBOM generation for transparency. `npm run security` + squad-cli integration. The responsible autonomy signal: 345 tests prove it works, security audit proves it's safe.
-2. **Community contribution kit** (#61) — CONTRIBUTING.md (PR workflow, code style, DI pattern), CODE_OF_CONDUCT.md (Contributor Covenant v2.1), issue templates (bug, feature, squad task) with YAML form syntax, PR template with review checklist. The final showroom piece: README explains, landing page impresses, contribution kit WELCOMES.
-3. **Automated site deployment pipeline** (#60) — GitHub Actions deploys Astro site to GitHub Pages on push to main. Path-filtered triggers (site/**, docs/**), build caching, concurrency control, OIDC deployment. The final automation piece: code → CI → security → deploy. Zero manual steps.
-
-**Rationale:** The engine runs (Phase 2-3), the showroom shines (Phase 4), the system reports on itself (Phase 5), and it proves its own correctness (Phase 6). But it can't verify its supply chain is secure (no audit), can't welcome external contributors (no templates), and can't deploy without manual intervention (no CD pipeline). Phase 7 closes all three — the system becomes elite-ready. Security + Community + Automation = production-grade open-source project.
-
-**Impact:** Roadmap items 13-15 marked done. Items 16-18 added. Issues #60, #61, #62 created with label `squad`. Board refueled — Ralph can assign to @copilot.
 
 ---
 
