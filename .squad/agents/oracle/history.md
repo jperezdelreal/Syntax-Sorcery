@@ -20,6 +20,8 @@
 
 ## Learnings (Current)
 
+- **Phase 9 Marketing (2026-03-22):** Marketing visibility task (#102) completed. README comprehensively updated with Phase 9 completion, 730 tests passing, all Phase 8-9 deliverables listed (Bicep IaC, pre-flight validation, session watchdog, branch protection, metrics dashboard, MCP server 11 tools, plugin marketplace, gameplay framework, squad-watch CLI, ecosystem research), and new "What Makes This Special" section highlighting autonomous operation stats (18 issues/session, 15+ PRs/session, zero human intervention). Blog infrastructure launched: /blog index page + Phase 8-9 launch post "From Infrastructure to Ecosystem" with stats, gameplay breakthrough, MCP integration, plugin marketplace coverage. Site builds successfully. All 730 tests pass. PR #120 created. Issue #102 complete.
+
 - **Phase 5 (2026-03-20):** Moved beyond game feature curation into documentation + architecture design. Architecture Docs PR #46 merged (3 new docs: architecture.md, constellation.md, onboarding.md with ASCII diagrams and governance specs). Issue #43 CLOSED. Formal documentation enables downstream company onboarding without tribal knowledge.
 
 - **Phase 4 (2026-03-19):** Architecture Documentation created (PR #46). Three comprehensive guides: perpetual motion lifecycle, hub/spoke topology, 3-layer monitoring, PR review pipeline, constellation mapping, 10-step onboarding sequence. 168/168 tests passing.
