@@ -6,26 +6,57 @@ Autonomous AI dev company (€500/mo Azure, unlimited GitHub). Strict context hy
 
 ## Active Decisions (Last 7 Days)
 
-### 2026-03-21T00:00Z: T1 Decision — Ralph Refueling Protocol Redesign
+### 2026-03-14T09:36Z: T1 Decision — Ralph Refueling Protocol v2 (Supersedes v1)
 
-**By:** Morpheus (Lead/Architect)
-**Tier:** T1
-**Status:** 📐 DESIGN PROPOSED — pending founder approval
+**By:** Morpheus (Lead/Architect)  
+**Tier:** T1  
+**Status:** 📐 DESIGN PROPOSED — pending founder approval  
+**Replaces:** Refueling v1 (mechanical 3 issues × 3 cycles) 
 
 **Executive Summary:**
 
-Replaces event-driven `perpetual-motion.yml` with loop-driven internal refueling (Ralph→Lead→issues→Ralph). Eliminates race conditions and duplicate issues by moving refueling decision to single-threaded Ralph. Lead spawned with full context (history, PRs, roadmap) creates exactly 3 issues per cycle, max 3 cycles per session (9 issues max).
+When board clears, Ralph no longer idles. Instead, invokes **Sprint Planning ceremony** — Lead analyzes project state (recent issues, PRs, roadmap, README, .squad/decisions) and creates N issues organically. Ralph detects new untriaged issues and continues working. **No artificial cycle caps.** System runs 24/7 until user says "idle" or Lead declares project at natural endpoint.
 
 **Key Parameters:**
-- **Architecture:** Single-threaded refueling within session (Ralph controls cycle timing)
-- **Issues per cycle:** Exactly 3 (quality threshold + prevent overhead)
-- **Max cycles/session:** 3 (9 issues max, prevents context saturation)
-- **Safeguards:** Cycle counter, completed-issue check, quality prompt with anti-repetition rules
-- **Eliminates:** perpetual-motion.yml (GitHub Actions coupling)
-- **Resolves:** Race conditions, dedup storms, lack of context, external coupling
-- **Recommended:** Opción C (detailed safeguards + full implementation)
+- **Architecture:** Organic refueling via Lead strategic planning (not mechanical counters)
+- **Issues per cycle:** N issues (2-7), whatever makes sense for project state
+- **Max cycles:** None — perpetual until natural endpoint or user stop
+- **Trigger:** Board clear (no open issues with label `squad`)
+- **Ceremony:** Sprint Planning (lead-only, reads closed issues, merged PRs, roadmap, README, decisions)
+- **Safeguards:** Lead anti-repetition rules, project-completion detection, explicit "natural endpoint" declaration
+- **Eliminates:** Cycle caps, mechanical 3-issue rule, perpetual-motion.yml
+- **Resolves:** Artificial limitations on 24/7 autonomy, mechanical approach to strategic planning
 
-Full technical design (2.4 Decisión T1 phases, implementation sections, safety analysis) archived in orchestration log for reference: `.squad/orchestration-log/2026-03-14T09-24Z-morpheus-refueling-redesign.md`
+**Founder Feedback Incorporated:**
+1. ✅ No 3-cycle cap — 24/7 autonomy with session management via founder resets (local) or auto-reset (Azure future)
+2. ✅ Organic issue creation via Lead Sprint Planning (not mechanical "create 3 issues")
+3. ✅ Ceremonies as refueling triggers — Sprint Planning on board clear
+4. ✅ Full context for Lead strategic decisions
+
+**Changes Required:**
+1. ceremonies.md — Add "Sprint Planning" ceremony definition
+2. squad.agent.md — 3 surgical changes (Step 2 "No work found", Integration flow, "Between checks" section)
+3. No code changes needed (design-only at this stage)
+
+Full technical design and founder feedback archived in orchestration log: `.squad/orchestration-log/2026-03-14T09-36Z-morpheus-refueling-v2.md`
+
+---
+
+### 2026-03-14T09:35Z: Founder directive — Refueling v2 requirements
+
+**By:** jperezdelreal (via Copilot)
+
+**Correcciones al diseño de Morpheus:**
+
+1. **NO limitar a 3 ciclos por sesión** — El objetivo es autonomía 24/7. En PC local, el founder reseteará sesiones periódicamente. En Azure VM (Test 3), el equipo debe auto-resetear sesiones. Las sesiones usan modelo 1M context — hay margen.
+
+2. **NO crear 3 issues directos** — Mejor: el Lead crea issues orgánicamente via Sprint Planning ceremony. Más orgánico que crear 3 issues atómicos fijos.
+
+3. **Aprovechar ceremonias existentes** — El refueling debería triggear Sprint Planning que naturalmente produce issues como output de análisis estratégico.
+
+4. **Azure VM session management** — El equipo debe ser capaz de resetear sus propias sesiones cada X tiempo cuando corra en Azure (Test 3).
+
+**Why:** El founder quiere autonomía real 24/7, no limitada. El mecanismo debe ser orgánico (planning → issues) y menos mecánico (3 issues fijos).
 
 ---
 
