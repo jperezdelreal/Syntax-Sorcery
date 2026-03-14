@@ -31,7 +31,7 @@ const path = require('path');
 // Constants
 // ---------------------------------------------------------------------------
 
-const COMMANDS = ['status', 'health', 'review', 'dedup', 'report', 'metrics', 'security', 'help'];
+const COMMANDS = ['status', 'health', 'review', 'dedup', 'report', 'metrics', 'security', 'gameplay-test', 'help'];
 
 const HELP_TEXT = `
 Squad CLI — Unified developer CLI for all squad operations
@@ -47,6 +47,7 @@ Commands:
   report              Generate session report
   metrics             Run performance metrics engine
   security            Run security audit (deps, secrets, SBOM)
+  gameplay-test       Init gameplay test templates for downstream games
   help                Show this help message
 
 Flags:
@@ -65,6 +66,7 @@ Examples:
   npm run squad -- security --json
   npm run squad -- security --fix
   npm run squad -- security --sbom-only --save
+  npm run squad -- gameplay-test --init --type platformer --target ../pixel-bounce
 `.trim();
 
 // ---------------------------------------------------------------------------
@@ -98,7 +100,21 @@ function parseCliArgs(argv) {
     until = flags[untilIdx + 1];
   }
 
-  return { command, flags, jsonMode, pr, save, fix, sbomOnly, since, until };
+  const init = flags.includes('--init');
+
+  let type = null;
+  const typeIdx = flags.indexOf('--type');
+  if (typeIdx !== -1 && flags[typeIdx + 1]) {
+    type = flags[typeIdx + 1];
+  }
+
+  let target = null;
+  const targetIdx = flags.indexOf('--target');
+  if (targetIdx !== -1 && flags[targetIdx + 1]) {
+    target = flags[targetIdx + 1];
+  }
+
+  return { command, flags, jsonMode, pr, save, fix, sbomOnly, since, until, init, type, target };
 }
 
 // ---------------------------------------------------------------------------
@@ -283,6 +299,90 @@ function cmdSecurity(jsonMode, fix, sbomOnly, save) {
 }
 
 // ---------------------------------------------------------------------------
+// Command: gameplay-test
+// ---------------------------------------------------------------------------
+
+const GAMEPLAY_TEST_HELP = `
+Gameplay Test — Initialize gameplay test templates for downstream games
+
+Usage:
+  npm run squad -- gameplay-test --init --type <type> --target <path>
+
+Options:
+  --init              Initialize test template in target directory
+  --type <type>       Template type: "platformer" or "puzzle"
+  --target <path>     Path to the game repo (default: current directory)
+  --help              Show this help
+
+Examples:
+  npm run squad -- gameplay-test --init --type platformer --target ../pixel-bounce
+  npm run squad -- gameplay-test --init --type puzzle --target ../flora
+`.trim();
+
+function cmdGameplayTest(parsed) {
+  const { init: doInit, type, target } = parsed;
+  const fs = require('fs');
+
+  if (!doInit || parsed.flags.includes('--help')) {
+    console.log(GAMEPLAY_TEST_HELP);
+    return doInit ? 1 : 0;
+  }
+
+  const validTypes = ['platformer', 'puzzle'];
+  if (!type || !validTypes.includes(type)) {
+    console.error(`Error: --type must be one of: ${validTypes.join(', ')}`);
+    return 1;
+  }
+
+  const targetDir = target || process.cwd();
+  const testsDir = path.join(targetDir, '__tests__');
+  const destFile = path.join(testsDir, 'gameplay.test.js');
+
+  if (fs.existsSync(destFile)) {
+    console.error(`Error: ${destFile} already exists. Remove it first to re-initialize.`);
+    return 1;
+  }
+
+  const templateFile = type === 'platformer'
+    ? path.resolve(__dirname, 'gameplay-test', 'templates', 'platformer-tests.template.js')
+    : path.resolve(__dirname, 'gameplay-test', 'templates', 'puzzle-tests.template.js');
+
+  if (!fs.existsSync(templateFile)) {
+    console.error(`Error: template not found at ${templateFile}`);
+    return 1;
+  }
+
+  if (!fs.existsSync(testsDir)) {
+    fs.mkdirSync(testsDir, { recursive: true });
+  }
+
+  const frameworkDir = path.join(targetDir, 'gameplay-test');
+  if (!fs.existsSync(frameworkDir)) {
+    fs.mkdirSync(frameworkDir, { recursive: true });
+  }
+
+  const frameworkSrc = path.resolve(__dirname, 'gameplay-test', 'framework.js');
+  const canvasMockSrc = path.resolve(__dirname, 'gameplay-test', 'canvas-mock.js');
+
+  fs.copyFileSync(frameworkSrc, path.join(frameworkDir, 'framework.js'));
+  fs.copyFileSync(canvasMockSrc, path.join(frameworkDir, 'canvas-mock.js'));
+
+  let templateContent = fs.readFileSync(templateFile, 'utf8');
+  fs.writeFileSync(destFile, templateContent, 'utf8');
+
+  console.log(`✅ Gameplay test initialized:`);
+  console.log(`   Template:  ${type}`);
+  console.log(`   Test file: ${destFile}`);
+  console.log(`   Framework: ${frameworkDir}/`);
+  console.log('');
+  console.log('Next steps:');
+  console.log('  1. npm install --save-dev vitest');
+  console.log('  2. Edit __tests__/gameplay.test.js — replace TODO markers');
+  console.log('  3. npx vitest run');
+  return 0;
+}
+
+// ---------------------------------------------------------------------------
 // Router
 // ---------------------------------------------------------------------------
 
@@ -318,6 +418,8 @@ function route(parsed) {
       return cmdMetrics(jsonMode, save, since, until);
     case 'security':
       return cmdSecurity(jsonMode, fix, sbomOnly, save);
+    case 'gameplay-test':
+      return cmdGameplayTest(parsed);
     case 'help':
       return cmdHelp();
     default:
@@ -351,6 +453,7 @@ module.exports = {
   cmdReport,
   cmdMetrics,
   cmdSecurity,
+  cmdGameplayTest,
   cmdHelp,
   route,
   main,

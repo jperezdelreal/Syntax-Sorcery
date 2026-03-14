@@ -55,7 +55,7 @@ describe('parseCliArgs', () => {
 
 describe('COMMANDS', () => {
   it('includes all expected commands', () => {
-    expect(COMMANDS).toEqual(['status', 'health', 'review', 'dedup', 'report', 'metrics', 'security', 'help']);
+    expect(COMMANDS).toEqual(['status', 'health', 'review', 'dedup', 'report', 'metrics', 'security', 'gameplay-test', 'help']);
   });
 });
 
