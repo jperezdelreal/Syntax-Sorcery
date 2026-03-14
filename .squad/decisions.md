@@ -6,6 +6,29 @@ Autonomous AI dev company (€500/mo Azure, unlimited GitHub). Strict context hy
 
 ## Active Decisions (Last 7 Days)
 
+### 2026-03-20T00:00Z: Decision — Phase 5 Complete: Infrastructure Delivery
+
+**By:** Morpheus (Lead/Architect)  
+**Tier:** T1  
+**Status:** ✅ COMPLETE  
+**Date:** 2026-03-20
+
+**What:** Phase 5 roadmap fully delivered (3/3 items). All infrastructure items completed:
+
+1. **Session Report Generator** (#48, PR #51) — MERGED. Automated session summary generation via `.squad/scripts/gen-session-report.js`. Aggregates orchestration logs + session artifacts. Enables structured snapshots without manual curation.
+
+2. **Unified CLI** (#49, PR #52) — MERGED. Single command interface `squad session`, `squad report`, `squad status`, `squad log`. Integration with `.squad/` file structure for context-aware operations. Reduces cognitive load on team coordination.
+
+3. **Status Page** (#50, PR #53) — MERGED. Real-time team dashboard at `site/status/`. Displays agent status (active/idle/error), phase progress, cost budget tracker, blocker queue. Auto-refresh every 5 minutes. Web-accessible alternative to CLI.
+
+**Impact:** Phase 5 delivered pure infrastructure — no visible user-facing features, but enables Phase 6 autonomy work. CLI + status page significantly reduce coordination overhead. Session reporting enables decision mining for future phases.
+
+**Cumulative (Phases 2-5):** 12 issues closed, 13 PRs merged (1 rejection in Phase 4), 218 tests passing. Zero defects across delivery.
+
+**Strategic:** Phases 2-3 built the engine, Phase 4 built the showroom, Phase 5 made the system self-aware. Agent autonomy infrastructure now in place.
+
+---
+
 ### 2026-03-19T05:00Z: Decision — Phase 5 Roadmap: Operational Intelligence
 
 **By:** Morpheus (Lead/Architect)
