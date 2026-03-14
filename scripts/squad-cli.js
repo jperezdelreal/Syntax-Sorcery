@@ -31,7 +31,7 @@ const path = require('path');
 // Constants
 // ---------------------------------------------------------------------------
 
-const COMMANDS = ['status', 'health', 'review', 'dedup', 'report', 'metrics', 'security', 'help'];
+const COMMANDS = ['status', 'health', 'review', 'dedup', 'report', 'metrics', 'security', 'preflight', 'enforce-protection', 'help'];
 
 const HELP_TEXT = `
 Squad CLI — Unified developer CLI for all squad operations
@@ -47,6 +47,8 @@ Commands:
   report              Generate session report
   metrics             Run performance metrics engine
   security            Run security audit (deps, secrets, SBOM)
+  preflight           Run Test 3 pre-flight validation
+  enforce-protection  Enforce branch protection on downstream repos
   help                Show this help message
 
 Flags:
@@ -54,6 +56,9 @@ Flags:
   --save              Save metrics snapshot / SBOM
   --fix               Auto-fix vulnerabilities (security command)
   --sbom-only         Only generate SBOM (security command)
+  --apply             Apply protection rules (enforce-protection)
+  --repo <name>       Target single repo (enforce-protection)
+  --skip-azure        Skip Azure checks (preflight command)
   --since <date>      Start date filter (metrics, report)
   --until <date>      End date filter (metrics, report)
 
@@ -65,6 +70,8 @@ Examples:
   npm run squad -- security --json
   npm run squad -- security --fix
   npm run squad -- security --sbom-only --save
+  npm run squad -- enforce-protection
+  npm run squad -- enforce-protection --apply --repo flora
 `.trim();
 
 // ---------------------------------------------------------------------------
@@ -79,11 +86,19 @@ function parseCliArgs(argv) {
   const save = flags.includes('--save');
   const fix = flags.includes('--fix');
   const sbomOnly = flags.includes('--sbom-only');
+  const skipAzure = flags.includes('--skip-azure');
+  const applyProtection = flags.includes('--apply');
 
   let pr = null;
   const prIdx = flags.indexOf('--pr');
   if (prIdx !== -1 && flags[prIdx + 1]) {
     pr = parseInt(flags[prIdx + 1], 10);
+  }
+
+  let repo = null;
+  const repoIdx = flags.indexOf('--repo');
+  if (repoIdx !== -1 && flags[repoIdx + 1]) {
+    repo = flags[repoIdx + 1];
   }
 
   let since = null;
@@ -98,7 +113,7 @@ function parseCliArgs(argv) {
     until = flags[untilIdx + 1];
   }
 
-  return { command, flags, jsonMode, pr, save, fix, sbomOnly, since, until };
+  return { command, flags, jsonMode, pr, save, fix, sbomOnly, skipAzure, applyProtection, repo, since, until };
 }
 
 // ---------------------------------------------------------------------------
@@ -283,11 +298,47 @@ function cmdSecurity(jsonMode, fix, sbomOnly, save) {
 }
 
 // ---------------------------------------------------------------------------
+// Command: preflight
+// ---------------------------------------------------------------------------
+
+function cmdPreflight(jsonMode, fix, skipAzure) {
+  const scriptPath = path.resolve(__dirname, 'preflight.js');
+  const args = [];
+  if (jsonMode) args.push('--json');
+  if (fix) args.push('--fix');
+  if (skipAzure) args.push('--skip-azure');
+
+  const result = spawnSync(process.execPath, [scriptPath, ...args], {
+    stdio: 'inherit',
+    timeout: 300_000,
+  });
+  return result.status || 0;
+}
+
+// ---------------------------------------------------------------------------
+// Command: enforce-protection
+// ---------------------------------------------------------------------------
+
+function cmdEnforceProtection(jsonMode, applyProtection, repo) {
+  const scriptPath = path.resolve(__dirname, 'enforce-branch-protection.js');
+  const args = [];
+  if (jsonMode) args.push('--json');
+  if (applyProtection) args.push('--apply');
+  if (repo) args.push('--repo', repo);
+
+  const result = spawnSync(process.execPath, [scriptPath, ...args], {
+    stdio: 'inherit',
+    timeout: 120_000,
+  });
+  return result.status || 0;
+}
+
+// ---------------------------------------------------------------------------
 // Router
 // ---------------------------------------------------------------------------
 
 function route(parsed) {
-  const { command, jsonMode, pr, save, fix, sbomOnly, since, until } = parsed;
+  const { command, jsonMode, pr, save, fix, sbomOnly, skipAzure, applyProtection, repo, since, until } = parsed;
 
   if (!command) {
     console.log(HELP_TEXT);
@@ -318,6 +369,10 @@ function route(parsed) {
       return cmdMetrics(jsonMode, save, since, until);
     case 'security':
       return cmdSecurity(jsonMode, fix, sbomOnly, save);
+    case 'preflight':
+      return cmdPreflight(jsonMode, fix, skipAzure);
+    case 'enforce-protection':
+      return cmdEnforceProtection(jsonMode, applyProtection, repo);
     case 'help':
       return cmdHelp();
     default:
@@ -351,6 +406,8 @@ module.exports = {
   cmdReport,
   cmdMetrics,
   cmdSecurity,
+  cmdPreflight,
+  cmdEnforceProtection,
   cmdHelp,
   route,
   main,
