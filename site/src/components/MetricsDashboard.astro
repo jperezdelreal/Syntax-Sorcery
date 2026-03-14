@@ -1,0 +1,213 @@
+---
+/**
+ * MetricsDashboard — Matrix-themed KPI cards displaying autonomous metrics.
+ * Data sourced from static JSON generated at build time by metrics-engine.
+ */
+
+interface MetricValue {
+  value: number | null;
+  unit: string;
+  raw?: number;
+  merged?: number;
+  rejected?: number;
+  total?: number;
+}
+
+interface MetricsData {
+  since: string;
+  until: string;
+  generatedAt: string;
+  metrics: Record<string, MetricValue>;
+  trends: Record<string, string>;
+}
+
+interface Props {
+  data: MetricsData;
+}
+
+const { data } = Astro.props;
+const { metrics, trends } = data;
+
+const trendIcon: Record<string, string> = {
+  UP: '▲',
+  DOWN: '▼',
+  FLAT: '→',
+  NEW: '★',
+};
+
+const trendColor: Record<string, string> = {
+  UP: 'text-matrix-green',
+  DOWN: 'text-red-400',
+  FLAT: 'text-gray-400',
+  NEW: 'text-cyan-400',
+};
+
+// Card definitions matching the 6 required KPIs
+const cards = [
+  {
+    key: 'velocity',
+    label: 'Velocity',
+    icon: '⚡',
+    description: 'Issues closed per day',
+    format: (m: MetricValue) => m.value !== null ? String(m.value) : 'N/A',
+  },
+  {
+    key: 'throughput',
+    label: 'Throughput',
+    icon: '🚀',
+    description: 'PRs merged per day',
+    format: (m: MetricValue) => m.value !== null ? String(m.value) : 'N/A',
+  },
+  {
+    key: 'qualityRate',
+    label: 'Quality Rate',
+    icon: '🛡️',
+    description: 'Merge success percentage',
+    format: (m: MetricValue) => m.value !== null ? `${m.value}%` : 'N/A',
+  },
+  {
+    key: 'testGrowth',
+    label: 'Test Count',
+    icon: '🧪',
+    description: 'Total automated tests',
+    format: (m: MetricValue) => m.value !== null ? String(m.value) : 'N/A',
+  },
+  {
+    key: 'streak',
+    label: 'Autonomous Streak',
+    icon: '🔥',
+    description: 'Consecutive days with merges',
+    format: (m: MetricValue) => m.value !== null ? String(m.value) : '0',
+  },
+  {
+    key: 'cycleTime',
+    label: 'Cycle Time',
+    icon: '⏱️',
+    description: 'Avg hours from issue to merge',
+    format: (m: MetricValue) => m.value !== null ? `${m.value}h` : 'N/A',
+  },
+];
+
+const periodStart = data.since?.split('T')[0] ?? '—';
+const periodEnd = data.until?.split('T')[0] ?? '—';
+const generatedDate = data.generatedAt
+  ? new Date(data.generatedAt).toLocaleString('en-US', {
+      year: 'numeric', month: 'short', day: 'numeric',
+      hour: '2-digit', minute: '2-digit', timeZoneName: 'short',
+    })
+  : '—';
+---
+
+<div class="metrics-dashboard">
+  <!-- Period Header -->
+  <div class="text-center mb-10 scroll-fade">
+    <div class="inline-flex items-center gap-2 px-4 py-2 glass rounded-lg text-xs font-mono text-gray-400 border-glow">
+      <span class="w-2 h-2 rounded-full bg-matrix-green animate-glow-pulse inline-block"></span>
+      <span>Period: {periodStart} → {periodEnd}</span>
+      <span class="text-gray-600">•</span>
+      <span class="text-gray-500">Generated: {generatedDate}</span>
+    </div>
+  </div>
+
+  <!-- KPI Grid -->
+  <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-5 max-w-5xl mx-auto">
+    {cards.map((card, i) => {
+      const metric = metrics[card.key];
+      const trend = trends[card.key] || 'NEW';
+      const displayValue = metric ? card.format(metric) : 'N/A';
+      const unit = metric?.unit || '';
+      return (
+        <div
+          class="scroll-fade metric-card p-6 glass rounded-xl card-hover relative overflow-hidden group"
+          style={`animation-delay: ${i * 100}ms`}
+        >
+          {/* Glow accent line */}
+          <div class="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-matrix-green/40 to-transparent"></div>
+
+          {/* Icon + Label */}
+          <div class="flex items-center justify-between mb-4">
+            <div class="flex items-center gap-2">
+              <span class="text-2xl group-hover:scale-110 transition-transform duration-300">{card.icon}</span>
+              <span class="text-xs font-mono text-gray-400 uppercase tracking-wider">{card.label}</span>
+            </div>
+            <span class:list={['text-xs font-mono font-bold', trendColor[trend] || 'text-gray-500']}>
+              {trendIcon[trend] || '?'} {trend}
+            </span>
+          </div>
+
+          {/* Value */}
+          <div class="mb-2">
+            <span class="text-4xl font-bold text-matrix-green font-mono text-glow leading-none">
+              {displayValue}
+            </span>
+            {unit && displayValue !== 'N/A' && (
+              <span class="text-sm text-gray-500 font-mono ml-2">{unit}</span>
+            )}
+          </div>
+
+          {/* Description */}
+          <p class="text-gray-600 text-xs font-mono">{card.description}</p>
+
+          {/* Quality rate detail row */}
+          {card.key === 'qualityRate' && metric && metric.total > 0 && (
+            <div class="mt-3 pt-3 border-t border-gray-800/50 flex items-center gap-3 text-xs font-mono text-gray-500">
+              <span class="text-matrix-green/60">✓ {metric.merged}</span>
+              <span class="text-red-400/60">✗ {metric.rejected}</span>
+              <span class="text-gray-600">of {metric.total}</span>
+            </div>
+          )}
+
+          {/* Streak flame visualization */}
+          {card.key === 'streak' && metric && (metric.value ?? 0) > 0 && (
+            <div class="mt-3 flex gap-0.5">
+              {Array.from({ length: Math.min(metric.value ?? 0, 14) }).map(() => (
+                <div class="w-2 h-4 rounded-sm bg-matrix-green/30 streak-bar"></div>
+              ))}
+            </div>
+          )}
+        </div>
+      );
+    })}
+  </div>
+</div>
+
+<style>
+  .metric-card {
+    transition: all 0.3s ease;
+  }
+  .metric-card:hover {
+    border-color: rgba(0, 255, 65, 0.3);
+    box-shadow:
+      0 0 30px rgba(0, 255, 65, 0.06),
+      inset 0 0 60px rgba(0, 255, 65, 0.02);
+  }
+
+  .streak-bar {
+    animation: streak-grow 0.5s ease-out both;
+  }
+  .streak-bar:nth-child(1) { animation-delay: 0.1s; }
+  .streak-bar:nth-child(2) { animation-delay: 0.15s; }
+  .streak-bar:nth-child(3) { animation-delay: 0.2s; }
+  .streak-bar:nth-child(4) { animation-delay: 0.25s; }
+  .streak-bar:nth-child(5) { animation-delay: 0.3s; }
+  .streak-bar:nth-child(6) { animation-delay: 0.35s; }
+  .streak-bar:nth-child(7) { animation-delay: 0.4s; }
+  .streak-bar:nth-child(8) { animation-delay: 0.45s; }
+  .streak-bar:nth-child(9) { animation-delay: 0.5s; }
+  .streak-bar:nth-child(10) { animation-delay: 0.55s; }
+  .streak-bar:nth-child(11) { animation-delay: 0.6s; }
+  .streak-bar:nth-child(12) { animation-delay: 0.65s; }
+  .streak-bar:nth-child(13) { animation-delay: 0.7s; }
+  .streak-bar:nth-child(14) { animation-delay: 0.75s; }
+
+  @keyframes streak-grow {
+    from {
+      transform: scaleY(0);
+      opacity: 0;
+    }
+    to {
+      transform: scaleY(1);
+      opacity: 1;
+    }
+  }
+</style>
