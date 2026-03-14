@@ -77,3 +77,34 @@
 **Output:** 6 issues created (#66-#71) as Phase 8 "Azure Autonomy" — the Test 3 launch sequence. Two tracks: infrastructure (#66-#69: pre-flight, Bicep IaC, branch protection, session watchdog) and showroom (#70-#71: metrics dashboard, badge auto-update). Decision written to `.squad/decisions/inbox/morpheus-sprint-planning.md`.
 
 **Key insight:** Phase 8 is the first phase focused on OPERATING the system rather than BUILDING it. All prior phases built capabilities; Phase 8 builds the operational envelope for 24/7 autonomous deployment. The shift from "can it work?" to "can it run unsupervised?" is the defining transition.
+
+## Session 2026-03-21 — Strategic Issue Triage & Downstream Ecosystem
+
+**Task:** 
+1. Fix mis-labeled issues #66-71 (all incorrectly marked `squad:switch`)
+2. Create 5 strategic issues capturing founder's ecosystem vision
+
+**Execution:**
+- **Label corrections:** All 6 issues (66-71) retriaged based on actual scope:
+  - #66 (validation script) → squad:trinity (implementation)
+  - #67 (Bicep IaC) → squad:tank (Azure infrastructure)
+  - #68 (branch protection) → squad:tank (DevOps automation)
+  - #69 (session watchdog) → squad:tank (Azure infrastructure)
+  - #70 (metrics dashboard) → squad:trinity (frontend)
+  - #71 (badge update CI) → squad:tank (CI/CD automation)
+  - Also removed `go:needs-research` from all (these are defined tasks, not research)
+
+- **New issues created (#72-76):**
+  - **#72 — Downstream repo audit** (squad:morpheus/oracle) — Comprehensive code quality, test coverage, and gameplay testing assessment across pixel-bounce, flora, ComeRosquillas, FirstFrameStudios. Highlights: founder pain point about superficial unit tests vs actual gameplay validation.
+  - **#73 — MCP server for Squad operations** (squad:trinity) — Prototype MCP server exposing squad status, decisions, metrics to any Copilot interface. Bridge between Squad internals and ecosystem.
+  - **#74 — Plugin marketplace infrastructure** (squad:trinity/morpheus) — Foundation for reusable skills/plugins marketplace. Research awesome-copilot, awesome-azure patterns.
+  - **#75 — Gameplay testing framework** (squad:switch) — FOUNDER PRIORITY. Framework for browser-automated gameplay validation using Puppeteer/Playwright. Move beyond unit tests to actual game-playing verification.
+  - **#76 — Test 3 launch checklist & runbook** (squad:morpheus/oracle) — Complete pre-launch documentation: checklist, deployment procedure, operational guides, incident responses.
+
+**Key Insight:** Founder's strategic vision is three-fold: (1) **Quality elevation** via downstream audits and gameplay testing (superficial unit tests → real game validation), (2) **Platform evolution** via marketplace/plugins/MCP (Squad as extensible platform), (3) **Operational readiness** for Test 3 (Azure 24/7 autonomy). Issues #72-76 operationalize all three pillars.
+
+**Learnings:**
+1. **Label precision matters** — Initial triage of #66-71 missed actual scope. Re-triage required discipline: read issue body, understand deliverable, route to capability owner, not just title-skim.
+2. **Founder pain points drive platform evolution** — "Agents write superficial tests instead of playing games" is not a one-off complaint; it's a systemic gap that #75 (gameplay testing) and #72 (downstream audit highlighting test quality) together address.
+3. **Ecosystem thinking ≠ distraction** — Issues #73-74 (MCP, marketplace) feel like "nice-to-have" but are strategic: they transform Squad from internal tool to platform, enabling external teams to extend it. Phase 8+ requires ecosystem maturity.
+4. **Documentation as product** — Issue #76 (Test 3 runbook) is not afterthought; it's product. A launch checklist is the operational interface. Clarity here is the difference between "ran once" and "runs 24/7 unsupervised."
