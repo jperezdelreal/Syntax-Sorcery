@@ -24,14 +24,88 @@ Hub (local machine)
 
 | File | Purpose |
 |------|---------|
+| `main.bicep` | Bicep IaC template — VM, NSG, VNet, public IP, managed identity |
+| `main.bicepparam` | Bicep parameters file — configurable VM size, location, SSH key |
+| `deploy.sh` | Deployment wrapper — validate, what-if, deploy, teardown, smoke |
 | `start-satellites.sh` | Launch tmux sessions for all 5 repos |
 | `reset-satellite.sh` | Kill and restart a single satellite by repo name |
-| `provision-vm.sh` | Azure CLI commands to provision the VM |
+| `provision-vm.sh` | Legacy Azure CLI provisioning (superseded by Bicep) |
 | `satellites.service` | systemd unit for auto-start on boot |
 
 ## Setup
 
-### 1. Provision the VM
+### 1. Provision the VM (Bicep — recommended)
+
+The Bicep template (`main.bicep`) is the declarative IaC approach. It deploys:
+
+- **B2s_v2 VM** with Ubuntu 24.04 LTS
+- **NSG** with SSH-only inbound rules (port 22)
+- **Static public IP** (Standard SKU)
+- **VNet/Subnet** (10.0.0.0/16)
+- **User-assigned managed identity**
+- **Cloud-init** that installs tmux, git, Node.js 20, gh CLI, and clones all 5 downstream repos
+
+#### Prerequisites
+
+- Azure CLI installed (`az --version`)
+- Logged into Azure (`az login`)
+- SSH key pair generated (`ssh-keygen -t rsa -b 4096`)
+
+#### Validate the template
+
+```bash
+./scripts/azure/deploy.sh --validate
+```
+
+Checks the Bicep template for syntax errors and validates against the Azure API without making any changes.
+
+#### Preview changes (what-if)
+
+```bash
+./scripts/azure/deploy.sh --what-if
+```
+
+Shows exactly what resources would be created, modified, or deleted — review before deploying.
+
+#### Deploy
+
+```bash
+./scripts/azure/deploy.sh --deploy
+```
+
+Provisions all resources. Outputs the VM public IP, SSH command, and resource IDs.
+
+#### Smoke tests
+
+```bash
+./scripts/azure/deploy.sh --smoke
+```
+
+Verifies SSH connectivity, cloud-init completion, installed dependencies, and cloned repos.
+
+#### Teardown
+
+```bash
+./scripts/azure/deploy.sh --teardown
+```
+
+Deletes the entire resource group and all resources. Requires typing `DELETE` to confirm.
+
+#### Custom SSH key path
+
+```bash
+SSH_KEY_PATH=~/.ssh/my_key.pub ./scripts/azure/deploy.sh --deploy
+```
+
+#### Rollback procedure
+
+1. **Quick rollback:** `./scripts/azure/deploy.sh --teardown` then redeploy
+2. **Partial rollback:** Use Azure Portal or `az resource delete` for individual resources
+3. **Previous state:** Bicep deployments are idempotent — redeploy the previous template version
+
+### 1b. Provision the VM (Legacy CLI)
+
+> **Note:** `provision-vm.sh` is the legacy imperative approach. Use the Bicep template above for new deployments.
 
 ```bash
 ./scripts/azure/provision-vm.sh
