@@ -91,6 +91,7 @@
     "review:gate": "node scripts/review-gate.js",
     "dedup:check": "node scripts/dedup-guard.js",
     "report:session": "node scripts/session-report.js",
+    "metrics": "node scripts/metrics-engine.js",
     "squad": "node scripts/squad-cli.js"
   },
   "repository": {

@@ -14,6 +14,7 @@
  *   review   Run review gate on a PR (requires --pr <number>)
  *   dedup    Run dedup guard
  *   report   Generate session report
+ *   metrics  Run performance metrics engine
  *   help     Show this help message
  *
  * Flags:
@@ -27,7 +28,7 @@ const path = require('path');
 // Constants
 // ---------------------------------------------------------------------------
 
-const COMMANDS = ['status', 'health', 'review', 'dedup', 'report', 'help'];
+const COMMANDS = ['status', 'health', 'review', 'dedup', 'report', 'metrics', 'help'];
 
 const HELP_TEXT = `
 Squad CLI — Unified developer CLI for all squad operations
@@ -41,15 +42,20 @@ Commands:
   review --pr <num>   Run review gate on a PR
   dedup               Run dedup guard
   report              Generate session report
+  metrics             Run performance metrics engine
   help                Show this help message
 
 Flags:
   --json              Machine-readable JSON output (where supported)
+  --save              Save metrics snapshot (metrics command)
+  --since <date>      Start date filter (metrics, report)
+  --until <date>      End date filter (metrics, report)
 
 Examples:
   npm run squad -- status
   npm run squad -- health --json
   npm run squad -- review --pr 42
+  npm run squad -- metrics --json --save
 `.trim();
 
 // ---------------------------------------------------------------------------
@@ -61,6 +67,7 @@ function parseCliArgs(argv) {
   const command = args[0] || null;
   const flags = args.slice(1);
   const jsonMode = flags.includes('--json');
+  const save = flags.includes('--save');
 
   let pr = null;
   const prIdx = flags.indexOf('--pr');
@@ -68,7 +75,19 @@ function parseCliArgs(argv) {
     pr = parseInt(flags[prIdx + 1], 10);
   }
 
-  return { command, flags, jsonMode, pr };
+  let since = null;
+  const sinceIdx = flags.indexOf('--since');
+  if (sinceIdx !== -1 && flags[sinceIdx + 1]) {
+    since = flags[sinceIdx + 1];
+  }
+
+  let until = null;
+  const untilIdx = flags.indexOf('--until');
+  if (untilIdx !== -1 && flags[untilIdx + 1]) {
+    until = flags[untilIdx + 1];
+  }
+
+  return { command, flags, jsonMode, pr, save, since, until };
 }
 
 // ---------------------------------------------------------------------------
@@ -215,11 +234,30 @@ function cmdHelp() {
 }
 
 // ---------------------------------------------------------------------------
+// Command: metrics
+// ---------------------------------------------------------------------------
+
+function cmdMetrics(jsonMode, save, since, until) {
+  const scriptPath = path.resolve(__dirname, 'metrics-engine.js');
+  const args = [];
+  if (jsonMode) args.push('--json');
+  if (save) args.push('--save');
+  if (since) args.push('--since', since);
+  if (until) args.push('--until', until);
+
+  const result = spawnSync(process.execPath, [scriptPath, ...args], {
+    stdio: 'inherit',
+    timeout: 60_000,
+  });
+  return result.status || 0;
+}
+
+// ---------------------------------------------------------------------------
 // Router
 // ---------------------------------------------------------------------------
 
 function route(parsed) {
-  const { command, jsonMode, pr } = parsed;
+  const { command, jsonMode, pr, save, since, until } = parsed;
 
   if (!command) {
     console.log(HELP_TEXT);
@@ -246,6 +284,8 @@ function route(parsed) {
       return cmdDedup(jsonMode);
     case 'report':
       return cmdReport(jsonMode);
+    case 'metrics':
+      return cmdMetrics(jsonMode, save, since, until);
     case 'help':
       return cmdHelp();
     default:
@@ -277,6 +317,7 @@ module.exports = {
   cmdReview,
   cmdDedup,
   cmdReport,
+  cmdMetrics,
   cmdHelp,
   route,
   main,
