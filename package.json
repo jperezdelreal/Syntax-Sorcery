@@ -94,6 +94,7 @@
     "metrics": "node scripts/metrics-engine.js",
     "setup": "node scripts/bootstrap.js",
     "security": "node scripts/security-audit.js",
+    "preflight": "node scripts/preflight.js",
     "squad": "node scripts/squad-cli.js"
   },
   "repository": {
