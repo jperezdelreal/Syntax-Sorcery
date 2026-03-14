@@ -1,0 +1,174 @@
+---
+import Layout from '../layouts/Layout.astro';
+import { getConstellationWithStats } from '../utils/data';
+
+const constellation = await getConstellationWithStats();
+const now = Date.now();
+
+function getHealth(lastPush?: string): { label: string; color: string; dot: string } {
+  if (!lastPush) return { label: 'Unknown', color: 'text-gray-500', dot: 'bg-gray-500' };
+  const days = Math.floor((now - new Date(lastPush).getTime()) / (1000 * 60 * 60 * 24));
+  if (days <= 7) return { label: 'Healthy', color: 'text-matrix-green', dot: 'bg-matrix-green' };
+  if (days <= 30) return { label: 'Idle', color: 'text-yellow-400', dot: 'bg-yellow-400' };
+  return { label: 'Stale', color: 'text-red-400', dot: 'bg-red-400' };
+}
+
+function daysSince(lastPush?: string): string {
+  if (!lastPush) return '—';
+  const days = Math.floor((now - new Date(lastPush).getTime()) / (1000 * 60 * 60 * 24));
+  if (days === 0) return 'Today';
+  if (days === 1) return '1 day ago';
+  return `${days} days ago`;
+}
+
+const healthyCount = constellation.filter(r => {
+  if (!r.lastPush) return false;
+  return (now - new Date(r.lastPush).getTime()) / (1000 * 60 * 60 * 24) <= 7;
+}).length;
+
+const totalIssues = constellation.reduce((sum, r) => sum + (r.openIssues ?? 0), 0);
+
+const ciWorkflows: Record<string, string> = {
+  'Syntax-Sorcery': 'ci.yml',
+  'FirstFrameStudios': 'deploy.yml',
+  'flora': 'deploy.yml',
+  'ComeRosquillas': 'deploy.yml',
+  'pixel-bounce': 'deploy-pages.yml',
+  'ffs-squad-monitor': 'deploy.yml',
+};
+---
+
+<Layout title="Constellation Status — Syntax Sorcery" description="Live health status of all 6 constellation repositories.">
+  <main class="container mx-auto px-4 max-w-6xl py-12">
+
+    <!-- Header -->
+    <div class="text-center mb-12 scroll-fade">
+      <a href="/Syntax-Sorcery/" class="inline-block text-matrix-green/60 hover:text-matrix-green font-mono text-sm mb-6 transition-colors">
+        ← Back to Home
+      </a>
+      <h1 class="text-4xl md:text-5xl font-extrabold mb-4 tracking-tight">
+        <span class="bg-gradient-to-r from-matrix-green via-emerald-400 to-matrix-green bg-clip-text text-transparent">
+          Constellation Status
+        </span>
+      </h1>
+      <p class="text-gray-500 max-w-xl mx-auto font-mono text-sm">
+        Live health of all {constellation.length} repositories — updated at build time.
+      </p>
+    </div>
+
+    <!-- Summary Bar -->
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-12 scroll-fade">
+      <div class="p-4 glass rounded-xl text-center">
+        <div class="text-3xl font-bold text-matrix-green font-mono text-glow">{constellation.length}</div>
+        <div class="text-gray-500 text-xs font-mono mt-1">Total Repos</div>
+      </div>
+      <div class="p-4 glass rounded-xl text-center">
+        <div class="text-3xl font-bold text-matrix-green font-mono text-glow">{healthyCount}</div>
+        <div class="text-gray-500 text-xs font-mono mt-1">Healthy</div>
+      </div>
+      <div class="p-4 glass rounded-xl text-center">
+        <div class="text-3xl font-bold text-matrix-green font-mono text-glow">168+</div>
+        <div class="text-gray-500 text-xs font-mono mt-1">Total Tests</div>
+      </div>
+      <div class="p-4 glass rounded-xl text-center">
+        <div class="text-3xl font-bold text-matrix-green font-mono text-glow">P5</div>
+        <div class="text-gray-500 text-xs font-mono mt-1">Current Phase</div>
+      </div>
+    </div>
+
+    <!-- Repo Cards -->
+    <div class="grid md:grid-cols-2 gap-6 mb-12">
+      {constellation.map((repo, i) => {
+        const health = getHealth(repo.lastPush);
+        const workflow = ciWorkflows[repo.name] || 'ci.yml';
+        const badgeUrl = `https://github.com/${repo.fullName}/actions/workflows/${workflow}/badge.svg`;
+        return (
+          <div class="scroll-fade p-5 glass rounded-xl card-hover" style={`animation-delay: ${i * 80}ms`}>
+            <div class="flex items-start justify-between gap-3 mb-3">
+              <div class="flex items-center gap-2 min-w-0">
+                <span class:list={['w-2.5 h-2.5 rounded-full shrink-0', health.dot]} aria-label={health.label} />
+                <a
+                  href={repo.url}
+                  target="_blank"
+                  rel="noopener"
+                  class="font-mono text-base font-bold hover:text-matrix-green transition-colors truncate"
+                >
+                  {repo.name}
+                </a>
+              </div>
+              <span class:list={['text-xs font-mono whitespace-nowrap', health.color]}>
+                {health.label}
+              </span>
+            </div>
+
+            <p class="text-gray-500 text-sm mb-3">{repo.description}</p>
+
+            <!-- CI Badge -->
+            <div class="mb-3">
+              <a href={`${repo.url}/actions`} target="_blank" rel="noopener">
+                <img
+                  src={badgeUrl}
+                  alt={`CI status for ${repo.name}`}
+                  class="h-5"
+                  loading="lazy"
+                />
+              </a>
+            </div>
+
+            <!-- Stats Row -->
+            <div class="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs font-mono text-gray-500">
+              {repo.openIssues !== undefined && (
+                <span class="flex items-center gap-1">
+                  <span class="text-matrix-green/60">📋</span>
+                  {repo.openIssues} open issue{repo.openIssues !== 1 ? 's' : ''}
+                </span>
+              )}
+              {repo.lastPush && (
+                <span class="flex items-center gap-1">
+                  <span class="text-matrix-green/60">🕐</span>
+                  {daysSince(repo.lastPush)}
+                </span>
+              )}
+              {repo.stars !== undefined && (
+                <span class="flex items-center gap-1">
+                  <span class="text-matrix-green/60">⭐</span>
+                  {repo.stars}
+                </span>
+              )}
+            </div>
+          </div>
+        );
+      })}
+    </div>
+
+    <!-- Legend -->
+    <div class="scroll-fade glass rounded-xl p-5 mb-12">
+      <h2 class="text-sm font-mono text-matrix-green/80 mb-3">Health Indicators</h2>
+      <div class="flex flex-wrap gap-6 text-xs text-gray-400 font-mono">
+        <span class="flex items-center gap-2">
+          <span class="w-2.5 h-2.5 rounded-full bg-matrix-green inline-block"></span>
+          Green — Active within 7 days
+        </span>
+        <span class="flex items-center gap-2">
+          <span class="w-2.5 h-2.5 rounded-full bg-yellow-400 inline-block"></span>
+          Yellow — Active 7–30 days ago
+        </span>
+        <span class="flex items-center gap-2">
+          <span class="w-2.5 h-2.5 rounded-full bg-red-400 inline-block"></span>
+          Red — Inactive 30+ days
+        </span>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="scroll-fade text-center pt-8 pb-4 border-t border-gray-800/50">
+      <p class="text-gray-600 text-xs font-mono">
+        <span class="text-matrix-green/40">⟨SS⟩</span> Constellation Status — Syntax Sorcery
+      </p>
+      <p class="text-gray-700 text-xs mt-1 font-mono">
+        Data fetched at build time via GitHub API
+      </p>
+    </footer>
+
+  </main>
+</Layout>
