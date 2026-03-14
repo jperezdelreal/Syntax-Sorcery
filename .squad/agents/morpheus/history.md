@@ -262,3 +262,72 @@ All issues:
 
 **Key Insight:** Audit identified the problem; issues operationalize the solution. 9 focused issues are more actionable than "test more and better."
 
+---
+
+### Phase 11 Epic Decomposition: Gameplay Testing Rollout (2026-03-22T01:30Z)
+
+**Task:** Decompose Issue #113 (Phase 11 — Gameplay Testing Rollout & Autonomous Game Feature Delivery) into 4-5 concrete issues operationalizing the gameplay testing framework across FFS constellation.
+
+**Strategic Context:**
+- Phase 8 (#75) built the gameplay testing framework (Puppeteer/Playwright templates, canvas mocks, test patterns)
+- Phase 9 (#89, #129) piloted on pixel-bounce (22 headless tests + 8 Playwright visual tests, proven effective)
+- Downstream audit (#72) identified flora (95% useless tests) and ComeRosquillas (inflated test suite)
+- Issue #113 epic requires operationalization across entire constellation
+
+**Decomposition Executed:**
+
+| Issue | Title | Squad | Complexity | Purpose |
+|-------|-------|-------|-----------|---------|
+| #130 | Phase 11.1: Apply headless gameplay tests to flora | squad:switch | 🟡 Medium | 10-15 tests covering seed → plant lifecycle, resource management, genetics |
+| #131 | Phase 11.2: Apply headless gameplay tests to ComeRosquillas | squad:switch | 🟡 Medium | 12-15 tests replacing inflated suite; focus: multiplayer sync, social mechanics |
+| #132 | Phase 11.3: Extend Playwright visual tests to downstream repos | squad:switch | 🟡 Medium | Scale visual testing from pixel-bounce to flora + ComeRosquillas; establish visual CI gate |
+| #133 | Phase 11.4: Fix Node.js v20 in Azure Bicep | squad:tank | 🟢 Small | Update cloud-init cloud-init nodejs v18 → v20 LTS (Test 3 pre-req) |
+| #134 | Phase 11.5: Update Bicep default location (northeurope) | squad:tank | 🟢 Small | Change region westeurope → northeurope (B-series availability; Test 3 pre-req) |
+
+**Decomposition Principles Applied:**
+
+1. **Gaming Track (130, 131, 132):** Headless tests → headless tests → visual tests. Sequential depth: gameplay mechanics → player interactions → visual consistency. Parallel start (130 + 131) converge at 132.
+
+2. **DevOps Track (133, 134):** Quick Tank tasks fixing infrastructure constraints pre-identified during #123 (Azure subscription setup). Both enable Test 3 deployment without obstacles.
+
+3. **Clear Ownership:** Each issue routed to squad capability (Switch = test automation, Tank = cloud/devops). No ambiguity on who executes.
+
+4. **Measurable Acceptance:** Each issue has 7-10 concrete acceptance criteria with specific deliverables. "Done" is unambiguous — test count, coverage %, visual baseline, Node.js version in cloud-init logs.
+
+5. **Parent Epic Coordination:** #113 remains open as hub, all 5 issues linked with dependency graph. When all 5 done → Phase 11 complete → Gameplay Testing Rollout scales to entire constellation.
+
+**Strategic Outcomes:**
+
+- **flora:** Transforms from 95% arithmetic assertions to 10-15 real gameplay tests validating botanical simulation (seed planting, growth simulation, lifecycle transitions)
+- **ComeRosquillas:** Replaces inflated test suite with 12-15 real multiplayer/social game tests (registration, scoring, leaderboards, player sync)
+- **Playwright Visual Tests:** Scales from pixel-bounce (8 tests) to flora + ComeRosquillas (8+8 tests = 24 total); visual testing becomes non-negotiable CI gate
+- **Infrastructure:** Unblocks Test 3 Azure VM deployment with correct Node.js LTS and region availability
+
+**Key Design Decisions:**
+
+1. **Why 5 issues not 3?** DevOps issues (#133, #134) are tiny but essential. Separating them prevents merging "fix Node.js" with "add gameplay tests" — each issue has single responsibility.
+
+2. **Why headless THEN visual?** Headless validates game mechanics (does it work?). Visual validates presentation (does it look right?). Both needed; headless is prerequisite (visual assumes headless passes).
+
+3. **Squad routing:** Switch is test automation expert (gameplay tests). Tank is DevOps expert (Bicep, cloud-init). No cross-training; each does what they're best at.
+
+4. **Parallel execution:** 130 + 131 can run in parallel (independent games, same testing pattern). 133 + 134 can run in parallel (independent Bicep parameters). Both pairs can run simultaneously.
+
+**Learnings:**
+
+1. **Epic decomposition requires two lenses:** Technical (what to build?) + Operational (who builds it?). Issue #113 said "WHAT" (gameplay testing rollout); decomposition answers "WHO" (Switch), "WHEN" (after pixel-bounce pilot), "HOW" (apply framework from #89 pattern).
+
+2. **DevOps issues are blocking.** #133 + #134 seem like afterthoughts, but Node.js v18 + westeurope unavailability literally block Test 3 launch. Explicit issue status (not buried in epic body) makes them visible.
+
+3. **Pattern reuse scales work.** Phase 9 piloted #89 on pixel-bounce, validated pattern, documented in PR #129. Phase 11 now replicates that pattern to flora + ComeRosquillas. Automation through proven patterns, not one-off coding.
+
+4. **Parent epic + child issues = transparent roadmap.** Epic stays open (coordination hub), issues closed as delivered (measurable progress). Upstream visibility (founder sees 5/5 done) without losing downstream context.
+
+**Orchestration Artifacts:**
+- Comment on #113 shows full decomposition table + dependency graph
+- Each issue (130-134) linked to parent #113, related issues (#75, #89, #129, #72, #112)
+- All 5 issues labeled `squad` (triage inbox) ready for squad execution
+- Issue bodies include acceptance criteria, technical notes, related issues section
+
+**Next Step:** Squads execute in parallel. Switch works on gameplay tests (130, 131, 132). Tank works on infrastructure (133, 134). When all 5 closed → Phase 11 done → Gameplay Testing Rollout complete.
+

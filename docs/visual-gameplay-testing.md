@@ -75,6 +75,7 @@ test('player moves on input', async () => {
 | Method | Description |
 |--------|-------------|
 | `launchGame(htmlPath)` | Opens game HTML in Chromium via local HTTP server |
+| `launchUrl(url)` | Opens a URL directly in Chromium (for dev server games) |
 | `screenshot(name)` | Saves PNG screenshot, returns file path |
 | `pressKey(key, durationMs)` | Simulates key press with hold duration |
 | `clickAt(x, y)` | Simulates mouse click at viewport coordinates |
@@ -115,6 +116,52 @@ test('game over screen matches baseline', async () => {
 });
 ```
 
+## Multi-Game Usage
+
+The visual testing framework supports multiple downstream games. Each game has its own `.spec.js` file with tests tailored to its mechanics.
+
+### Running Individual Games
+
+```bash
+# pixel-bounce (canvas platformer — works directly via HTTP server)
+npx playwright test scripts/gameplay-test/visual/pixel-bounce.spec.js
+
+# ComeRosquillas (Pac-Man clone — works directly via HTTP server)
+npx playwright test scripts/gameplay-test/visual/comerosquillas.spec.js
+
+# Flora (PixiJS + Vite — requires dev server, see below)
+FLORA_URL=http://localhost:5173 npx playwright test scripts/gameplay-test/visual/flora.spec.js
+```
+
+### Running All Visual Tests
+
+```bash
+npx playwright test scripts/gameplay-test/visual/ --config scripts/gameplay-test/visual/playwright.config.js
+```
+
+### Game-Specific Requirements
+
+| Game | Serves Via | Extra Setup |
+|------|-----------|-------------|
+| **pixel-bounce** | Built-in HTTP server | None — plain HTML/JS |
+| **ComeRosquillas** | Built-in HTTP server | None — plain HTML/JS. Uses Google Fonts (needs internet for full rendering) |
+| **Flora** | Vite dev server | Run `cd flora && npm run dev` first, then set `FLORA_URL=http://localhost:5173` |
+
+**Why does Flora need a dev server?** Flora uses Vite + TypeScript. Its `index.html` contains `<script type="module" src="/src/main.ts">` which requires Vite's TypeScript compilation. The `dist/` build uses `base="/flora/"` (for GitHub Pages), so the built-in HTTP server can't resolve the JS imports without path rewriting. Use the Vite dev server or rebuild with `base="/"`.
+
+### Using `launchUrl()` for Dev Server Games
+
+For games that need a running dev server (Vite, Webpack, etc.), use `launchUrl()` instead of `launchGame()`:
+
+```javascript
+const GAME_URL = process.env.GAME_URL || 'http://localhost:5173';
+
+test.beforeEach(async () => {
+  game = new VisualGameRunner({ viewport: { width: 800, height: 600 } });
+  await game.launchUrl(GAME_URL);
+});
+```
+
 ## Adopting in Downstream Repos
 
 1. **Copy the template:**
@@ -125,6 +172,7 @@ test('game over screen matches baseline', async () => {
 2. **Edit the template:**
    - Set `GAME_HTML_PATH` to your game's `index.html`
    - Customize tests for your game's controls and mechanics
+   - If your game uses a bundler (Vite, Webpack), use `launchUrl()` instead
 
 3. **Run from Syntax Sorcery:**
    ```bash
@@ -143,11 +191,13 @@ test('game over screen matches baseline', async () => {
 
 ```
 scripts/gameplay-test/visual/
-├── visual-runner.js          # Core: VisualGameRunner class + HTTP server
-├── visual-tests.template.js  # Template for new games
-├── playwright.config.js      # Playwright configuration
-├── pixel-bounce.spec.js      # Pilot: pixel-bounce visual tests
-└── screenshots/              # Captured screenshots (gitignored)
+├── visual-runner.js              # Core: VisualGameRunner class + HTTP server
+├── visual-tests.template.js      # Template for new games
+├── playwright.config.js          # Playwright configuration
+├── pixel-bounce.spec.js          # pixel-bounce visual tests (8 tests)
+├── comerosquillas.spec.js        # ComeRosquillas visual tests (6 tests)
+├── flora.spec.js                 # Flora visual tests (6 tests)
+└── screenshots/                  # Captured screenshots (gitignored)
 ```
 
 The visual testing module sits alongside the existing headless gameplay-test framework:

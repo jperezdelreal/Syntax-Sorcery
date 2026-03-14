@@ -87,6 +87,23 @@ class VisualGameRunner {
     this.serverInfo = await createGameServer(gameDir);
     const gameUrl = `${this.serverInfo.url}/${htmlFile}`;
 
+    await this._openBrowser(gameUrl);
+    return this.page;
+  }
+
+  /**
+   * Launch a game from an already-running URL (e.g., Vite dev server).
+   * Use this for games that require a build tool to serve (TypeScript, bundlers).
+   */
+  async launchUrl(url) {
+    await this._openBrowser(url);
+    return this.page;
+  }
+
+  /**
+   * Internal: open Chromium and navigate to a URL.
+   */
+  async _openBrowser(url) {
     this.browser = await chromium.launch({
       headless: this.headless,
     });
@@ -96,14 +113,12 @@ class VisualGameRunner {
     });
 
     this.page = await this.context.newPage();
-    await this.page.goto(gameUrl, { waitUntil: 'networkidle' });
+    await this.page.goto(url, { waitUntil: 'networkidle' });
 
     // Wait for canvas to be present
     await this.page.waitForSelector('canvas', { timeout: 10000 }).catch(() => {
       // Some games may not use canvas — that's fine
     });
-
-    return this.page;
   }
 
   /**
