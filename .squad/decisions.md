@@ -6,6 +6,28 @@ Autonomous AI dev company (€500/mo Azure, unlimited GitHub). Strict context hy
 
 ## Active Decisions (Last 7 Days)
 
+### 2026-03-22T00:00Z: T2 Decision — Pre-flight Validation Architecture
+
+**By:** Trinity (Full-Stack Developer)  
+**Tier:** T2  
+**Status:** ✅ IMPLEMENTED  
+**Date:** 2026-03-22  
+**Issue:** #66  
+**PR:** #78  
+
+**What:**
+Created `scripts/preflight.js` as unified pre-flight validation script for Test 3 readiness. Introduced `safeExec()` utility pattern wrapping execSync with standardized `{ok, stdout, stderr}` return shape.
+
+**Why:**
+Test 3 requires 8 independent prerequisites validated before launching 24/7 Azure VM session. Each check as separate function with DI enables testing without real infrastructure. `--skip-azure` flag enables CI/local validation without cloud credentials.
+
+**Pattern Established:**
+- `safeExec(cmd, execFn, timeout)` → `{ok, stdout, stderr}` — reusable across future scripts
+- Each check function returns `{name, passed, message, fix?}` — standardized check result shape
+- `--skip-azure` flag pattern for conditionally skipping environment-specific checks
+
+---
+
 ### 2026-03-21T10:40Z: Morpheus Sprint Planning — Phase 8: Azure Autonomy
 
 **By:** Morpheus (Lead/Architect)  
