@@ -20,6 +20,7 @@
  *   enforce-protection  Enforce branch protection on downstream repos
  *   plugin <subcmd>     Manage plugins (list, install, search, create, info)
  *   gameplay-test       Init gameplay test templates for downstream games
+ *   watch <subcmd>      Local watchdog monitoring (list, status, check)
  *   help     Show this help message
  *
  * Flags:
@@ -38,7 +39,7 @@ const path = require('path');
 // Constants
 // ---------------------------------------------------------------------------
 
-const COMMANDS = ['status', 'health', 'review', 'dedup', 'report', 'metrics', 'security', 'preflight', 'enforce-protection', 'plugin', 'gameplay-test', 'help'];
+const COMMANDS = ['status', 'health', 'review', 'dedup', 'report', 'metrics', 'security', 'preflight', 'enforce-protection', 'plugin', 'gameplay-test', 'watch', 'help'];
 
 const HELP_TEXT = `
 Squad CLI — Unified developer CLI for all squad operations
@@ -58,6 +59,7 @@ Commands:
   enforce-protection  Enforce branch protection on downstream repos
   plugin <subcmd>     Manage plugins (list, install, search, create, info)
   gameplay-test       Init gameplay test templates for downstream games
+  watch <subcmd>      Local watchdog monitoring (list, status, check)
   help                Show this help message
 
 Flags:
@@ -90,6 +92,9 @@ Examples:
   npm run squad -- plugin list
   npm run squad -- plugin install owner/repo
   npm run squad -- gameplay-test --init --type platformer --target ../pixel-bounce
+  npm run squad -- watch list
+  npm run squad -- watch status --json
+  npm run squad -- watch check --interval 5
 `.trim();
 
 // ---------------------------------------------------------------------------
@@ -130,7 +135,14 @@ function parseCliArgs(argv) {
   const type = extractFlag(flags, '--type');
   const target = extractFlag(flags, '--target');
 
-  return { command, flags, jsonMode, pr, save, fix, sbomOnly, skipAzure, applyProtection, repo, init, type, target, since, until };
+  let interval = null;
+  const intervalIdx = flags.indexOf('--interval');
+  if (intervalIdx !== -1 && flags[intervalIdx + 1]) {
+    const val = parseInt(flags[intervalIdx + 1], 10);
+    if (!isNaN(val) && val > 0) interval = val;
+  }
+
+  return { command, flags, jsonMode, pr, save, fix, sbomOnly, skipAzure, applyProtection, repo, init, type, target, since, until, interval };
 }
 
 function extractFlag(flags, name) {
@@ -449,6 +461,21 @@ function cmdGameplayTest(parsed) {
 }
 
 // ---------------------------------------------------------------------------
+// Command: watch
+// ---------------------------------------------------------------------------
+
+function cmdWatch(parsed) {
+  const scriptPath = path.resolve(__dirname, 'squad-watch.js');
+  const args = parsed.flags || [];
+
+  const result = spawnSync(process.execPath, [scriptPath, ...args], {
+    stdio: 'inherit',
+    timeout: 300_000,
+  });
+  return result.status || 0;
+}
+
+// ---------------------------------------------------------------------------
 // Router
 // ---------------------------------------------------------------------------
 
@@ -492,6 +519,8 @@ function route(parsed) {
       return cmdPlugin(parsed.flags);
     case 'gameplay-test':
       return cmdGameplayTest(parsed);
+    case 'watch':
+      return cmdWatch(parsed);
     case 'help':
       return cmdHelp();
     default:
@@ -531,6 +560,7 @@ module.exports = {
   cmdEnforceProtection,
   cmdPlugin,
   cmdGameplayTest,
+  cmdWatch,
   cmdHelp,
   route,
   main,

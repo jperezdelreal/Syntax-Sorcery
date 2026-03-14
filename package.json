@@ -98,6 +98,7 @@
     "enforce:protection": "node scripts/enforce-branch-protection.js",
     "plugin": "node scripts/plugin-manager.js",
     "gameplay-test": "node scripts/gameplay-test/framework.js",
+    "watch": "node scripts/squad-watch.js",
     "squad": "node scripts/squad-cli.js"
   },
   "repository": {
