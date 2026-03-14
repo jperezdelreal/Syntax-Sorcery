@@ -1,0 +1,52 @@
+name: Squad Task
+description: Internal task for Squad agents
+title: "[Squad]: "
+labels: ["squad"]
+body:
+  - type: textarea
+    id: task
+    attributes:
+      label: Task Description
+      description: Describe the task to be completed
+    validations:
+      required: true
+  - type: textarea
+    id: criteria
+    attributes:
+      label: Acceptance Criteria
+      description: Define the acceptance criteria for this task
+    validations:
+      required: true
+  - type: dropdown
+    id: agent
+    attributes:
+      label: Assigned Agent
+      description: Which agent should handle this task
+      options:
+        - Morpheus
+        - Trinity
+        - Tank
+        - Switch
+        - Oracle
+        - "@copilot"
+        - Ralph
+    validations:
+      required: false
+  - type: dropdown
+    id: complexity
+    attributes:
+      label: Estimated Complexity
+      description: How complex is this task
+      options:
+        - Small
+        - Medium
+        - Large
+    validations:
+      required: false
+  - type: input
+    id: related
+    attributes:
+      label: Related Issues
+      description: "Link any related issues (e.g., #123, #456)"
+    validations:
+      required: false

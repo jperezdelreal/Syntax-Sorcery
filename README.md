@@ -10,6 +10,7 @@
 ![Node](https://img.shields.io/badge/node-20-blue)
 ![License](https://img.shields.io/badge/license-ISC-blue)
 ![Phase](https://img.shields.io/badge/phase-3%20complete-blueviolet)
+[![Contributor Covenant](https://img.shields.io/badge/Contributor%20Covenant-2.1-4baaaa.svg)](CODE_OF_CONDUCT.md)
 
 *Where code writes itself.*
 
@@ -149,6 +150,15 @@ npm run check:constellation
 | Phase 1 | ✅ Complete | FFS takeover, integration testing, constellation governance |
 | Phase 2 | ✅ Complete | 168 unit tests, E2E pipeline coverage, proposal→prototype validation |
 | Phase 3 | ✅ Complete | CI quality gate, dedup guard, review gate, Azure launcher |
+
+---
+
+## Contributing
+
+We welcome contributions! Whether you're fixing a bug, suggesting a feature, or improving documentation — we'd love your help.
+
+- 📖 **[Contributing Guide](CONTRIBUTING.md)** — PR workflow, code style, DI pattern, commit format
+- 📜 **[Code of Conduct](CODE_OF_CONDUCT.md)** — Contributor Covenant v2.1
 
 ---
 

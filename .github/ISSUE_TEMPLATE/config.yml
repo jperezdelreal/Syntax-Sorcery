@@ -1,8 +1,11 @@
 blank_issues_enabled: false
 contact_links:
   - name: "💬 Squad Discussion"
-    url: "https://github.com/joperezd/Syntax-Sorcery/discussions"
+    url: "https://github.com/jperezdelreal/Syntax-Sorcery/discussions"
     about: "Questions, ideas, or general discussion about Syntax Sorcery"
   - name: "📚 Documentation"
-    url: "https://github.com/joperezd/Syntax-Sorcery/tree/main/.squad"
-    about: "Browse .squad/ directory for guides, skills, and team documentation"
+    url: "https://github.com/jperezdelreal/Syntax-Sorcery/tree/master/docs"
+    about: "Architecture, constellation map, and onboarding guides"
+  - name: "🤝 Contributing Guide"
+    url: "https://github.com/jperezdelreal/Syntax-Sorcery/blob/master/CONTRIBUTING.md"
+    about: "How to contribute to Syntax Sorcery"
