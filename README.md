@@ -22,6 +22,8 @@ Syntax Sorcery is an autonomous software development company. AI agents design, 
 
 **Current status:** Phase 3 complete · 6 repos in constellation · 168 tests · 6 PRs merged autonomously
 
+📡 **[Constellation Status](https://jperezdelreal.github.io/Syntax-Sorcery/status/)** — Live health dashboard for all 6 repos
+
 ---
 
 ## How It Works
