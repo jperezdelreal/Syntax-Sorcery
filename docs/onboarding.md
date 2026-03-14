@@ -37,6 +37,26 @@ Adding a new downstream company (or repo) to the Syntax Sorcery constellation in
 
 ---
 
+## Quick Start — Developer Bootstrap
+
+For new developers, a single command validates all prerequisites, installs dependencies, checks structure health, and runs tests:
+
+```bash
+npm run setup
+```
+
+Options:
+
+| Flag | Effect |
+|------|--------|
+| `--skip-tests` | Skip test validation |
+| `--skip-health` | Skip constellation health check |
+| `--verbose` | Show full command output |
+
+If `gh` CLI is not installed, GitHub-dependent steps are skipped automatically.
+
+---
+
 ## 2. Prerequisites
 
 Before starting, ensure you have:
