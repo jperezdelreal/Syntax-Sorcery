@@ -95,3 +95,9 @@
 **PR #57 (E2E Tests): ✅ APPROVED & MERGED** — Switch implementation. 33 integration tests for the full perpetual motion cycle as a SYSTEM. 8 test categories: perpetual motion happy paths (4), PR pipeline (3), error paths (7), edge cases (5), cross-script integration (5), pipeline orchestrator (2), event sequencing (3), data integrity (4). DI pattern consistent with existing suite. 251 tests green (218 existing + 33 new). Issue #54 CLOSED.
 
 **Board Status:** 2 open issues (#55, #56). Phase 6 progress: 1/3 complete.
+
+## Phase 6 Progress — One-Command Developer Bootstrap (2026-03-20)
+
+**PR #59 (Bootstrap): ✅ APPROVED & MERGED** — Trinity implementation. `npm run setup` with 5-step bootstrap: prerequisites (Node ≥18, gh CLI, gh auth, git config), dependencies (root + site npm ci), .squad/ structure validation, constellation health check, test validation. Graceful degradation: gh-dependent steps auto-skipped when gh unavailable. CLI flags: --skip-tests, --skip-health, --verbose. 37 new tests with DI pattern (mockExec). onboarding.md updated with Quick Start section. Zero new dependencies. 345 tests green (308 existing + 37 new). Issue #56 CLOSED.
+
+**Board Status:** 1 open issue (#55). Phase 6 progress: 2/3 complete.
