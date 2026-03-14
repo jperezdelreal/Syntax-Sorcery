@@ -117,13 +117,25 @@ jobs:
 
             // Determine best assignee based on issue content and routing
             const issueText = `${issue.title}\n${issue.body || ''}`.toLowerCase();
+            const issueBody = issue.body || '';
 
             let assignedMember = null;
             let triageReason = '';
             let copilotTier = null;
 
-            // First, evaluate @copilot fit if enabled
-            if (hasCopilot) {
+            // Priority 1: Check for explicit "Assigned Agent" field in issue body
+            const assignedAgentMatch = issueBody.match(/###\s*Assigned Agent\s*\n+\s*(\w+)/i);
+            if (assignedAgentMatch) {
+              const requestedName = assignedAgentMatch[1].toLowerCase();
+              const matchedMember = members.find(m => m.name.toLowerCase() === requestedName);
+              if (matchedMember) {
+                assignedMember = matchedMember;
+                triageReason = `Explicitly assigned to ${matchedMember.name} via issue template`;
+              }
+            }
+
+            // Priority 2: Evaluate @copilot fit if enabled and not already assigned
+            if (!assignedMember && hasCopilot) {
               const isNotSuitable = notSuitableKeywords.some(kw => issueText.includes(kw));
               const isGoodFit = !isNotSuitable && goodFitKeywords.some(kw => issueText.includes(kw));
               const isNeedsReview = !isNotSuitable && !isGoodFit && needsReviewKeywords.some(kw => issueText.includes(kw));
@@ -142,15 +154,17 @@ jobs:
               }
             }
 
-            // If not routed to @copilot, use keyword-based routing
+            // Priority 3: If not routed to @copilot or explicit agent, use keyword-based routing
             if (!assignedMember) {
               for (const member of members) {
                 const role = member.role.toLowerCase();
                 if ((role.includes('frontend') || role.includes('ui')) &&
                     (issueText.includes('ui') || issueText.includes('frontend') ||
                      issueText.includes('css') || issueText.includes('component') ||
-                     issueText.includes('button') || issueText.includes('page') ||
-                     issueText.includes('layout') || issueText.includes('design'))) {
+                     issueText.includes('button') || issueText.includes('responsive') ||
+                     issueText.includes('animation') || issueText.includes('color') ||
+                     issueText.includes('branding') ||
+                     /visual\s+(design|polish)/i.test(issueText))) {
                   assignedMember = member;
                   triageReason = 'Issue relates to frontend/UI work';
                   break;
@@ -171,12 +185,32 @@ jobs:
                   triageReason = 'Issue relates to testing/quality work';
                   break;
                 }
-                if ((role.includes('devops') || role.includes('infra') || role.includes('ops')) &&
+                if ((role.includes('devops') || role.includes('infra') || role.includes('ops') || role.includes('cloud')) &&
                     (issueText.includes('deploy') || issueText.includes('ci') ||
                      issueText.includes('pipeline') || issueText.includes('docker') ||
-                     issueText.includes('infrastructure'))) {
+                     issueText.includes('infrastructure') || issueText.includes('azure') ||
+                     issueText.includes('cloud') || issueText.includes('vm') ||
+                     issueText.includes('deployment') || issueText.includes('monitor') ||
+                     issueText.includes('observability') || issueText.includes('metrics'))) {
                   assignedMember = member;
-                  triageReason = 'Issue relates to DevOps/infrastructure work';
+                  triageReason = 'Issue relates to DevOps/infrastructure/cloud work';
+                  break;
+                }
+                if ((role.includes('product') || role.includes('doc') || role.includes('writer')) &&
+                    (issueText.includes('documentation') || issueText.includes('readme') ||
+                     issueText.includes('blog') || issueText.includes('marketing') ||
+                     issueText.includes('prd') || issueText.includes('spec') ||
+                     issueText.includes('research'))) {
+                  assignedMember = member;
+                  triageReason = 'Issue relates to documentation/product work';
+                  break;
+                }
+                if ((role.includes('lead') || role.includes('architect')) &&
+                    (issueText.includes('roadmap') || issueText.includes('architecture') ||
+                     issueText.includes('plan') || issueText.includes('strategy') ||
+                     issueText.includes('triage') || issueText.includes('review'))) {
+                  assignedMember = member;
+                  triageReason = 'Issue relates to architecture/strategy work';
                   break;
                 }
               }
@@ -199,13 +233,15 @@ jobs:
               labels: [assignLabel]
             });
 
-            // Apply default triage verdict
-            await github.rest.issues.addLabels({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              issue_number: issue.number,
-              labels: ['go:needs-research']
-            });
+            // Only add go:needs-research if issue explicitly requests investigation
+            if (/investigat|research|explor|analyz|evaluat|assess|audit/i.test(issueText)) {
+              await github.rest.issues.addLabels({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: issue.number,
+                labels: ['go:needs-research']
+              });
+            }
 
             // Auto-assign @copilot if enabled
             if (isCopilot && copilotAutoAssign) {
