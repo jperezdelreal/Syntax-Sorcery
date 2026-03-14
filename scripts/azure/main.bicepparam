@@ -3,8 +3,8 @@ using './main.bicep'
 // Syntax Sorcery Test 3 — VM Parameters
 // Customize these values for your deployment
 
-// Azure region — West Europe for lowest latency to EU
-param location = 'westeurope'
+// Azure region — North Europe (B-series VM availability)
+param location = 'northeurope'
 
 // VM size — B2s_v2: 2 vCPU, 4 GB RAM, ~€25-30/month
 // Cost-optimal for running 5 satellite tmux sessions
