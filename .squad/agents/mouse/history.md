@@ -84,3 +84,23 @@ Matrix-themed design system for Syntax Sorcery landing page. Established as spec
 - Cost savings deserve celebration — make €0 HUGE and proud with gradients/emojis
 - Consistent design language across all views creates professional feel
 - Glassmorphism + dark theme = instant premium perception
+
+### 2026-03-22: Dashboard Design System (#111)
+
+**Context:** Monitoring dashboard needs a visual spec for Trinity to implement. Issue #111.
+
+**What I did:**
+- Created `docs/design/dashboard-design-system.md` — full Matrix-themed design spec covering color palette (8 semantic tokens), typography (JetBrains Mono headings, system-ui body, KPI glow effect), 6 animation specs (pulse, data refresh, pipeline flow, status transitions, matrix rain, reduced motion), 4 component specs (Repo Card, KPI Widget, Pipeline Stage, Activity Feed Item) with ASCII wireframes, responsive breakpoints (3/2/1 column), and accessibility notes (WCAG AA, reduced motion, focus states)
+- Created `site/src/styles/design-tokens.css` — 50+ CSS custom properties implementing every design token: colors, typography scale, spacing, radii, shadows/glows, transitions, component sizes, grid system, z-index layers, plus responsive grid and dashboard-specific keyframe animations
+- Extended existing landing page design language (same `#0a0a0a` bg, `#00ff41` green, glass utility) into dashboard-specific patterns
+
+**Outcome:**
+- PR #122 submitted
+- Both spec doc and implementation tokens included — learned from PR #45 rejection that design-only PRs fail merge gate
+- Design tokens are immediately consumable: Trinity can `@import 'design-tokens.css'` and reference `var(--text-primary)` etc.
+
+**Learnings:**
+- Include implementation artifacts (CSS tokens) alongside spec docs — spec-only PRs get rejected
+- Align new design tokens with existing `global.css` theme to avoid conflicts
+- ASCII wireframes in spec docs communicate layout intent better than prose descriptions
+- Accessibility must be baked into the spec, not an afterthought — contrast ratios, reduced motion, focus states all specified upfront
