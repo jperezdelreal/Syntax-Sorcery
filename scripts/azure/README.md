@@ -24,88 +24,17 @@ Hub (local machine)
 
 | File | Purpose |
 |------|---------|
-| `main.bicep` | Bicep IaC template — VM, NSG, VNet, public IP, managed identity |
-| `main.bicepparam` | Bicep parameters file — configurable VM size, location, SSH key |
-| `deploy.sh` | Deployment wrapper — validate, what-if, deploy, teardown, smoke |
 | `start-satellites.sh` | Launch tmux sessions for all 5 repos |
 | `reset-satellite.sh` | Kill and restart a single satellite by repo name |
-| `provision-vm.sh` | Legacy Azure CLI provisioning (superseded by Bicep) |
+| `session-watchdog.sh` | Monitor sessions: health checks, auto-restart stale sessions |
+| `session-watchdog.timer` | systemd timer — runs watchdog every 30 minutes |
+| `session-watchdog.service` | systemd service unit for the watchdog |
+| `provision-vm.sh` | Azure CLI commands to provision the VM |
 | `satellites.service` | systemd unit for auto-start on boot |
 
 ## Setup
 
-### 1. Provision the VM (Bicep — recommended)
-
-The Bicep template (`main.bicep`) is the declarative IaC approach. It deploys:
-
-- **B2s_v2 VM** with Ubuntu 24.04 LTS
-- **NSG** with SSH-only inbound rules (port 22)
-- **Static public IP** (Standard SKU)
-- **VNet/Subnet** (10.0.0.0/16)
-- **User-assigned managed identity**
-- **Cloud-init** that installs tmux, git, Node.js 20, gh CLI, and clones all 5 downstream repos
-
-#### Prerequisites
-
-- Azure CLI installed (`az --version`)
-- Logged into Azure (`az login`)
-- SSH key pair generated (`ssh-keygen -t rsa -b 4096`)
-
-#### Validate the template
-
-```bash
-./scripts/azure/deploy.sh --validate
-```
-
-Checks the Bicep template for syntax errors and validates against the Azure API without making any changes.
-
-#### Preview changes (what-if)
-
-```bash
-./scripts/azure/deploy.sh --what-if
-```
-
-Shows exactly what resources would be created, modified, or deleted — review before deploying.
-
-#### Deploy
-
-```bash
-./scripts/azure/deploy.sh --deploy
-```
-
-Provisions all resources. Outputs the VM public IP, SSH command, and resource IDs.
-
-#### Smoke tests
-
-```bash
-./scripts/azure/deploy.sh --smoke
-```
-
-Verifies SSH connectivity, cloud-init completion, installed dependencies, and cloned repos.
-
-#### Teardown
-
-```bash
-./scripts/azure/deploy.sh --teardown
-```
-
-Deletes the entire resource group and all resources. Requires typing `DELETE` to confirm.
-
-#### Custom SSH key path
-
-```bash
-SSH_KEY_PATH=~/.ssh/my_key.pub ./scripts/azure/deploy.sh --deploy
-```
-
-#### Rollback procedure
-
-1. **Quick rollback:** `./scripts/azure/deploy.sh --teardown` then redeploy
-2. **Partial rollback:** Use Azure Portal or `az resource delete` for individual resources
-3. **Previous state:** Bicep deployments are idempotent — redeploy the previous template version
-
-### 1b. Provision the VM (Legacy CLI)
-
-> **Note:** `provision-vm.sh` is the legacy imperative approach. Use the Bicep template above for new deployments.
+### 1. Provision the VM
 
 ```bash
 ./scripts/azure/provision-vm.sh
@@ -190,6 +119,60 @@ tmux attach -t sat-flora
 | VM unreachable | Verify NSG rules allow SSH (port 22): `az vm open-port ...` |
 | Session stuck | Reset it: `./reset-satellite.sh <repo-name>` |
 | All sessions dead | Restart service: `sudo systemctl restart satellites.service` |
+| Watchdog not running | Check timer: `systemctl status session-watchdog.timer` |
+| Session keeps dying | Check `tail /var/log/ss-watchdog.jsonl \| jq .` for CRITICAL entries |
+
+## Session Watchdog
+
+The watchdog monitors all satellite tmux sessions every 30 minutes. It checks:
+
+- **Session alive** — restarts dead sessions automatically
+- **Session duration** — recycles sessions running longer than `MAX_SESSION_HOURS` (default: 6)
+- **Disk space** — warns when usage exceeds 90%
+- **Memory usage** — warns when usage exceeds 90%
+- **Restart failures** — after 3 consecutive failures, writes a CRITICAL log entry
+
+### Install watchdog timer
+
+```bash
+sudo cp ~/scripts/azure/session-watchdog.service /etc/systemd/system/
+sudo cp ~/scripts/azure/session-watchdog.timer /etc/systemd/system/
+sudo mkdir -p /var/lib/ss-watchdog
+sudo chown ssadmin:ssadmin /var/lib/ss-watchdog
+sudo touch /var/log/ss-watchdog.jsonl
+sudo chown ssadmin:ssadmin /var/log/ss-watchdog.jsonl
+sudo systemctl daemon-reload
+sudo systemctl enable session-watchdog.timer
+sudo systemctl start session-watchdog.timer
+```
+
+### Verify watchdog
+
+```bash
+# Check timer status
+sudo systemctl status session-watchdog.timer
+
+# Run manually
+./scripts/azure/session-watchdog.sh
+
+# Dry run (no restarts, no log writes)
+./scripts/azure/session-watchdog.sh --dry-run
+
+# View structured logs
+tail -f /var/log/ss-watchdog.jsonl | jq .
+```
+
+### Log format
+
+Each check writes one JSON line to `/var/log/ss-watchdog.jsonl`:
+
+```json
+{"timestamp":"2026-03-22T10:00:00Z","level":"INFO","host":"ss-satellite-vm","session":"sat-flora","message":"session healthy","uptime_hours":2,"uptime_seconds":7200}
+```
+
+Log levels: `INFO`, `WARNING`, `ERROR`, `CRITICAL`
+
+A `CRITICAL` entry means a session failed to restart 3 consecutive times and needs manual intervention.
 
 ## Environment Variables
 
@@ -197,3 +180,6 @@ tmux attach -t sat-flora
 |----------|---------|-------------|
 | `SATELLITE_BASE_DIR` | `~/repos` | Base directory containing repo clones |
 | `SSH_KEY_PATH` | `~/.ssh/id_rsa.pub` | SSH public key for VM provisioning |
+| `MAX_SESSION_HOURS` | `6` | Max session uptime before auto-recycle |
+| `WATCHDOG_LOG` | `/var/log/ss-watchdog.jsonl` | Structured log file path |
+| `WATCHDOG_STATE_DIR` | `/var/lib/ss-watchdog` | Directory for restart failure state tracking |
