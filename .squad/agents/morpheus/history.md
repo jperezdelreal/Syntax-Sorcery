@@ -108,3 +108,27 @@
 2. **Founder pain points drive platform evolution** — "Agents write superficial tests instead of playing games" is not a one-off complaint; it's a systemic gap that #75 (gameplay testing) and #72 (downstream audit highlighting test quality) together address.
 3. **Ecosystem thinking ≠ distraction** — Issues #73-74 (MCP, marketplace) feel like "nice-to-have" but are strategic: they transform Squad from internal tool to platform, enabling external teams to extend it. Phase 8+ requires ecosystem maturity.
 4. **Documentation as product** — Issue #76 (Test 3 runbook) is not afterthought; it's product. A launch checklist is the operational interface. Clarity here is the difference between "ran once" and "runs 24/7 unsupervised."
+### Test 3 Launch Runbook Written (2026-03-21T12:30Z)
+
+**Deliverable:** `docs/test3-runbook.md` — comprehensive 602-line operational guide for autonomous Test 3 deployment.
+
+**Section Coverage:**
+1. **Pre-Launch Checklist** (5 gates) — tests passing, Bicep validated, pre-flight script OK, branch protection enabled, SSH/budget ready
+2. **Deployment Procedure** (3 phases) — VM provisioning, SSH key setup, satellite session startup, systemd watchdog installation
+3. **Runtime Operations** — Session health monitoring, watchdog 30min cycles, 6h auto-recycle, manual management, JSON logging
+4. **Incident Response** — 4 scenarios with diagnosis & resolution: single session death, cascade failure, budget spike, memory overflow
+5. **Success Metrics** — Operational (24h+, zero CRITICAL), productivity (>10 PRs/day), cost (<€50/month)
+6. **Rollback** — Complete teardown vs partial reset, downstream repo preservation
+7. **Reference** — Script manifest, env vars, satellite repos, timeline
+
+**Critical Design Points Documented:**
+- Watchdog recycles sessions at 6h to prevent memory leak accumulation
+- Auto-restart with 3-failure threshold before CRITICAL alert
+- All logs JSON-structured for automation and parsing
+- Downstream branch protection mandatory (prevents unreviewed merges)
+- €25-30/month compute cost, €400 budget alert safety net
+
+**PR #83 Created:** squad/76-test3-runbook → master (Closes #76)
+
+**Status:** READY for founder approval and launch phase.
+
