@@ -40,7 +40,7 @@ const path = require('path');
 // Constants
 // ---------------------------------------------------------------------------
 
-const COMMANDS = ['status', 'health', 'review', 'dedup', 'report', 'metrics', 'security', 'preflight', 'enforce-protection', 'plugin', 'gameplay-test', 'watch', 'dashboard-data', 'help'];
+const COMMANDS = ['status', 'health', 'review', 'dedup', 'report', 'metrics', 'security', 'preflight', 'enforce-protection', 'plugin', 'gameplay-test', 'visual-test', 'watch', 'dashboard-data', 'help'];
 
 const HELP_TEXT = `
 Squad CLI — Unified developer CLI for all squad operations
@@ -60,6 +60,7 @@ Commands:
   enforce-protection  Enforce branch protection on downstream repos
   plugin <subcmd>     Manage plugins (list, install, search, create, info)
   gameplay-test       Init gameplay test templates for downstream games
+  visual-test         Run Playwright visual gameplay tests
   watch <subcmd>      Local watchdog monitoring (list, status, check)
   dashboard-data      Aggregate KPIs across constellation repos
   help                Show this help message
@@ -75,6 +76,8 @@ Flags:
   --init              Initialize test template (gameplay-test)
   --type <type>       Template type: platformer or puzzle (gameplay-test)
   --target <path>     Path to game repo (gameplay-test)
+  --game <path>       Path to game repo (visual-test)
+  --headed            Run visual tests in headed mode (visual-test)
   --skip-azure        Skip Azure checks (preflight command)
   --since <date>      Start date filter (metrics, report)
   --until <date>      End date filter (metrics, report)
@@ -94,6 +97,8 @@ Examples:
   npm run squad -- plugin list
   npm run squad -- plugin install owner/repo
   npm run squad -- gameplay-test --init --type platformer --target ../pixel-bounce
+  npm run squad -- visual-test --game ../pixel-bounce
+  npm run squad -- visual-test --game ../pixel-bounce --headed
   npm run squad -- watch list
   npm run squad -- watch status --json
   npm run squad -- watch check --interval 5
@@ -136,6 +141,8 @@ function parseCliArgs(argv) {
   const repo = extractFlag(flags, '--repo');
   const type = extractFlag(flags, '--type');
   const target = extractFlag(flags, '--target');
+  const gamePath = extractFlag(flags, '--game');
+  const headed = flags.includes('--headed');
 
   let interval = null;
   const intervalIdx = flags.indexOf('--interval');
@@ -144,7 +151,7 @@ function parseCliArgs(argv) {
     if (!isNaN(val) && val > 0) interval = val;
   }
 
-  return { command, flags, jsonMode, pr, save, fix, sbomOnly, skipAzure, applyProtection, repo, init, type, target, since, until, interval };
+  return { command, flags, jsonMode, pr, save, fix, sbomOnly, skipAzure, applyProtection, repo, init, type, target, gamePath, headed, since, until, interval };
 }
 
 function extractFlag(flags, name) {
@@ -496,6 +503,52 @@ function cmdWatch(parsed) {
 }
 
 // ---------------------------------------------------------------------------
+// Command: visual-test
+// ---------------------------------------------------------------------------
+
+const VISUAL_TEST_HELP = `
+Visual Test — Run Playwright-based visual gameplay tests
+
+Usage:
+  npm run squad -- visual-test --game <path>
+
+Options:
+  --game <path>       Path to the game repo (required)
+  --headed            Run in headed mode (show browser)
+  --help              Show this help
+
+Examples:
+  npm run squad -- visual-test --game ../pixel-bounce
+  npm run squad -- visual-test --game ../pixel-bounce --headed
+`.trim();
+
+function cmdVisualTest(parsed) {
+  const { gamePath, headed } = parsed;
+
+  if (!gamePath || parsed.flags.includes('--help')) {
+    console.log(VISUAL_TEST_HELP);
+    return gamePath ? 1 : 0;
+  }
+
+  const resolvedGame = path.resolve(gamePath);
+  const configPath = path.resolve(__dirname, 'gameplay-test', 'visual', 'playwright.config.js');
+
+  const env = { ...process.env };
+  env.GAME_PATH = resolvedGame;
+  if (headed) {
+    env.HEADED = '1';
+  }
+
+  const result = spawnSync('npx', ['playwright', 'test', '--config', configPath], {
+    stdio: 'inherit',
+    timeout: 120_000,
+    env,
+    shell: true,
+  });
+  return result.status || 0;
+}
+
+// ---------------------------------------------------------------------------
 // Router
 // ---------------------------------------------------------------------------
 
@@ -539,6 +592,8 @@ function route(parsed) {
       return cmdPlugin(parsed.flags);
     case 'gameplay-test':
       return cmdGameplayTest(parsed);
+    case 'visual-test':
+      return cmdVisualTest(parsed);
     case 'dashboard-data':
       return cmdDashboardData(jsonMode, parsed);
     case 'watch':
@@ -582,6 +637,7 @@ module.exports = {
   cmdEnforceProtection,
   cmdPlugin,
   cmdGameplayTest,
+  cmdVisualTest,
   cmdDashboardData,
   cmdWatch,
   cmdHelp,
