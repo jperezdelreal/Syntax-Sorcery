@@ -6,7 +6,7 @@
 
 [![CI](https://github.com/jperezdelreal/Syntax-Sorcery/actions/workflows/ci.yml/badge.svg)](https://github.com/jperezdelreal/Syntax-Sorcery/actions/workflows/ci.yml)
 [![Deploy Site](https://github.com/jperezdelreal/Syntax-Sorcery/actions/workflows/deploy-site.yml/badge.svg)](https://github.com/jperezdelreal/Syntax-Sorcery/actions/workflows/deploy-site.yml)
-![Tests](https://img.shields.io/badge/tests-453%20passing-brightgreen)
+![Tests](https://img.shields.io/badge/tests-689%20passing-brightgreen)
 ![Node](https://img.shields.io/badge/node-20-blue)
 ![License](https://img.shields.io/badge/license-ISC-blue)
 ![Phase](https://img.shields.io/badge/phase-9%20complete-blueviolet)
@@ -22,7 +22,7 @@
 
 Syntax Sorcery is an autonomous software development company. AI agents design, build, test, and deploy software products with minimal human intervention — the founder reviews only edge cases. Built on [Squad](https://github.com/bradygaster/squad) by Brady Gaster.
 
-**Current status:** Phase 9 complete · 6 repos in constellation · 629 tests (453 hub + 176 satellites) · Gameplay framework deployed · MCP server live · 24/7 Azure autonomy ready
+**Current status:** Phase 9 complete · 6 repos in constellation · 689 tests passing · 18 issues/session · 15+ PRs/session · Zero human intervention
 
 📡 **[Constellation Status](https://jperezdelreal.github.io/Syntax-Sorcery/status/)** — Live health dashboard for all 6 repos
 
@@ -114,6 +114,36 @@ npm run squad:watch
 
 ---
 
+## What Makes This Special
+
+**Autonomous operation at scale** — Syntax Sorcery is not just another CI/CD pipeline. It's a self-sufficient software development company:
+
+- **18 issues per session** — Ralph automatically creates work from strategic roadmap analysis
+- **15+ PRs per session** — @copilot writes production code, Switch validates, Morpheus reviews
+- **Zero human intervention** — Code writes itself. The founder reviews edge cases only
+- **Fully autonomous testing** — 689 tests validate every feature (unit + gameplay framework)
+- **Self-healing infrastructure** — Session watchdog auto-resets context, dedup guard prevents duplication, metrics dashboard monitors health
+
+**The difference:** Other systems generate code. Syntax Sorcery generates *companies*.
+
+---
+
+## What Was Built
+
+**Phase 8-9 Deliverables:**
+- 🧪 **Gameplay Testing Framework** — Real game validation via Puppeteer (not just unit tests)
+- ⚙️ **Bicep Infrastructure as Code** — Azure provisioning declaratively (what-if preview, cost tracking)
+- ✅ **Pre-flight Validation Script** — Auto-checks 8 prerequisites before Test 3 launch
+- 🔒 **Branch Protection Enforcement** — Downstream repos require ≥1 passing CI + optional review
+- 📊 **Metrics Dashboard** — Live performance monitoring on landing site
+- 🔄 **Session Watchdog (Azure)** — Auto-resets sessions every 6 hours, prevents context overflow
+- 🛠️ **MCP Server (11 Tools)** — Expose squad state, issue automation, roadmap management to Copilot ecosystem
+- 🏪 **Plugin Marketplace** — Extensible plugin registry, discovery UI, CLI integration
+- 👀 **Squad-Watch CLI** — Real-time team dashboard, status monitoring, incident detection
+- 📚 **Ecosystem Research** — awesome-copilot, awesome-azure databases, community patterns
+
+---
+
 ## Key Infrastructure
 
 | Component | What It Does |
@@ -124,9 +154,14 @@ npm run squad:watch
 | `scripts/constellation-health.js` | Checks all 6 repos for operational health |
 | `scripts/squad-watch.js` | Real-time monitoring: team dashboard + CLI |
 | `scripts/gameplay-framework.js` | Real gameplay validation via Puppeteer (not just unit tests) |
-| `mcp-server/` | MCP server exposing squad state to Copilot ecosystem |
-| `.github/workflows/ci.yml` | Runs 629 vitest tests on every PR and push |
+| `scripts/preflight.js` | Pre-launch validation: 8 checks before Azure deployment |
+| `scripts/bootstrap.js` | Project bootstrap orchestration |
+| `scripts/update-badge.js` | Auto-updates test count badge in CI |
+| `mcp-server/` | MCP server (11 tools): issue automation, roadmap, squad state, ecosystem integrations |
+| `site/src/pages/metrics.astro` | Live metrics dashboard for constellation |
+| `.github/workflows/ci.yml` | Runs 689 vitest tests on every PR and push |
 | `scripts/azure/session-watchdog.sh` | Auto-restarts sessions every 6 hours to prevent context overflow |
+| `site/` | GitHub Pages site: status, metrics, blog
 
 ---
 
@@ -188,6 +223,14 @@ AWS + Google Cloud support. Kubernetes constellation (50+ satellite repos). Glob
 
 ### Phase 15: Revenue & Sustainability
 Premium plugin marketplace. Enterprise Squad licensing. Autonomous Company-as-a-Service offering.
+
+---
+
+## Blog & Updates
+
+📖 **[Phase 8-9: From Infrastructure to Ecosystem](https://jperezdelreal.github.io/Syntax-Sorcery/blog/phase-8-9-launch/)** — What was built, autonomous operation stats, the gameplay testing breakthrough, MCP server launch, plugin marketplace, and ecosystem integrations.
+
+Follow the project on [GitHub Issues](https://github.com/jperezdelreal/Syntax-Sorcery/issues) for real-time updates on phases and deliverables. Each phase is documented with decisions, learnings, and metrics.
 
 ---
 

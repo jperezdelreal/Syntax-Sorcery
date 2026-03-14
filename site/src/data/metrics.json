@@ -1,0 +1,45 @@
+{
+  "since": "2026-03-07T16:18:03.116Z",
+  "until": "2026-03-14T16:18:03.116Z",
+  "generatedAt": "2026-03-14T16:18:11.438Z",
+  "metrics": {
+    "velocity": {
+      "value": 8.14,
+      "unit": "issues/day",
+      "raw": 57
+    },
+    "cycleTime": {
+      "value": null,
+      "unit": "hours",
+      "raw": 0
+    },
+    "qualityRate": {
+      "value": 90.2,
+      "unit": "%",
+      "merged": 46,
+      "rejected": 5,
+      "total": 51
+    },
+    "testGrowth": {
+      "value": null,
+      "unit": "tests"
+    },
+    "throughput": {
+      "value": 6.57,
+      "unit": "PRs/day",
+      "raw": 46
+    },
+    "streak": {
+      "value": 2,
+      "unit": "days"
+    }
+  },
+  "trends": {
+    "velocity": "NEW",
+    "cycleTime": "NEW",
+    "qualityRate": "NEW",
+    "testGrowth": "NEW",
+    "throughput": "NEW",
+    "streak": "NEW"
+  }
+}
