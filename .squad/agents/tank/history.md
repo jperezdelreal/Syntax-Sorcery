@@ -21,3 +21,7 @@
 - **Phase 2 Safety Net:** Daily escalation-only cron (00:00 UTC). 4 detection checks: >72h inactivity, >3 build fails, >7d stuck roadmap, >5d copilot-ready without PR. Idempotent escalation creation.
 
 - **Phase 3 (In Progress):** Dedup guard (PR #38) ✅, Azure launcher (PR #39) ✅, Review gate (PR #40) pending. Infrastructure ready for 24/7 Hub/Spoke operation.
+
+## Learnings
+
+- **Phase 8 Branch Protection (#68, PR #82):** Built `enforce-branch-protection.js` — configures branch protection on all 6 constellation repos via GitHub REST API. Rules: require CI status checks (strict), no force pushes, linear history, no default branch deletion, enforce admins. Dry-run by default (`--apply` to enforce, `--repo` for single target, `--json` for machine output). DI-injectable GitHub API client for testing — 38 vitest tests, zero real HTTP calls. Integrated into squad-cli as `enforce-protection` subcommand + `npm run enforce:protection`. Also fixed missing `preflight` command in squad-cli router. Multi-branch parallel work required careful git branch management — always verify shell session's active branch before committing.
