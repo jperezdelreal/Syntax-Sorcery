@@ -21,6 +21,7 @@
  *   plugin <subcmd>     Manage plugins (list, install, search, create, info)
  *   gameplay-test       Init gameplay test templates for downstream games
  *   watch <subcmd>      Local watchdog monitoring (list, status, check)
+ *   dashboard-data     Aggregate KPIs across constellation repos
  *   help     Show this help message
  *
  * Flags:
@@ -39,7 +40,7 @@ const path = require('path');
 // Constants
 // ---------------------------------------------------------------------------
 
-const COMMANDS = ['status', 'health', 'review', 'dedup', 'report', 'metrics', 'security', 'preflight', 'enforce-protection', 'plugin', 'gameplay-test', 'watch', 'help'];
+const COMMANDS = ['status', 'health', 'review', 'dedup', 'report', 'metrics', 'security', 'preflight', 'enforce-protection', 'plugin', 'gameplay-test', 'watch', 'dashboard-data', 'help'];
 
 const HELP_TEXT = `
 Squad CLI — Unified developer CLI for all squad operations
@@ -60,6 +61,7 @@ Commands:
   plugin <subcmd>     Manage plugins (list, install, search, create, info)
   gameplay-test       Init gameplay test templates for downstream games
   watch <subcmd>      Local watchdog monitoring (list, status, check)
+  dashboard-data      Aggregate KPIs across constellation repos
   help                Show this help message
 
 Flags:
@@ -461,6 +463,24 @@ function cmdGameplayTest(parsed) {
 }
 
 // ---------------------------------------------------------------------------
+// Command: dashboard-data
+// ---------------------------------------------------------------------------
+
+function cmdDashboardData(jsonMode, parsed) {
+  const scriptPath = path.resolve(__dirname, 'dashboard-api.js');
+  const args = [];
+  if (jsonMode) args.push('--json');
+  const output = extractFlag(parsed.flags, '--output');
+  if (output) args.push('--output', output);
+
+  const result = spawnSync(process.execPath, [scriptPath, ...args], {
+    stdio: 'inherit',
+    timeout: 300_000,
+  });
+  return result.status || 0;
+}
+
+// ---------------------------------------------------------------------------
 // Command: watch
 // ---------------------------------------------------------------------------
 
@@ -519,6 +539,8 @@ function route(parsed) {
       return cmdPlugin(parsed.flags);
     case 'gameplay-test':
       return cmdGameplayTest(parsed);
+    case 'dashboard-data':
+      return cmdDashboardData(jsonMode, parsed);
     case 'watch':
       return cmdWatch(parsed);
     case 'help':
@@ -560,6 +582,7 @@ module.exports = {
   cmdEnforceProtection,
   cmdPlugin,
   cmdGameplayTest,
+  cmdDashboardData,
   cmdWatch,
   cmdHelp,
   route,
