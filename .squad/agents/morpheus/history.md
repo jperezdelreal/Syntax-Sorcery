@@ -50,6 +50,45 @@
 
 ## Learnings
 
+### Phase 10 Epic Decomposition (2026-03-22T00:00Z)
+
+**Task:** Decompose Issue #112 (Test 3 Azure VM 24/7 Operation) into 4-6 concrete, actionable sub-issues for Test 3 launch sequence.
+
+**Analysis:**
+Test 3 requires orchestrated deployment across 5 distinct phases:
+1. **Pre-req Setup** — Azure subscription (founder), SSH keys (Tank), GitHub token (Tank)
+2. **Validation** — Dry-run preflight and what-if checks (Tank)
+3. **Deployment** — Live infrastructure provisioning (Tank)
+4. **Observation** — 24h continuous monitoring (Switch)
+
+**Decomposition Executed:**
+
+| Issue | Title | Owner | Purpose |
+|-------|-------|-------|---------|
+| #123 | Azure Subscription & Budget Setup | **Founder** | Create subscription, RG, budget alerts, service principal. FIRST AND BLOCKING. |
+| #124 | SSH Key Provisioning | Tank | Generate Ed25519 key, inject into Bicep, test SSH access. |
+| #125 | GitHub Token Provisioning | Tank | Create PAT with 'repo' scope, inject into cloud-init, verify \`gh auth\`. |
+| #126 | Dry-Run Validation | Tank | Bicep build, what-if preview, preflight script, cost estimation, approval gate. |
+| #127 | Actual Deployment | Tank | Execute deploy.sh, verify VM, cloud-init, tools. Record public IP/details. |
+| #128 | 24-Hour Monitoring | Switch | Watchdog health, GitHub activity tracking, cost verification, incident response, success metrics. |
+
+**Key Design Decisions:**
+1. **Founder action first** — #123 blocks everything. Cannot proceed without subscription/RG/service principal.
+2. **Parallel provisioning** — #124 and #125 can run in parallel after #123, both ready for #126 validation.
+3. **Approval gate before deployment** — #126 (dry-run) must complete and be approved before #127 (actual deploy). Prevents accidental wasteful deployments.
+4. **24h observation is final validation** — #128 is not just monitoring; it's the acceptance test for the entire epic. Success metrics are measurable.
+5. **Owned by squads, not atomized** — Each issue routed to actual owner (Founder, Tank, Switch) with clear capability match.
+
+**Strategic Value:**
+- Epic remains open (#112) as coordination hub linking all 6 sub-issues
+- Decomposition is **transparent** — comment on #112 shows full dependency graph and success criteria
+- **No ambiguity** — Each issue has 3-5 concrete acceptance criteria; agents/humans know exactly when DONE
+- **De-risks launch** — Dry-run (#126) prevents deploying a broken system; 24h monitoring (#128) proves it actually works
+
+**Orchestration Log:** `.squad/orchestration-log/2026-03-22T00-00Z-phase10-decomposition.md`
+
+---
+
 ## Learnings
 
 ### Test 2 Post-Mortem Analysis (2026-03-14 → MERGED TO DECISIONS)

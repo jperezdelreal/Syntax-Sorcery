@@ -11,6 +11,8 @@
 
 ## Learnings (Current)
 
+- **Visual Gameplay Testing (PR #129):** Playwright-based visual testing framework — agents can now literally open HTML5 games in Chromium, simulate inputs, capture screenshots, and validate visuals. Built `VisualGameRunner` class with full API: `launchGame`, `screenshot`, `pressKey`, `clickAt`, `waitForFrames`, `getCanvasPixel`, `compareScreenshot`, `recordGameplay`, `hasVisualContent`. 8/8 pilot tests pass against pixel-bounce. Key insight: canvas-only games (no DOM score display) need pixel-level validation via `getImageData` — reading regions for non-uniformity proves content is rendered without needing to parse drawn text. The local HTTP server pattern (listen on port 0 → random port) avoids port conflicts in CI. 730 existing tests remain green. CLI integration via `visual-test` subcommand.
+
 - **Issue #89 (2026-03-21):** Gameplay testing pilot for pixel-bounce (PR #98). 22 tests validating real game code via vm sandbox + framework bridge pattern. Found & fixed canvas-mock parseColor bug (gradient objects). Key insight: procedural games with `let`/`const` globals require a same-scope bridge pattern to expose internals from `vm.runInContext()`. 651 total tests passing (629 existing + 22 new). Proves the Phase 8 gameplay framework (#75) works on real downstream games.
 
 - **Phase 5 (2026-03-19 to 2026-03-20):** Session Report Generator PR #51 merged. Automated session summary generation. Issue #48 CLOSED. Moved from QA-only role to infrastructure enablement.
