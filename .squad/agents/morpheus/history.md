@@ -47,3 +47,23 @@
 **Board Status:** 3 open issues (#60, #61, #62). Phase 7 DEFINED. Ralph can assign to @copilot.
 
 **Strategic Note:** Phase 7 is the capstone. Security proves the system is RESPONSIBLE (not just functional). Community kit proves it's WELCOMING (not just impressive). Auto-deploy proves it's FULLY AUTOMATED (not just CI-validated). Together they transform SS from "a working autonomous system" to "a production-grade open-source platform." The founder wakes up to a system that not only built itself, but secured itself, opened its doors, and deployed itself. Elite.
+
+## Learnings
+
+## Learnings
+
+### Test 2 Post-Mortem Analysis (2026-03-14 → MERGED TO DECISIONS)
+
+**Decision:** Test 2 "Ralph Go Multi-Terminal" evaluated at 8/10. Decision MERGED to decisions.md (2026-03-14T09:00Z entry). Post-mortem files written: orchestration-log, session log, decision merged.
+
+**Summary:** 86 PRs in 5h, 29x improvement. Critical: dedup storm (41+16 duplicates), FFS inactive, auto-merge unreviewed. Pre-reqs for Test 3: dedup guard fix, branch protection, Azure VM.
+
+### Refueling Redesign — Event-Driven → Loop-Driven (2026-03-21)
+
+**Decision:** T1 architecture decision. Refueling mechanism redesigned from external event-driven (perpetual-motion.yml reacting to issues.closed) to internal loop-driven (Ralph spawns Lead when board is clear). Decision written to `.squad/decisions/inbox/morpheus-refueling-redesign.md`. Pending founder approval.
+
+**Key insight:** The race condition in Test 2 (41+16 duplicates) was not a dedup bug — it was a fundamental architectural flaw. Event-driven refueling with concurrent triggers is inherently prone to duplication. Moving the decision point to a single-threaded actor (Ralph) eliminates the problem at its root.
+
+**Safeguards:** 3 issues/cycle × 3 cycles/session = 9 issues max. Pre-condition checks prevent empty spinning. No-retry on failure (fail clean, let next session handle it). Natural endpoint detection (Lead can declare project complete).
+
+**Impact on Test 3:** Each tmux window runs its own independent refueling cycle — no cross-terminal coordination needed. perpetual-motion.yml eliminated. ralph-watch.ps1 deprecated (new role TBD).

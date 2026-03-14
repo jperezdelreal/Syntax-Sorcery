@@ -7,7 +7,7 @@
 | # | Name | Setup | Where Runs | Cost | Status |
 |---|------|-------|------------|------|--------|
 | 1 | ralph-watch.ps1 | Single script, polls all repos | PC local (background) | €0 | ✅ DONE |
-| 2 | Ralph Go Multi-Terminal | 1 terminal per repo, `copilot` + "Ralph, go" | PC local (5 terminals) | €0 | 🔄 IN PROGRESS |
+| 2 | Ralph Go Multi-Terminal | 1 terminal per repo, `copilot` + "Ralph, go" | PC local (5 terminals) | €0 | ✅ DONE (8/10) |
 | 3 | Azure VM Hub/Spoke | SS on PC, Azure VM runs satellite terminals via tmux | PC + Azure VM (~€25-30/mo) | €25-30/mo | 📋 PLANNED |
 
 ---
@@ -51,9 +51,10 @@
 ## Test 2: Ralph Go Multi-Terminal (Local)
 
 **Date:** 2026-03-13 (started 21:42 CET)  
-**Duration:** TBD  
+**Duration:** ~5 hours (21:42 CET → ~02:30 CET)  
 **Started:** 2026-03-13T21:42:00+01:00  
-**Setup:** 5 terminals on local PC, one per downstream repo, each running `copilot` + "Ralph, go"
+**Ended:** ~2026-03-14T02:30:00+01:00  
+**Setup:** 6 terminals on local PC (5 downstream + 1 hub), each running `copilot` + "Ralph, go"
 
 ### Repos & Teams
 | Terminal | Repo | Lead | Universe |
@@ -74,20 +75,38 @@
 - [x] pixel-bounce Squad initialized (Mega Man universe)
 - [x] Squad Monitor updated (only 3 FFS games)
 
-### Metrics (fill after test)
+### Metrics
 | Metric | Value |
 |--------|-------|
-| Issues closed / hour | |
-| PRs merged / hour | |
-| New issues generated | |
-| Avg cycle time (issue → PR merged) | |
-| Repos that reached "board clear" | |
-| Refueling triggered (roadmap issues created) | |
-| Human intervention needed | |
-| Errors / failures | |
+| Issues closed / hour | ~23 |
+| PRs merged / hour | ~17 |
+| New issues generated | ~113 (including ~57 duplicates) |
+| Avg cycle time (issue → PR merged) | ~5 min |
+| Repos that reached "board clear" | 4/6 (pixel-bounce, ffs-squad-monitor, flora, ComeRosquillas) |
+| Refueling triggered (roadmap issues created) | Yes — all 4 active repos triggered perpetual motion |
+| Human intervention needed | 0 |
+| Errors / failures | FFS silent (0 output), 57+ duplicate roadmap issues across flora/ComeRosquillas |
 
-### Observations
-_(fill during/after test)_
+### Per-Repo Results
+| Repo | PRs Merged | Issues Closed | Duplicate Issues | Verdict |
+|------|------------|---------------|------------------|---------|
+| pixel-bounce | 8 | 8 | 0 | ⭐ PERFECT |
+| ffs-squad-monitor | 30 | 30 | 0 | ⭐ MOST PRODUCTIVE |
+| flora | 16 | 30+ | 41 (25 closed + 16 open) | ⚠️ Productive but messy |
+| ComeRosquillas | 14 | 28 | 16 (14 closed + 2 open) | ✅ Solid |
+| Syntax Sorcery (hub) | 17 (+1 rejected) | ~15 | 0 | ✅ Excellent |
+| FirstFrameStudios | 0 | 0 | 0 | ❌ Failed (silent) |
+
+### Morpheus Evaluation
+- **Score:** 8/10
+- **Strengths:** 86 PRs in 5 hours (2767% improvement over Test 1), real features delivered (game systems, dashboards, CI pipelines), multi-universe teams work independently, zero human intervention, quality gate functional (PR#45 rejected for design-only)
+- **Weaknesses:** Duplicate roadmap issue storm (flora: 41, ComeRosquillas: 16 — WORSE than Test 1), FFS completely inactive (0 output), auto-merge without review in downstream repos, no cross-repo coordination
+
+### Learnings
+- Multi-terminal is a multiplier, not an adder (3→86 PRs = 29x)
+- Dedup guard is BLOCKING for scale — duplicates scale worse than linearly
+- Hub repos (FFS) need actionable issues, not strategic ones
+- Branch protection mandatory in downstream repos before Test 3
 
 ---
 
@@ -136,10 +155,13 @@ _(fill after test)_
 
 | Metric | Test 1 (ralph-watch) | Test 2 (multi-terminal) | Test 3 (Azure VM) |
 |--------|---------------------|------------------------|--------------------|
-| Issues/hour | ~5 (manual merge) | | |
-| PRs/hour | ~3 (manual merge) | | |
-| Autonomy level | 7/10 | /10 | /10 |
+| Issues/hour | ~6 | ~23 | |
+| PRs/hour | ~3 | ~17 | |
+| Total PRs | 3 | 86 | |
+| Autonomy level | 7/10 | 8/10 | /10 |
 | Cost | €0 | €0 | €25-30/mo |
 | 24/7 capable | ❌ (needs PC on) | ❌ (needs PC on) | ✅ |
-| Human intervention | Merge PRs | TBD | TBD |
+| Human intervention | Merge PRs | 0 | TBD |
+| Duplicate issues | Yes (minor) | Yes (critical — 57+) | TBD |
+| Repos producing | 3/6 | 5/6 | TBD |
 | Recommended for | Quick checks, fallback | Active development | Full autonomy |
