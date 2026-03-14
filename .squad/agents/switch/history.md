@@ -11,6 +11,8 @@
 
 ## Learnings (Current)
 
+- **Issue #75 (2026-03-21):** Gameplay testing framework (PR #86). Built Node.js-based GameTestRunner with Canvas 2D mock, DOM environment, input simulation (keyboard/mouse/touch), frame control, pixel-level assertions, and localStorage helpers. 92 framework tests. Two game templates (platformer + puzzle) with TODO markers for downstream repos. Added `gameplay-test` CLI subcommand. Key lesson: the `create` tool may silently fail if directories don't exist on disk — always verify with filesystem commands after creating directories. Designed framework to test the contract, not the implementation: downstream agents copy a template, replace TODOs, and get real gameplay tests running in CI without a browser.
+
 - **Phase 5 (2026-03-19 to 2026-03-20):** Session Report Generator PR #51 merged. Automated session summary generation. Issue #48 CLOSED. Moved from QA-only role to infrastructure enablement.
 
 - **Phase 4 (2026-03-19):** README Premium Overhaul (PR #44 merged). Created marketing-grade front page with badges, ASCII diagrams, constellation table, team roster. Issue #41 CLOSED.
