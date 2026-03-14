@@ -4,13 +4,11 @@
 # Outputs a structured report suitable for CI or human review.
 set -euo pipefail
 
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 RESOURCE_GROUP="${RESOURCE_GROUP:-syntax-sorcery-satellites}"
 VM_NAME="${VM_NAME:-ss-satellite-vm}"
 VM_USER="${VM_USER:-ssadmin}"
 SSH_OPTS="-o ConnectTimeout=10 -o StrictHostKeyChecking=no -o BatchMode=yes"
 REPOS=(flora ComeRosquillas pixel-bounce ffs-squad-monitor FirstFrameStudios)
-BASE_DIR="${SATELLITE_BASE_DIR:-\$HOME/repos}"
 DRY_RUN=false
 VM_IP=""
 
