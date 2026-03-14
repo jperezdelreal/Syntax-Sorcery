@@ -77,75 +77,100 @@ Delivered in PR #53 (merged 2026-03-19). Issue #50 CLOSED.
 
 ---
 
-## 13. [ ] E2E integration test suite for the autonomous pipeline
+## ~~13. [x] E2E integration test suite for the autonomous pipeline~~ ✅
 
-**Acceptance Criteria:**
-- New test file `scripts/__tests__/perpetual-motion-e2e.test.js` — integration tests for the full autonomous pipeline
-- Tests the complete perpetual motion cycle: `issues.closed` event → dedup-guard validates → roadmap.md parsed for depletion → new planning issue created (or skipped if items remain)
-- Tests the PR pipeline: issue assigned → PR opened → review-gate validates against acceptance criteria → merge decision
-- Tests error paths: dedup detects existing planning issue (skip), roadmap has remaining items (no refuel needed), GitHub API failure (graceful error), malformed roadmap (handled)
-- Tests cross-script integration: session-report captures activity from a simulated session, squad-cli routes to correct subscripts
-- All external calls (gh CLI, GitHub API) mocked via dependency injection consistent with existing test patterns (dedup-guard.test.js, review-gate.test.js)
-- Minimum 20 integration test cases covering: happy paths (3+), error paths (5+), edge cases (5+), cross-script flows (4+), event sequencing (3+)
-- Uses vitest, runs as part of `npm test` — zero new dependencies
-- Exit code 0 on all green, descriptive failure messages on red
-
-**Files:**
-- `scripts/__tests__/perpetual-motion-e2e.test.js` (create)
-- `scripts/__tests__/fixtures/` (add mock data if needed)
-
-**Context:**
-Individual scripts have unit tests (218 total), but the autonomous pipeline as a SYSTEM has never been integration-tested. Unit tests prove each gear works; E2E tests prove the machine runs. When the founder asks "how do you know the perpetual motion cycle works?" the answer should be "because we test it end-to-end." This is the test that separates a collection of scripts from a verified autonomous system. Simulates the full issue→PR→merge→refuel loop with mocked GitHub events. The meta-test: the machine that tests itself.
+Delivered in PR #57 (merged 2026-03-20). Issue #54 CLOSED.
 
 ---
 
-## 14. [ ] Autonomous performance metrics engine
+## ~~14. [x] Autonomous performance metrics engine~~ ✅
 
-**Acceptance Criteria:**
-- Script `scripts/metrics-engine.js` aggregates historical GitHub data into operational KPIs
-- Metrics computed: velocity (issues closed per session), cycle time (median hours from issue open to PR merge), quality rate (merge % vs rejection %), test growth (tests added per phase), throughput (PRs merged per day), streak (consecutive successful merges)
-- Data source: `gh` CLI queries for issues, PRs, and reviews within a time window
-- CLI flags: `--since <ISO date>` (default: 30 days ago), `--until <ISO date>` (default: now), `--json` (machine-readable output), `--save` (write snapshot to `docs/metrics/YYYY-MM-DD.json`)
-- Human-readable output: formatted table with metric name, value, trend indicator (↑/↓/→ vs previous snapshot)
-- Trend comparison: if previous snapshot exists in `docs/metrics/`, compare and show deltas
-- Add `npm run metrics` script to package.json
-- Add `metrics` subcommand to squad-cli.js (routes to metrics-engine.js)
-- Unit tests (vitest) with DI-mocked `gh` CLI calls, tests for each metric computation, trend comparison, and edge cases (no previous data, empty time window)
-- No new dependencies — uses `gh` CLI via child_process with DI pattern
-
-**Files:**
-- `scripts/metrics-engine.js` (create)
-- `scripts/__tests__/metrics-engine.test.js` (create)
-- `scripts/squad-cli.js` (add `metrics` command routing)
-- `package.json` (add npm script)
-- `docs/metrics/` (directory created on first `--save`)
-
-**Context:**
-Session reports (Phase 5) capture WHAT happened. Metrics capture HOW WELL it happened. After 12 issues and 13 PRs in one session, the founder should be able to ask: "What's our cycle time? What's our quality rate? Are we getting faster?" The metrics engine transforms raw GitHub data into executive KPIs. Trend comparison against previous snapshots shows improvement over time. This is the difference between a company that works and a company that LEARNS. Combined with the status page (public health) and session reports (activity log), metrics complete the operational intelligence triangle: activity → health → performance.
+Delivered in PR #58 (merged 2026-03-20). Issue #55 CLOSED.
 
 ---
 
-## 15. [ ] One-command developer bootstrap
+## ~~15. [x] One-command developer bootstrap~~ ✅
+
+Delivered in PR #59 (merged 2026-03-20). Issue #56 CLOSED.
+
+---
+
+## 16. [ ] Security hardening — dependency audit, secret scanning, SBOM (#62)
 
 **Acceptance Criteria:**
-- Script `scripts/bootstrap.js` provides complete project setup in a single command
-- Prerequisite validation: Node.js ≥18 (check `process.version`), `gh` CLI installed (check `gh --version`), `gh` authenticated (check `gh auth status`), `git` configured (check `git config user.name`)
-- Dependency installation: root project (`npm ci`), site project (`cd site && npm ci`)
-- Structure validation: runs `validate-squad.js` to verify `.squad/` integrity
-- Health check: runs `constellation-health.js` to verify downstream repos accessible
-- Test validation: runs `npm test` to confirm all tests pass
-- Output: step-by-step progress with ✅/❌ per step, final summary with total time elapsed
-- Graceful degradation: if `gh` not installed, skip GitHub-dependent steps with ⚠️ warning (don't fail entire bootstrap)
-- CLI flags: `--skip-tests` (skip test run for faster setup), `--skip-health` (skip constellation health check), `--verbose` (show full command output)
-- Add `npm run setup` script to package.json
-- Unit tests for prerequisite validation logic, step sequencing, and graceful degradation
-- No new dependencies — uses child_process for subprocess commands
+- GitHub Actions workflow `.github/workflows/security-audit.yml` runs on push to main and on PRs
+- Step 1: `npm audit --audit-level=high` — fails CI if high/critical vulnerabilities found
+- Step 2: Secret scanning check — uses `git log --diff-filter=A` patterns to detect common secret formats (API keys, tokens, private keys) in staged files. Regex patterns for AWS, Azure, GitHub, generic tokens
+- Step 3: SBOM generation — produces CycloneDX-format Software Bill of Materials from package.json + package-lock.json (use built-in `npm sbom` or lightweight script)
+- Script `scripts/security-audit.js` for local execution: `npm run security` runs the same checks locally
+- CLI flags: `--fix` (run `npm audit fix` for auto-remediation), `--sbom-only` (generate SBOM without full audit), `--json` (machine-readable output)
+- Add `security` subcommand to squad-cli.js (routes to security-audit.js)
+- Add `npm run security` script to package.json
+- Unit tests (vitest) with DI-mocked exec calls — test each check independently, test combined report, test failure thresholds
+- SBOM output saved to `docs/security/sbom-YYYY-MM-DD.json` when `--save` flag used
+- No new dependencies — uses npm built-ins and regex-based scanning
 
 **Files:**
-- `scripts/bootstrap.js` (create)
-- `scripts/__tests__/bootstrap.test.js` (create)
+- `.github/workflows/security-audit.yml` (create)
+- `scripts/security-audit.js` (create)
+- `scripts/__tests__/security-audit.test.js` (create)
+- `scripts/squad-cli.js` (add `security` command routing)
 - `package.json` (add npm script)
-- `docs/onboarding.md` (update with `npm run setup` instructions)
+- `docs/security/` (directory created on first `--save`)
 
 **Context:**
-A new developer (or the founder returning from sleep) should be able to clone the repo and run ONE command to be fully operational. Currently, setup requires: install Node, install gh, authenticate gh, npm install in root, npm install in site, validate squad structure, run tests — 7+ manual steps with no validation. `npm run setup` reduces this to a single command with built-in validation at every step. This is the developer experience capstone: the README explains (Phase 4), the CLI provides access (Phase 5), and bootstrap gets you running (Phase 6). Professional open-source projects have this. Syntax Sorcery should too.
+An autonomous system that handles GitHub tokens, deploys to Azure, and runs CI pipelines MUST have security foundations. 345 tests prove correctness; security audit proves responsibility. The supply chain is the attack surface — dependency vulnerabilities and leaked secrets are the #1 and #2 risks for any automated system. SBOM provides transparency into what the system depends on. This is the difference between an autonomous system you trust and one you worry about. Combined with CI integration, every PR gets security-checked before merge. The responsible autonomy signal.
+
+---
+
+## 17. [ ] Community contribution kit — CONTRIBUTING, CODE_OF_CONDUCT, templates (#61)
+
+**Acceptance Criteria:**
+- `CONTRIBUTING.md` at project root — comprehensive contributor guide covering: how to report bugs, how to suggest features, PR workflow (fork → branch → PR → review), code style (CommonJS, vitest, DI pattern), commit message format, squad architecture overview for contributors, how the perpetual motion cycle works
+- `CODE_OF_CONDUCT.md` at project root — Contributor Covenant v2.1 adapted for Syntax Sorcery
+- Issue templates in `.github/ISSUE_TEMPLATE/`:
+  - `bug_report.yml` — structured bug report (description, steps to reproduce, expected vs actual, environment)
+  - `feature_request.yml` — structured feature request (problem statement, proposed solution, alternatives considered)
+  - `squad_task.yml` — internal squad task template (acceptance criteria, files, context — mirrors roadmap format)
+  - `config.yml` — template chooser configuration with links to discussions
+- PR template `.github/PULL_REQUEST_TEMPLATE.md` — checklist: description, related issue, test coverage, acceptance criteria met, breaking changes
+- README.md updated: add Contributing section with link to CONTRIBUTING.md, add Code of Conduct badge
+- All templates use GitHub's YAML form syntax for structured input
+- No code changes, no new dependencies — documentation and templates only
+
+**Files:**
+- `CONTRIBUTING.md` (create)
+- `CODE_OF_CONDUCT.md` (create)
+- `.github/ISSUE_TEMPLATE/bug_report.yml` (create)
+- `.github/ISSUE_TEMPLATE/feature_request.yml` (create)
+- `.github/ISSUE_TEMPLATE/squad_task.yml` (create)
+- `.github/ISSUE_TEMPLATE/config.yml` (create)
+- `.github/PULL_REQUEST_TEMPLATE.md` (create)
+- `README.md` (update — add Contributing section + badge)
+
+**Context:**
+The showroom is built (Phase 4), the system proves itself (Phase 6), but an outsider cannot contribute. No CONTRIBUTING.md means no one knows the workflow. No CODE_OF_CONDUCT means no safety guarantees. No issue templates means unstructured reports that waste agent time. No PR template means PRs arrive without context for the review gate. Community readiness is the difference between "a cool project" and "a professional open-source project." When the founder shares SS publicly, external contributors should find a clear, welcoming, structured path to participate. This is the final showroom piece.
+
+---
+
+## 18. [ ] Automated site deployment pipeline to GitHub Pages (#60)
+
+**Acceptance Criteria:**
+- GitHub Actions workflow `.github/workflows/deploy-site.yml` triggers on push to main (path filter: `site/**`, `docs/**`)
+- Build step: `cd site && npm ci && npm run build` — produces static output in `site/dist/`
+- Deploy step: uses `actions/deploy-pages@v4` to deploy to GitHub Pages
+- Environment: `github-pages` with URL output
+- Permissions: `pages: write`, `id-token: write` for OIDC deployment
+- Concurrency group: `pages` — prevents simultaneous deployments, cancels in-progress on new push
+- Build caching: cache `node_modules` and `.astro` build cache for faster rebuilds
+- Status badge: add deployment status badge to README.md
+- Smoke test: after deploy, `curl` the Pages URL and verify 200 response (or skip gracefully if URL not yet configured)
+- Manual trigger: `workflow_dispatch` for on-demand deployments
+- No new dependencies — uses official GitHub Actions (`actions/checkout`, `actions/setup-node`, `actions/configure-pages`, `actions/upload-pages-artifact`, `actions/deploy-pages`)
+
+**Files:**
+- `.github/workflows/deploy-site.yml` (create)
+- `README.md` (update — add deployment status badge)
+
+**Context:**
+The landing page exists (Phase 4), the status page shows live data (Phase 5), but deploying requires manual steps. An autonomous company should deploy autonomously. Every push to main that touches site files should auto-build and auto-deploy to GitHub Pages. This completes the automation loop: code → CI → deploy. The founder pushes, the site updates. No human intervention. Combined with the security audit (PR checks) and community kit (contribution workflow), this creates a fully automated pipeline from contribution to production. The final automation piece.
