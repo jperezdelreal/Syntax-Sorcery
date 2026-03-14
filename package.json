@@ -89,7 +89,8 @@
     "check:constellation": "node scripts/constellation-health.js",
     "dashboard:ralph": "node scripts/parse-ralph-logs.js",
     "review:gate": "node scripts/review-gate.js",
-    "dedup:check": "node scripts/dedup-guard.js"
+    "dedup:check": "node scripts/dedup-guard.js",
+    "squad": "node scripts/squad-cli.js"
   },
   "repository": {
     "type": "git",

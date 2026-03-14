@@ -1,0 +1,283 @@
+#!/usr/bin/env node
+'use strict';
+
+/**
+ * Unified Developer CLI — single entry point for all squad operations.
+ *
+ * Usage:
+ *   node scripts/squad-cli.js <command> [options]
+ *   npm run squad -- <command> [options]
+ *
+ * Commands:
+ *   status   Show open issues and PR state
+ *   health   Run constellation health checks
+ *   review   Run review gate on a PR (requires --pr <number>)
+ *   dedup    Run dedup guard
+ *   report   Generate session report
+ *   help     Show this help message
+ *
+ * Flags:
+ *   --json   Machine-readable JSON output (where supported)
+ */
+
+const { execSync, spawnSync } = require('child_process');
+const path = require('path');
+
+// ---------------------------------------------------------------------------
+// Constants
+// ---------------------------------------------------------------------------
+
+const COMMANDS = ['status', 'health', 'review', 'dedup', 'report', 'help'];
+
+const HELP_TEXT = `
+Squad CLI — Unified developer CLI for all squad operations
+
+Usage:
+  npm run squad -- <command> [options]
+
+Commands:
+  status              Show open issues + PR state
+  health              Run constellation health checks
+  review --pr <num>   Run review gate on a PR
+  dedup               Run dedup guard
+  report              Generate session report
+  help                Show this help message
+
+Flags:
+  --json              Machine-readable JSON output (where supported)
+
+Examples:
+  npm run squad -- status
+  npm run squad -- health --json
+  npm run squad -- review --pr 42
+`.trim();
+
+// ---------------------------------------------------------------------------
+// Argument parsing
+// ---------------------------------------------------------------------------
+
+function parseCliArgs(argv) {
+  const args = argv.slice(2);
+  const command = args[0] || null;
+  const flags = args.slice(1);
+  const jsonMode = flags.includes('--json');
+
+  let pr = null;
+  const prIdx = flags.indexOf('--pr');
+  if (prIdx !== -1 && flags[prIdx + 1]) {
+    pr = parseInt(flags[prIdx + 1], 10);
+  }
+
+  return { command, flags, jsonMode, pr };
+}
+
+// ---------------------------------------------------------------------------
+// Command: status
+// ---------------------------------------------------------------------------
+
+function cmdStatus(jsonMode, execFn) {
+  const exec = execFn || execSync;
+  try {
+    const issuesRaw = exec('gh issue list --state open --json number,title,labels,assignees --limit 20', {
+      encoding: 'utf8',
+      timeout: 30_000,
+      stdio: ['pipe', 'pipe', 'pipe'],
+    });
+    const issues = JSON.parse(issuesRaw);
+
+    let prs = [];
+    try {
+      const prsRaw = exec('gh pr list --state open --json number,title,isDraft,statusCheckRollup --limit 20', {
+        encoding: 'utf8',
+        timeout: 30_000,
+        stdio: ['pipe', 'pipe', 'pipe'],
+      });
+      prs = JSON.parse(prsRaw);
+    } catch {
+      // PRs may fail if no PRs exist; non-fatal
+    }
+
+    const result = { issues, prs };
+
+    if (jsonMode) {
+      console.log(JSON.stringify(result, null, 2));
+      return 0;
+    }
+
+    console.log('');
+    console.log('=== Open Issues ===');
+    if (issues.length === 0) {
+      console.log('  No open issues.');
+    } else {
+      for (const issue of issues) {
+        const labels = (issue.labels || []).map(l => l.name).join(', ');
+        const assignees = (issue.assignees || []).map(a => a.login).join(', ');
+        console.log(`  #${issue.number}  ${issue.title}`);
+        if (labels) console.log(`         Labels: ${labels}`);
+        if (assignees) console.log(`         Assignees: ${assignees}`);
+      }
+    }
+
+    console.log('');
+    console.log('=== Open PRs ===');
+    if (prs.length === 0) {
+      console.log('  No open PRs.');
+    } else {
+      for (const pr of prs) {
+        const draft = pr.isDraft ? ' [DRAFT]' : '';
+        console.log(`  #${pr.number}  ${pr.title}${draft}`);
+      }
+    }
+    console.log('');
+
+    return 0;
+  } catch (err) {
+    console.error(`Status error: ${err.message}`);
+    return 1;
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Command: health
+// ---------------------------------------------------------------------------
+
+function cmdHealth(jsonMode) {
+  const scriptPath = path.resolve(__dirname, 'constellation-health.js');
+  const args = jsonMode ? ['--json'] : [];
+  const result = spawnSync(process.execPath, [scriptPath, ...args], {
+    stdio: 'inherit',
+    timeout: 120_000,
+  });
+  return result.status || 0;
+}
+
+// ---------------------------------------------------------------------------
+// Command: review
+// ---------------------------------------------------------------------------
+
+function cmdReview(pr, jsonMode) {
+  if (!pr || isNaN(pr)) {
+    console.error('Error: review command requires --pr <number>');
+    console.error('Usage: npm run squad -- review --pr 42');
+    return 1;
+  }
+
+  const scriptPath = path.resolve(__dirname, 'review-gate.js');
+  const result = spawnSync(process.execPath, [scriptPath, '--pr', String(pr)], {
+    stdio: 'inherit',
+    timeout: 60_000,
+  });
+  return result.status || 0;
+}
+
+// ---------------------------------------------------------------------------
+// Command: dedup
+// ---------------------------------------------------------------------------
+
+function cmdDedup(jsonMode) {
+  const scriptPath = path.resolve(__dirname, 'dedup-guard.js');
+  const result = spawnSync(process.execPath, [scriptPath], {
+    stdio: 'inherit',
+    timeout: 30_000,
+  });
+  return result.status || 0;
+}
+
+// ---------------------------------------------------------------------------
+// Command: report
+// ---------------------------------------------------------------------------
+
+function cmdReport(jsonMode) {
+  const scriptPath = path.resolve(__dirname, 'session-report.js');
+  try {
+    require.resolve(scriptPath);
+  } catch {
+    console.error('Error: session-report.js not found.');
+    console.error('The report command will be available once scripts/session-report.js is created.');
+    return 1;
+  }
+
+  const args = jsonMode ? ['--json'] : [];
+  const result = spawnSync(process.execPath, [scriptPath, ...args], {
+    stdio: 'inherit',
+    timeout: 60_000,
+  });
+  return result.status || 0;
+}
+
+// ---------------------------------------------------------------------------
+// Command: help
+// ---------------------------------------------------------------------------
+
+function cmdHelp() {
+  console.log(HELP_TEXT);
+  return 0;
+}
+
+// ---------------------------------------------------------------------------
+// Router
+// ---------------------------------------------------------------------------
+
+function route(parsed) {
+  const { command, jsonMode, pr } = parsed;
+
+  if (!command) {
+    console.log(HELP_TEXT);
+    console.log('');
+    console.error('Error: no command specified.');
+    return 1;
+  }
+
+  if (!COMMANDS.includes(command)) {
+    console.log(HELP_TEXT);
+    console.log('');
+    console.error(`Error: unknown command "${command}".`);
+    return 1;
+  }
+
+  switch (command) {
+    case 'status':
+      return cmdStatus(jsonMode);
+    case 'health':
+      return cmdHealth(jsonMode);
+    case 'review':
+      return cmdReview(pr, jsonMode);
+    case 'dedup':
+      return cmdDedup(jsonMode);
+    case 'report':
+      return cmdReport(jsonMode);
+    case 'help':
+      return cmdHelp();
+    default:
+      return 1;
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Main
+// ---------------------------------------------------------------------------
+
+function main(argv) {
+  const parsed = parseCliArgs(argv || process.argv);
+  const exitCode = route(parsed);
+  return exitCode;
+}
+
+if (require.main === module) {
+  const code = main();
+  process.exit(code);
+}
+
+module.exports = {
+  COMMANDS,
+  HELP_TEXT,
+  parseCliArgs,
+  cmdStatus,
+  cmdHealth,
+  cmdReview,
+  cmdDedup,
+  cmdReport,
+  cmdHelp,
+  route,
+  main,
+};
