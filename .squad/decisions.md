@@ -33,6 +33,77 @@ Autonomous AI dev company (€500/mo Azure, unlimited GitHub). Strict context hy
 
 ---
 
+### 2026-03-14T10:22Z: T1 Decision — Morpheus Strategic Issue Triage & Ecosystem Issues
+
+**By:** Morpheus (Lead/Architect)  
+**Tier:** T1  
+**Status:** ✅ DECIDED  
+**Date:** 2026-03-14
+
+**What:** Re-triaged Phase 8 issues #66-71 (initially all misrouted to `squad:switch`) and created 5 strategic ecosystem issues #72-76 operationalizing founder directive.
+
+**Part 1 — Re-Triage #66-71 (Root Cause: Creation Momentum Over Analysis)**
+
+| Issue | Title | Correction | Reason |
+|-------|-------|-----------|--------|
+| #66 | Test 3 pre-flight validation script | `squad:switch` → `squad:trinity` | Implementation work, full-stack capability |
+| #67 | Azure Bicep template — IaC | `squad:switch` → `squad:tank` | Cloud infrastructure, DevOps expertise |
+| #68 | Downstream branch protection | `squad:switch` → `squad:tank` | CI/CD automation, platform engineering |
+| #69 | Session watchdog 24/7 Azure | `squad:switch` → `squad:tank` | Cloud platform, session management |
+| #70 | Live metrics dashboard | `squad:switch` → `squad:trinity` | UI/frontend, metrics integration |
+| #71 | Auto-update test badge | `squad:switch` → `squad:tank` | CI/CD automation, badge updates |
+
+**Principle:** Route by deliverable scope & required capability, not creation momentum. Read full issue body, understand actual scope, route to capability owner.
+
+**Part 2 — Create 5 Strategic Ecosystem Issues (#72-76)**
+
+Operationalizing founder directive (awesome-copilot, awesome-azure research, marketplace, plugins, MCP, downstream audits, gameplay testing, product evolution):
+
+| # | Title | Squad | Strategic Value |
+|---|-------|-------|-----------------|
+| #72 | Downstream Repo Audit | morpheus/oracle | Comprehensive assessment (code quality, test coverage, gameplay validation). Surfaces test pattern gaps. |
+| #73 | MCP Server for Squad Ops | trinity | Expose squad state to Copilot ecosystem. Prototype + design doc. Platform integration. |
+| #74 | Plugin Marketplace Infrastructure | trinity + morpheus | Plugin registry, discovery, UI PoC, examples. Transforms Squad into extensible platform. |
+| #75 | Gameplay Testing Framework | switch | **FOUNDER PAIN POINT** — Enable agents to actually play/validate games (Puppeteer/Playwright). Real gameplay vs superficial unit tests. |
+| #76 | Test 3 Launch Checklist & Runbook | morpheus + oracle | Pre-launch checklist, deployment runbook, operational procedures, incident playbooks. De-risks Azure launch. |
+
+**Principles Applied:**
+
+1. **Label precision matters** — Initial triage missed scope. Correction required deliverable understanding and capability routing.
+2. **Founder pain points drive roadmap** — "Superficial unit tests" complaint operationalized in #75 (gameplay framework) + #72 (audit surfaces pattern).
+3. **Ecosystem ≠ distraction** — #73-74 enable Squad to evolve from internal-only to extensible platform. Strategic, not nice-to-have.
+4. **Documentation as operational interface** — #76 (runbook) is product: difference between "ran once" and "runs reliably 24/7".
+
+**Impact:**
+
+✅ **11 issues properly routed and ready for execution**
+- #66-71: Routed to correct squads per capability (3 Trinity, 3 Tank)
+- #72-76: Align with founder vision (audits, ecosystem, gameplay, operationalization)
+- Board never empty: Phase 8 ready for work
+
+**Board Status:** 11 issues triaged, phase 8 execution ready. Founder vision operationalized across concrete deliverables.
+
+**Orchestration Log:** `.squad/orchestration-log/2026-03-14T10-22Z-morpheus-strategic-triage.md`  
+**Session Log:** `.squad/log/2026-03-14T10-22Z-ralph-activation.md`
+
+---
+
+### 2026-03-14T10:22Z: Session Log — Ralph Activation, Sprint Planning, Strategic Triage
+
+**By:** Morpheus (Lead/Architect)  
+**Status:** ✅ COMPLETED  
+**Date:** 2026-03-14
+
+**What:** Ralph activation triggered by board clear (Phase 7 complete). Sprint Planning ceremony executed, creating Phase 8 "Azure Autonomy" (6 issues). Strategic triage session corrected initial labeling and created ecosystem roadmap (5 issues).
+
+**Phase 8 Sprint Planning:** 6 issues for Test 3 infrastructure (validation, IaC, branch protection, session management) and showroom enhancement (metrics, badge).
+
+**Strategic Triage:** Re-triaged all 6 issues (#66-71) correcting misrouting to correct squads. Created #72-76 operationalizing founder strategic directives.
+
+**Outcome:** Phase 8 fully planned and triaged. 11 issues ready for squad execution.
+
+---
+
 ### 2026-03-14T09:36Z: T1 Decision — Ralph Refueling Protocol v2 (Supersedes v1)
 
 **By:** Morpheus (Lead/Architect)  
