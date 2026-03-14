@@ -57,3 +57,13 @@
 **Decision:** Test 2 "Ralph Go Multi-Terminal" evaluated at 8/10. Decision MERGED to decisions.md (2026-03-14T09:00Z entry). Post-mortem files written: orchestration-log, session log, decision merged.
 
 **Summary:** 86 PRs in 5h, 29x improvement. Critical: dedup storm (41+16 duplicates), FFS inactive, auto-merge unreviewed. Pre-reqs for Test 3: dedup guard fix, branch protection, Azure VM.
+
+### Refueling Redesign — Event-Driven → Loop-Driven (2026-03-21)
+
+**Decision:** T1 architecture decision. Refueling mechanism redesigned from external event-driven (perpetual-motion.yml reacting to issues.closed) to internal loop-driven (Ralph spawns Lead when board is clear). Decision written to `.squad/decisions/inbox/morpheus-refueling-redesign.md`. Pending founder approval.
+
+**Key insight:** The race condition in Test 2 (41+16 duplicates) was not a dedup bug — it was a fundamental architectural flaw. Event-driven refueling with concurrent triggers is inherently prone to duplication. Moving the decision point to a single-threaded actor (Ralph) eliminates the problem at its root.
+
+**Safeguards:** 3 issues/cycle × 3 cycles/session = 9 issues max. Pre-condition checks prevent empty spinning. No-retry on failure (fail clean, let next session handle it). Natural endpoint detection (Lead can declare project complete).
+
+**Impact on Test 3:** Each tmux window runs its own independent refueling cycle — no cross-terminal coordination needed. perpetual-motion.yml eliminated. ralph-watch.ps1 deprecated (new role TBD).
