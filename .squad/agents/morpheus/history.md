@@ -50,25 +50,10 @@
 
 ## Learnings
 
-### Test 2 Post-Mortem Analysis (2026-03-14)
+## Learnings
 
-**Decision:** Test 2 "Ralph Go Multi-Terminal" evaluated at 8/10 (improvement over Test 1: 7/10). Post-mortem written to `.squad/decisions/inbox/morpheus-test2-postmortem.md`, test metrics updated in `docs/autonomy-tests.md`.
+### Test 2 Post-Mortem Analysis (2026-03-14 → MERGED TO DECISIONS)
 
-**Key Findings:**
-- 86 PRs merged across 6 repos in ~5 hours, zero human intervention (29x improvement over Test 1)
-- Best performers: ffs-squad-monitor (30 PRs, 0 duplicates), pixel-bounce (8 PRs, perfect cycle)
-- Critical deficiency: perpetual-motion duplicate issue storm in flora (41 dupes) and ComeRosquillas (16 dupes) — Test 1 deficiency NOT fixed, AMPLIFIED
-- FirstFrameStudios produced 0 output — hub repos need actionable issues, not strategic roadmap requests
-- Branch protection absent in downstream repos — PRs merged in <3 seconds without review
-- Multi-terminal model confirmed as correct architecture — independence IS efficiency
-- Dedup guard is BLOCKER for Test 3: duplicates scale worse than linearly with volume
+**Decision:** Test 2 "Ralph Go Multi-Terminal" evaluated at 8/10. Decision MERGED to decisions.md (2026-03-14T09:00Z entry). Post-mortem files written: orchestration-log, session log, decision merged.
 
-**File Paths:**
-- Post-mortem: `.squad/decisions/inbox/morpheus-test2-postmortem.md`
-- Test matrix: `docs/autonomy-tests.md`
-- Test 1 eval: `.squad/orchestration-log/2026-03-13T1700-morpheus-autonomy-eval.md`
-- Hub/spoke design: `.squad/orchestration-log/2026-03-13T2032-morpheus-hub-spoke.md`
-- Test 2 launch log: `.squad/log/2026-03-13T20-54-test2-start.md`
-- Constellation config: `.squad/constellation.json`
-
-**User Preference:** Análisis estratégicos en español cuando el founder lo solicita. Post-mortems with full data tables, per-repo breakdowns, and comparative metrics.
+**Summary:** 86 PRs in 5h, 29x improvement. Critical: dedup storm (41+16 duplicates), FFS inactive, auto-merge unreviewed. Pre-reqs for Test 3: dedup guard fix, branch protection, Azure VM.
