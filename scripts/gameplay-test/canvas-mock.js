@@ -245,6 +245,7 @@ class CanvasMock {
 
 function parseColor(color) {
   if (!color || color === 'rgba(0,0,0,0)') return [0, 0, 0, 0];
+  if (typeof color !== 'string') return [0, 0, 0, 255]; // gradient/pattern objects
   if (color.startsWith('#')) {
     const hex = color.slice(1);
     if (hex.length === 3) {
