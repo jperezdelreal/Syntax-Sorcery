@@ -17,6 +17,9 @@
  *   metrics  Run performance metrics engine
  *   security Run security audit (deps, secrets, SBOM)
  *   preflight Run Test 3 pre-flight validation
+ *   enforce-protection  Enforce branch protection on downstream repos
+ *   plugin <subcmd>     Manage plugins (list, install, search, create, info)
+ *   gameplay-test       Init gameplay test templates for downstream games
  *   help     Show this help message
  *
  * Flags:
@@ -24,6 +27,8 @@
  *   --fix        Auto-fix vulnerabilities (security command)
  *   --sbom-only  Only generate SBOM (security command)
  *   --skip-azure Skip Azure checks (preflight command)
+ *   --apply      Apply protection rules (enforce-protection)
+ *   --repo <name> Target single repo (enforce-protection)
  */
 
 const { execSync, spawnSync } = require('child_process');
@@ -33,7 +38,7 @@ const path = require('path');
 // Constants
 // ---------------------------------------------------------------------------
 
-const COMMANDS = ['status', 'health', 'review', 'dedup', 'report', 'metrics', 'security', 'preflight', 'help'];
+const COMMANDS = ['status', 'health', 'review', 'dedup', 'report', 'metrics', 'security', 'preflight', 'enforce-protection', 'plugin', 'gameplay-test', 'help'];
 
 const HELP_TEXT = `
 Squad CLI — Unified developer CLI for all squad operations
@@ -50,6 +55,9 @@ Commands:
   metrics             Run performance metrics engine
   security            Run security audit (deps, secrets, SBOM)
   preflight           Run Test 3 pre-flight validation
+  enforce-protection  Enforce branch protection on downstream repos
+  plugin <subcmd>     Manage plugins (list, install, search, create, info)
+  gameplay-test       Init gameplay test templates for downstream games
   help                Show this help message
 
 Flags:
@@ -58,6 +66,12 @@ Flags:
   --fix               Auto-fix vulnerabilities (security command)
   --skip-azure        Skip Azure checks (preflight command)
   --sbom-only         Only generate SBOM (security command)
+  --apply             Apply protection rules (enforce-protection)
+  --repo <name>       Target single repo (enforce-protection)
+  --init              Initialize test template (gameplay-test)
+  --type <type>       Template type: platformer or puzzle (gameplay-test)
+  --target <path>     Path to game repo (gameplay-test)
+  --skip-azure        Skip Azure checks (preflight command)
   --since <date>      Start date filter (metrics, report)
   --until <date>      End date filter (metrics, report)
 
@@ -71,6 +85,11 @@ Examples:
   npm run squad -- security --sbom-only --save
   npm run squad -- preflight
   npm run squad -- preflight --skip-azure --json
+  npm run squad -- enforce-protection
+  npm run squad -- enforce-protection --apply --repo flora
+  npm run squad -- plugin list
+  npm run squad -- plugin install owner/repo
+  npm run squad -- gameplay-test --init --type platformer --target ../pixel-bounce
 `.trim();
 
 // ---------------------------------------------------------------------------
@@ -86,6 +105,8 @@ function parseCliArgs(argv) {
   const fix = flags.includes('--fix');
   const sbomOnly = flags.includes('--sbom-only');
   const skipAzure = flags.includes('--skip-azure');
+  const applyProtection = flags.includes('--apply');
+  const init = flags.includes('--init');
 
   let pr = null;
   const prIdx = flags.indexOf('--pr');
@@ -105,7 +126,16 @@ function parseCliArgs(argv) {
     until = flags[untilIdx + 1];
   }
 
-  return { command, flags, jsonMode, pr, save, fix, sbomOnly, skipAzure, since, until };
+  const repo = extractFlag(flags, '--repo');
+  const type = extractFlag(flags, '--type');
+  const target = extractFlag(flags, '--target');
+
+  return { command, flags, jsonMode, pr, save, fix, sbomOnly, skipAzure, applyProtection, repo, init, type, target, since, until };
+}
+
+function extractFlag(flags, name) {
+  const idx = flags.indexOf(name);
+  return (idx !== -1 && flags[idx + 1]) ? flags[idx + 1] : null;
 }
 
 // ---------------------------------------------------------------------------
@@ -308,11 +338,122 @@ function cmdPreflight(jsonMode, fix, skipAzure) {
 }
 
 // ---------------------------------------------------------------------------
+// Command: enforce-protection
+// ---------------------------------------------------------------------------
+
+function cmdEnforceProtection(jsonMode, applyProtection, repo) {
+  const scriptPath = path.resolve(__dirname, 'enforce-branch-protection.js');
+  const args = [];
+  if (jsonMode) args.push('--json');
+  if (applyProtection) args.push('--apply');
+  if (repo) args.push('--repo', repo);
+
+  const result = spawnSync(process.execPath, [scriptPath, ...args], {
+    stdio: 'inherit',
+    timeout: 120_000,
+  });
+  return result.status || 0;
+}
+
+// ---------------------------------------------------------------------------
+// Command: plugin
+// ---------------------------------------------------------------------------
+
+function cmdPlugin(flags) {
+  const scriptPath = path.resolve(__dirname, 'plugin-manager.js');
+  const result = spawnSync(process.execPath, [scriptPath, ...flags], {
+    stdio: 'inherit',
+    timeout: 120_000,
+  });
+  return result.status || 0;
+}
+
+// ---------------------------------------------------------------------------
+// Command: gameplay-test
+// ---------------------------------------------------------------------------
+
+const GAMEPLAY_TEST_HELP = `
+Gameplay Test — Initialize gameplay test templates for downstream games
+
+Usage:
+  npm run squad -- gameplay-test --init --type <type> --target <path>
+
+Options:
+  --init              Initialize test template in target directory
+  --type <type>       Template type: "platformer" or "puzzle"
+  --target <path>     Path to the game repo (default: current directory)
+  --help              Show this help
+
+Examples:
+  npm run squad -- gameplay-test --init --type platformer --target ../pixel-bounce
+  npm run squad -- gameplay-test --init --type puzzle --target ../flora
+`.trim();
+
+function cmdGameplayTest(parsed) {
+  const { init: doInit, type, target } = parsed;
+  const fs = require('fs');
+
+  if (!doInit || parsed.flags.includes('--help')) {
+    console.log(GAMEPLAY_TEST_HELP);
+    return doInit ? 1 : 0;
+  }
+
+  const validTypes = ['platformer', 'puzzle'];
+  if (!type || !validTypes.includes(type)) {
+    console.error(`Error: --type must be one of: ${validTypes.join(', ')}`);
+    return 1;
+  }
+
+  const targetDir = target || process.cwd();
+  const testsDir = path.join(targetDir, '__tests__');
+  const destFile = path.join(testsDir, 'gameplay.test.js');
+
+  if (fs.existsSync(destFile)) {
+    console.error(`Error: ${destFile} already exists. Remove it first to re-initialize.`);
+    return 1;
+  }
+
+  const templateFile = type === 'platformer'
+    ? path.resolve(__dirname, 'gameplay-test', 'templates', 'platformer-tests.template.js')
+    : path.resolve(__dirname, 'gameplay-test', 'templates', 'puzzle-tests.template.js');
+
+  if (!fs.existsSync(templateFile)) {
+    console.error(`Error: template not found at ${templateFile}`);
+    return 1;
+  }
+
+  if (!fs.existsSync(testsDir)) {
+    fs.mkdirSync(testsDir, { recursive: true });
+  }
+  fs.copyFileSync(templateFile, destFile);
+
+  const frameworkDir = path.join(targetDir, 'gameplay-test');
+  if (!fs.existsSync(frameworkDir)) {
+    fs.mkdirSync(frameworkDir, { recursive: true });
+  }
+
+  const frameworkSrc = path.resolve(__dirname, 'gameplay-test', 'framework.js');
+  const canvasMockSrc = path.resolve(__dirname, 'gameplay-test', 'canvas-mock.js');
+
+  fs.copyFileSync(frameworkSrc, path.join(frameworkDir, 'framework.js'));
+  fs.copyFileSync(canvasMockSrc, path.join(frameworkDir, 'canvas-mock.js'));
+
+  console.log(`✅ Gameplay test initialized:`);
+  console.log(`   Template:  ${type}`);
+  console.log(`   Test file: ${destFile}`);
+  console.log(`   Framework: ${frameworkDir}/`);
+  console.log('  1. npm install --save-dev vitest');
+  console.log('  2. Edit __tests__/gameplay.test.js — replace TODO markers');
+  console.log('  3. npx vitest run');
+  return 0;
+}
+
+// ---------------------------------------------------------------------------
 // Router
 // ---------------------------------------------------------------------------
 
 function route(parsed) {
-  const { command, jsonMode, pr, save, fix, sbomOnly, skipAzure, since, until } = parsed;
+  const { command, jsonMode, pr, save, fix, sbomOnly, skipAzure, applyProtection, repo, since, until } = parsed;
 
   if (!command) {
     console.log(HELP_TEXT);
@@ -345,6 +486,12 @@ function route(parsed) {
       return cmdSecurity(jsonMode, fix, sbomOnly, save);
     case 'preflight':
       return cmdPreflight(jsonMode, fix, skipAzure);
+    case 'enforce-protection':
+      return cmdEnforceProtection(jsonMode, applyProtection, repo);
+    case 'plugin':
+      return cmdPlugin(parsed.flags);
+    case 'gameplay-test':
+      return cmdGameplayTest(parsed);
     case 'help':
       return cmdHelp();
     default:
@@ -370,7 +517,9 @@ if (require.main === module) {
 module.exports = {
   COMMANDS,
   HELP_TEXT,
+  GAMEPLAY_TEST_HELP,
   parseCliArgs,
+  extractFlag,
   cmdStatus,
   cmdHealth,
   cmdReview,
@@ -379,6 +528,9 @@ module.exports = {
   cmdMetrics,
   cmdSecurity,
   cmdPreflight,
+  cmdEnforceProtection,
+  cmdPlugin,
+  cmdGameplayTest,
   cmdHelp,
   route,
   main,
