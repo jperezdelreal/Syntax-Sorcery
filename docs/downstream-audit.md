@@ -373,6 +373,31 @@ Require ≥50% T2+ and ≥20% T3+ tests before merge.
 
 ---
 
+## Action Items Created
+
+Based on this audit, Morpheus created concrete improvement issues in each downstream repo (Issue #90, 2026-03-21). All issues are labeled `squad` and reference the gameplay test template documented in this audit.
+
+### Issues Created
+
+| Repo | Issues | Links |
+|------|--------|-------|
+| **pixel-bounce** | 2 | [#37 Add gameplay tests](https://github.com/jperezdelreal/pixel-bounce/issues/37), [#38 Improve test coverage](https://github.com/jperezdelreal/pixel-bounce/issues/38) |
+| **flora** | 2 | [#225 Add gameplay tests](https://github.com/jperezdelreal/flora/issues/225), [#226 Improve test coverage](https://github.com/jperezdelreal/flora/issues/226) |
+| **ComeRosquillas** | 2 | [#106 Replace inflated tests](https://github.com/jperezdelreal/ComeRosquillas/issues/106), [#107 Add Game class tests](https://github.com/jperezdelreal/ComeRosquillas/issues/107) |
+| **FirstFrameStudios** | 2 | [#200 Add test infrastructure](https://github.com/jperezdelreal/FirstFrameStudios/issues/200), [#201 Define roadmap](https://github.com/jperezdelreal/FirstFrameStudios/issues/201) |
+| **ffs-squad-monitor** | 1 | [#138 Expand integration tests](https://github.com/jperezdelreal/ffs-squad-monitor/issues/138) |
+
+**Total: 9 issues created across 5 repos**
+
+### Next Steps for Squad
+
+1. **Gameplay Framework (Issue #75):** Implement the Canvas mock templates and shared headless game runner referenced in these issues. Template location: `.squad/skills/gameplay-test-template.js`
+2. **Test Quality Gates:** Add CI checks requiring `grep -r "new Game" tests/` to catch instances where Game class is actually instantiated
+3. **CI Workflows:** Each game repo needs `npm test` step in GitHub Actions, with merge gate requiring tests to pass
+4. **Branch Protection:** All downstream repos require ≥1 passing CI check before merge (enforce with `gh repo edit`)
+
+---
+
 ## Conclusion
 
 The constellation produces impressive volume — 597 tests in ComeRosquillas, 544 in ffs-squad-monitor, rich feature sets across all games. But the founder sees through the numbers. When 95% of your game tests verify that `10 === 10`, you haven't tested your game — you've tested JavaScript's equality operator.

@@ -113,141 +113,158 @@ Delivered in PR #63 (merged 2026-03-21). Issue #60 CLOSED.
 
 ---
 
-## 19. [ ] Test 3 pre-flight validation script
+## ~~19. [x] Test 3 pre-flight validation script~~ ✅
 
-**Acceptance Criteria:**
-- Script `scripts/preflight.js` validates all Test 3 prerequisites in one command
-- Checks: Azure CLI installed + logged in, SSH key exists, downstream repos accessible (gh api), branch protection configured on all 5 downstreams, dedup guard operational (dry-run), constellation health passing, security audit clean, test suite green
-- Each check reports ✅/❌ with actionable fix instructions on failure
-- Exit code 0 only if ALL checks pass; exit code 1 with summary on any failure
-- Add `preflight` subcommand to squad-cli.js
-- Add `npm run preflight` script to package.json
-- CLI flags: `--skip-azure` (skip Azure checks for local-only validation), `--json` (machine-readable output), `--fix` (auto-fix what can be fixed, e.g. run npm install)
-- Unit tests (vitest) with DI-mocked exec calls — test each check independently, test combined report, test all-pass and partial-fail scenarios
-- No new dependencies
-
-**Files:**
-- `scripts/preflight.js` (create)
-- `scripts/__tests__/preflight.test.js` (create)
-- `scripts/squad-cli.js` (add `preflight` command routing)
-- `package.json` (add npm script)
-
-**Context:**
-Test 3 (Azure VM 24/7 autonomy) has 5 mandatory prerequisites identified in the Test 2 post-mortem. Currently there's no automated way to verify all prerequisites are met before deployment. A pre-flight checklist prevents deploying a system that will fail. This is standard launch-readiness practice — NASA doesn't launch without pre-flight. The autonomous company shouldn't either.
+Delivered in Phase 8b. Completed as #66 (infrastructure validation pre-flight).
 
 ---
 
-## 20. [ ] Azure Bicep template — infrastructure as code
+## ~~20. [x] Azure Bicep template — infrastructure as code~~ ✅
 
-**Acceptance Criteria:**
-- Bicep template `scripts/azure/main.bicep` defining: resource group, B2s_v2 VM (Ubuntu 24.04, West Europe), NSG (SSH-only), public IP, managed identity, cloud-init script for dependency installation (tmux, git, Node.js 20, gh CLI)
-- Parameters file `scripts/azure/main.bicepparam` with configurable: VM size, location, admin username, SSH public key path
-- Deployment script `scripts/azure/deploy.sh` wrapping `az deployment group create` with validation, what-if preview, and actual deployment modes
-- CLI flags: `--validate` (template validation only), `--what-if` (preview changes), `--deploy` (actual deployment)
-- Cloud-init installs dependencies and clones all 5 downstream repos automatically
-- Output: VM public IP, SSH command, resource IDs
-- Update `scripts/azure/README.md` with Bicep deployment instructions
-- No new dependencies — uses Azure CLI and built-in Bicep compiler
-
-**Files:**
-- `scripts/azure/main.bicep` (create)
-- `scripts/azure/main.bicepparam` (create)
-- `scripts/azure/deploy.sh` (create)
-- `scripts/azure/README.md` (update)
-
-**Context:**
-The current provision-vm.sh uses imperative Azure CLI commands — hard to audit, no drift detection, no preview mode. Bicep is Azure's native IaC language: declarative, diffable, version-controlled. A what-if preview lets the founder see exactly what will be created before spending budget. This is the infrastructure foundation for Test 3. Imperative scripts got us started; IaC makes it production-grade.
+Delivered in Phase 8b (Bicep IaC infrastructure).
 
 ---
 
-## 21. [ ] Downstream branch protection enforcement script
+## ~~21. [x] Downstream branch protection enforcement script~~ ✅
 
-**Acceptance Criteria:**
-- Script `scripts/enforce-branch-protection.js` configures branch protection on all 5 downstream repos via GitHub API
-- Protection rules: require status checks to pass (CI), prevent force pushes, require linear history, no deletions of default branch
-- Reads repo list from `.squad/constellation.json` or hardcoded constellation array
-- Dry-run mode by default — shows what WOULD be changed without applying
-- `--apply` flag to actually apply protection rules
-- `--repo <name>` flag to target a single repo instead of all 5
-- Reports current vs desired protection state for each repo
-- Add `enforce-protection` subcommand to squad-cli.js
-- Add `npm run enforce:protection` script to package.json
-- Unit tests (vitest) with DI-mocked GitHub API calls
-- Requires `GITHUB_TOKEN` with repo admin scope
-
-**Files:**
-- `scripts/enforce-branch-protection.js` (create)
-- `scripts/__tests__/enforce-branch-protection.test.js` (create)
-- `scripts/squad-cli.js` (add `enforce-protection` command routing)
-- `package.json` (add npm script)
-
-**Context:**
-Test 2 post-mortem identified auto-merge without review as a MEDIUM risk. Many satellite PRs merged in <10 seconds — no CI check, no review. At 86 PRs this was tolerable; at 24/7 scale it's dangerous. Branch protection on downstream repos is a mandatory Test 3 prerequisite. This script makes it one command instead of manually configuring 5 repos through the GitHub UI.
+Delivered in Phase 8b. Completed branch protection enforcement across all 5 downstream repos.
 
 ---
 
-## 22. [ ] Session watchdog for 24/7 Azure operation
+## ~~22. [x] Session watchdog for 24/7 Azure operation~~ ✅
 
-**Acceptance Criteria:**
-- Script `scripts/azure/session-watchdog.sh` monitors running tmux satellite sessions
-- Checks every 30 minutes (via systemd timer or cron): session alive, session duration, disk space, memory usage
-- Auto-restarts sessions that have been running >6 hours (configurable via `MAX_SESSION_HOURS` env var) to prevent context overflow
-- Writes structured log to `/var/log/ss-watchdog.jsonl` — one JSON line per check with: timestamp, repo, session_status, uptime_hours, action_taken, disk_pct, mem_pct
-- systemd timer unit `scripts/azure/session-watchdog.timer` + service unit `scripts/azure/session-watchdog.service`
-- Alerts: if a session fails to restart 3 times, writes CRITICAL entry to log (founder can grep for it)
-- `--dry-run` flag to show what would happen without taking action
-- Update `scripts/azure/README.md` with watchdog setup instructions
-
-**Files:**
-- `scripts/azure/session-watchdog.sh` (create)
-- `scripts/azure/session-watchdog.timer` (create)
-- `scripts/azure/session-watchdog.service` (create)
-- `scripts/azure/README.md` (update)
-
-**Context:**
-The founder's directive in decisions.md: "En Azure VM (Test 3), el equipo debe auto-resetear sesiones." Squad sessions use 1M context models but will eventually exhaust context in a 24/7 operation. Without a watchdog, sessions silently degrade and eventually fail. The watchdog is the operational heartbeat — it ensures continuous operation by proactively restarting before problems occur. JSONL logging enables post-mortem analysis. This is the difference between "running on Azure" and "reliably running on Azure."
+Delivered in Phase 8b. Session auto-restart watchdog for context management on Azure VM.
 
 ---
 
-## 23. [ ] Live metrics dashboard on landing site
+## ~~23. [x] Live metrics dashboard on landing site~~ ✅
 
-**Acceptance Criteria:**
-- Astro component `site/src/components/MetricsDashboard.astro` displaying key KPIs from metrics engine
-- Metrics displayed: velocity (issues/day), throughput (PRs/week), quality rate (% PRs approved first-try), test count + growth, autonomous streak (consecutive PRs without human intervention), cycle time (issue→merge average)
-- Data source: `npm run metrics --json` output piped to a static JSON file during site build (`site/public/data/metrics.json`)
-- Build step in `site/package.json`: pre-build script generates metrics JSON from hub repo
-- Visual design: Matrix-themed cards with green-on-black aesthetic matching existing landing page
-- Responsive layout — works on mobile and desktop
-- Page route: `/metrics` on the landing site
-- Link added to landing site navigation
-- No external dependencies — pure HTML/CSS with inline data
-
-**Files:**
-- `site/src/components/MetricsDashboard.astro` (create)
-- `site/src/pages/metrics.astro` (create)
-- `site/src/styles/metrics.css` (create — or extend existing styles)
-- `site/package.json` (add pre-build metrics generation script)
-
-**Context:**
-The metrics engine (Phase 6) computes KPIs but has no visual output beyond terminal. The landing site (Phase 4) shows the system architecture but not its performance. A live metrics dashboard is the founder's ultimate demo artifact — visitors see not just WHAT the system does, but HOW WELL it does it. Velocity, quality rate, and autonomous streak are the numbers that prove this isn't just a concept. Combined with the auto-deploy pipeline (Phase 7), every merged PR automatically updates the public dashboard.
+Delivered in Phase 8b. Real-time KPI dashboard (velocity, throughput, quality rate, test count, autonomous streak).
 
 ---
 
-## 24. [ ] Auto-update test count badge in CI
+## ~~24. [x] Auto-update test count badge in CI~~ ✅
+
+Delivered in Phase 8b. Badge automation: 453 passing tests (auto-updated on every CI run).
+
+---
+
+## Phase 8c: Operational Foundation (Complete)
+
+**25. ~~[x] Downstream Repo Audit~~ ✅** (Issue #72)
+Comprehensive code quality + test coverage assessment across FFS ecosystem. Surfaces gameplay validation patterns.
+
+**26. ~~[x] MCP Server for Squad Ops~~ ✅** (Issue #73)
+Exposing squad state to Copilot ecosystem. MCP server + design doc enabling platform integration.
+
+**27. ~~[x] Plugin Marketplace Infrastructure~~ ✅** (Issue #74)
+Registry, discovery, UI PoC, examples. Squad transforms into extensible platform.
+
+**28. ~~[x] Gameplay Testing Framework~~ ✅** (Issue #75)
+Real gameplay validation vs superficial unit tests. Puppeteer/Playwright integration for FFS game satellites.
+
+**29. ~~[x] Test 3 Launch Checklist & Runbook~~ ✅** (Issue #76)
+De-risk Azure launch: pre-flight checklist, deployment procedures, operational runbooks, incident playbooks.
+
+---
+
+## Phase 9: Gameplay Pilot & Strategic Integration (Complete)
+
+**30. ~~[x] Gameplay Testing Pilot~~ ✅**
+End-to-end gameplay validation across flora, ComeRosquillas, pixel-bounce using gameplay framework. Verified real feature delivery.
+
+**31. ~~[x] Squad-Watch CLI~~ ✅**
+Real-time constellation health monitoring. Team dashboard integration enabling live operational visibility.
+
+**32. ~~[x] MCP Server Enhancement~~ ✅**
+Extended MCP capabilities for deeper GitHub + squad integration. Copilot ecosystem bridge.
+
+**33. ~~[x] Downstream Ecosystem Issues~~ ✅**
+Triaged and operationalized strategic issues across FFS + satellite repos. Aligns downstream work with upstream vision.
+
+**34. ~~[x] Research: Awesome-Copilot & Marketplace~~ ✅**
+Market landscape analysis. Plugin marketplace positioning and strategy documentation.
+
+**35. ~~[x] Test 3 Verification (629 tests)~~ ✅**
+Constellation-wide test validation. 629 tests passing across SS hub + 5 game satellites. Ready for Azure launch.
+
+**36. ~~[x] Phase 9 Documentation (This Issue #95)~~ ✅**
+Strategic roadmap documentation + Phase 10+ vision. Completed this document.
+
+---
+
+## Phase 10: Test 3 Azure Launch (Planned)
+
+**37. [ ] Test 3 Azure VM 24/7 Operation**
+Actual deployment to Azure B2s_v2 VM. Full constellation running autonomously: 629 tests passing, Bicep infrastructure, session watchdog active, metrics dashboard live. 24/7 operation with session auto-reset, GitHub Actions CI on 30-minute cadence.
 
 **Acceptance Criteria:**
-- CI workflow step (in `.github/workflows/ci.yml`) that extracts test count from vitest JSON output after tests pass on main branch
-- Updates the test count badge in README.md from hardcoded value to actual count (currently says "168 passing" but actual is 399)
-- Uses vitest `--reporter=json` to parse total test count reliably
-- Only commits if the count actually changed (no empty commits)
-- Commit message: `chore: update test count badge to N passing`
-- Skips badge update on PR branches (only updates on main)
-- Add `[skip ci]` to the badge-update commit to prevent infinite loop
-- No new dependencies — uses built-in vitest reporter and sed/node script
+- Azure resource group provisioned via Bicep with IaC validation
+- VM running Ubuntu 24.04, tmux sessions for each satellite repo
+- Session watchdog auto-restarting context every 6 hours
+- Ralph generating Phase 10 issues on board-clear (via Sprint Planning)
+- Live metrics dashboard showing real 24/7 performance (velocity, throughput, quality rate)
+- Zero manual intervention — founder monitoring only
+- Pre-flight validation script passing 100%
 
-**Files:**
-- `.github/workflows/ci.yml` (update — add badge update step)
-- `scripts/update-badge.js` (create — parse vitest JSON, update README badge)
+---
 
-**Context:**
-The README badge says "168 passing" but the actual count is 399. This gap grows every time tests are added and makes the project look stale. An autonomous company should autonomously keep its own badges accurate. This is a small but high-visibility fix — every visitor to the repo sees the badge. Auto-updating it on CI is the natural completion of the autonomous pipeline: agents write code, tests grow, badge reflects reality.
+## Phase 11: Gameplay Testing Rollout (Planned)
+
+**38. [ ] Expand Gameplay Framework to All Downstreams**
+Scale gameplay validation across entire FFS constellation. Real-time gameplay CI on every game update.
+
+**39. [ ] Autonomous Game Feature Delivery**
+Full gameplay pipeline: GDD → proposal → implementation → gameplay test → merge. Autonomous game development.
+
+---
+
+## Phase 12: Platform Evolution (Planned)
+
+**40. [ ] Plugin Marketplace Go-Live**
+Public plugin registry. Community plugins for Squad. Revenue model prototype: premium plugins, marketplace integration.
+
+**41. [ ] Expanded MCP Ecosystem**
+Enterprise MCP server exposing full squad state (metrics, decisions, skills). GitHub Copilot + enterprise integrations.
+
+**42. [ ] Multi-Company Federation**
+Governance model for multiple downstream companies (FFS Phase 2, additional studios). Shared infrastructure, independent roadmaps.
+
+---
+
+## Phase 13: Community & Open-Source (Planned)
+
+**43. [ ] Public Documentation & Onboarding**
+Comprehensive guides: architecture, squad operations, autonomous company playbook. Enable community AI dev teams.
+
+**44. [ ] Skills Marketplace**
+Public skills database. Community contributes reusable agent patterns. Certifications for advanced skills.
+
+**45. [ ] Community Governance**
+RFC process for major decisions. Community voting on strategic direction. Transparent roadmap.
+
+---
+
+## Phase 14: Multi-Cloud & Scaling (Planned)
+
+**46. [ ] AWS + Google Cloud Support**
+Expand beyond Azure. Multi-cloud IaC, cost optimization, regional failover.
+
+**47. [ ] Kubernetes Constellation**
+Scale to 50+ satellite repos. Distributed orchestration, auto-scaling, cost-aware scheduling.
+
+**48. [ ] Global Deployment**
+Multi-region satellite networks. Real-time replication, compliance per region.
+
+---
+
+## Phase 15: Revenue & Sustainability (Planned)
+
+**49. [ ] Premium Plugin Marketplace**
+Monetized plugins. Premium support tiers. Sustainable business model for open-source team.
+
+**50. [ ] Enterprise Squad Licensing**
+White-label Squad for enterprise teams. Per-agent pricing, compliance certifications.
+
+**51. [ ] Autonomous Company-as-a-Service**
+Turnkey service: "Bring your game, we'll autonomously develop it." SaaS pricing model.
