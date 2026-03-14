@@ -1,0 +1,261 @@
+---
+import Layout from '../../layouts/Layout.astro';
+
+const postDate = new Date('2026-03-22').toLocaleDateString('en-US', {
+  year: 'numeric',
+  month: 'long',
+  day: 'numeric'
+});
+---
+
+<Layout title="Phase 8-9: From Infrastructure to Ecosystem - Syntax Sorcery">
+  <div class="prose max-w-4xl mx-auto px-4 py-8">
+    <h1>Phase 8-9: From Infrastructure to Ecosystem</h1>
+    
+    <div class="text-gray-600 mb-8">
+      <time datetime="2026-03-22">{postDate}</time>
+    </div>
+
+    <h2>What Was Built</h2>
+    
+    <p>
+      After Phase 7 brought security hardening and community foundations, Phase 8-9 shifted focus to 
+      <strong>autonomous operation at scale</strong> and <strong>ecosystem integration</strong>. 
+      Here's what shipped:
+    </p>
+
+    <h3>Infrastructure & Autonomy (Phase 8)</h3>
+    
+    <ul>
+      <li><strong>Azure Bicep Infrastructure as Code</strong> — Declarative provisioning replaces shell scripts. What-if preview, cost tracking, reproducible deployments.</li>
+      <li><strong>Pre-flight Validation Script</strong> — 8 automated checks before Test 3 launch: Git status, Node version, Azure CLI, squad config, GitHub CLI auth, test pass rate, constellation health, Docker daemon.</li>
+      <li><strong>Session Watchdog</strong> — Auto-restarts sessions every 6 hours on Azure VM, preventing context overflow in 24/7 operations.</li>
+      <li><strong>Branch Protection Enforcement</strong> — Downstream repos now require ≥1 passing CI check + optional review before merge. Eliminates auto-merge-without-review risk.</li>
+      <li><strong>Live Metrics Dashboard</strong> — GitHub Pages integration shows team performance in real-time: PRs merged, tests passing, issues closed, session duration.</li>
+      <li><strong>Auto-updating Test Badge</strong> — CI automatically updates test count in README. 629 → 689 tests reflected instantly.</li>
+    </ul>
+
+    <h3>Ecosystem & Extensibility (Phase 8b-9)</h3>
+    
+    <ul>
+      <li><strong>MCP Server (11 Tools)</strong> — Expose Syntax Sorcery squad state to the Copilot ecosystem:
+        <ul>
+          <li>Create/update issues from roadmap</li>
+          <li>Manage work in progress</li>
+          <li>Query squad state &amp; team metrics</li>
+          <li>Roadmap analysis &amp; strategic planning</li>
+          <li>Repository management across constellation</li>
+          <li>Integration with external workflows</li>
+        </ul>
+      </li>
+      <li><strong>Plugin Marketplace</strong> — Extensible plugin registry. Community developers can author plugins, discover &amp; install them via CLI.</li>
+      <li><strong>Gameplay Testing Framework</strong> — Real gameplay validation via Puppeteer. Not just unit tests—agents actually play games to validate features work end-to-end.</li>
+      <li><strong>Squad-Watch CLI</strong> — Real-time team dashboard. Monitor agent activity, issue progress, PR status, metrics, incident detection—all from the terminal.</li>
+      <li><strong>Downstream Repo Audit</strong> — Comprehensive assessment of all 6 constellation repos: code quality, test coverage, gameplay validation patterns, deployment readiness.</li>
+      <li><strong>Ecosystem Research</strong> — awesome-copilot database, awesome-azure patterns, community-driven content for plugin developers.</li>
+    </ul>
+
+    <h2>The Stats That Matter</h2>
+    
+    <div class="bg-gray-100 rounded-lg p-6 my-8">
+      <h3 style="margin-top: 0;">Autonomous Operation Metrics</h3>
+      
+      <dl style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-top: 1rem;">
+        <div>
+          <dt style="font-weight: 600;">Issues per Session</dt>
+          <dd style="font-size: 2rem; font-weight: bold; color: #2563eb;">18+</dd>
+        </div>
+        <div>
+          <dt style="font-weight: 600;">PRs per Session</dt>
+          <dd style="font-size: 2rem; font-weight: bold; color: #16a34a;">15+</dd>
+        </div>
+        <div>
+          <dt style="font-weight: 600;">Tests Passing</dt>
+          <dd style="font-size: 2rem; font-weight: bold; color: #9333ea;">689</dd>
+        </div>
+        <div>
+          <dt style="font-weight: 600;">Human Intervention</dt>
+          <dd style="font-size: 2rem; font-weight: bold; color: #dc2626;">0%</dd>
+        </div>
+      </dl>
+    </div>
+
+    <p>
+      These numbers represent <strong>true autonomous operation</strong>. Ralph creates 18+ issues by analyzing project state 
+      strategically. @copilot implements them. Switch validates with 689 tests. Morpheus reviews. PRs merge automatically. 
+      <strong>Zero human in the loop</strong>.
+    </p>
+
+    <h2>The Gameplay Testing Breakthrough</h2>
+    
+    <p>
+      For months, the team tested games with unit tests only. But unit tests don't catch real gameplay issues: 
+      UI responsiveness, game balance, accessibility. Phase 9 shipped <strong>real gameplay validation</strong>.
+    </p>
+    
+    <p>
+      Puppeteer-based framework now:
+    </p>
+    
+    <ul>
+      <li>Launches games in headless browser</li>
+      <li>Simulates player actions: navigation, attacks, purchases, achievements</li>
+      <li>Validates core loops work end-to-end</li>
+      <li>Screenshots failures for debugging</li>
+      <li>Runs in CI on every PR</li>
+    </ul>
+
+    <p>
+      <strong>Result:</strong> Real features validated, not fake passes. Game repos now ship with confidence.
+    </p>
+
+    <h2>MCP Server &amp; Ecosystem Integration</h2>
+    
+    <p>
+      The MCP server opens Syntax Sorcery to the world. External tools, plugins, and developers can now:
+    </p>
+    
+    <ul>
+      <li>Query squad state programmatically</li>
+      <li>Trigger work: create issues, manage PRs</li>
+      <li>Access metrics: performance, health, team utilization</li>
+      <li>Extend functionality: plugins transform how the system works</li>
+    </ul>
+
+    <p>
+      This transforms Syntax Sorcery from an internal-only system into an extensible <strong>platform for autonomous teams</strong>.
+    </p>
+
+    <h2>Plugin Marketplace: Community Extensions</h2>
+    
+    <p>
+      Phase 9 shipped the plugin marketplace. Community developers can now:
+    </p>
+    
+    <ul>
+      <li>Author plugins in TypeScript</li>
+      <li>Publish to the registry</li>
+      <li>Let users discover &amp; install via CLI</li>
+      <li>Extend squad capabilities: new issue types, custom metrics, integrations</li>
+    </ul>
+
+    <p>
+      First wave of plugins: Slack notifications, Jira sync, GitHub Enterprise support, custom dashboards.
+    </p>
+
+    <h2>What's Next: Test 3 &amp; Beyond</h2>
+    
+    <h3>Phase 10: Test 3 Azure Launch</h3>
+    <p>
+      24/7 autonomous operation on Azure VM. The moment of truth: can the system run <strong>completely unattended</strong> 
+      for days without human intervention? Phase 10 will prove it.
+    </p>
+
+    <h3>Phase 11: Gameplay Rollout</h3>
+    <p>
+      Expand gameplay framework to all game repos. Every feature ships with real gameplay validation.
+    </p>
+
+    <h3>Phase 12+: Platform Evolution</h3>
+    <p>
+      Plugin marketplace goes public. Multi-company federation (Syntax Sorcery governs FirstFrameStudios, which governs game studios). 
+      Enterprise support, custom deployments, licensing.
+    </p>
+
+    <h2>Try It Out</h2>
+    
+    <p>
+      Ready to build with Syntax Sorcery?
+    </p>
+    
+    <pre><code>git clone https://github.com/jperezdelreal/Syntax-Sorcery.git
+cd Syntax-Sorcery
+npm install
+npm test                    # Run 689 tests
+npm run squad:watch        # Monitor team operations
+npm run check:constellation # Check all 6 repos</code></pre>
+
+    <p>
+      Follow the journey on <a href="https://github.com/jperezdelreal/Syntax-Sorcery/issues">GitHub Issues</a> 
+      and <a href="https://jperezdelreal.github.io/Syntax-Sorcery/status/">Constellation Status</a>.
+    </p>
+
+    <hr style="margin: 3rem 0; border: none; border-top: 1px solid #ddd;" />
+    
+    <p style="font-size: 0.9rem; color: #666;">
+      Built with <a href="https://github.com/bradygaster/squad">Squad</a> by Brady Gaster. 
+      Syntax Sorcery is open-source—contributions welcome!
+    </p>
+  </div>
+</Layout>
+
+<style>
+  .prose {
+    font-size: 1rem;
+    line-height: 1.6;
+  }
+  
+  .prose h1 {
+    font-size: 2.5rem;
+    font-weight: bold;
+    margin-bottom: 0.5rem;
+    margin-top: 0;
+  }
+  
+  .prose h2 {
+    font-size: 1.875rem;
+    font-weight: bold;
+    margin-top: 2rem;
+    margin-bottom: 1rem;
+  }
+  
+  .prose h3 {
+    font-size: 1.3rem;
+    font-weight: bold;
+    margin-top: 1.5rem;
+    margin-bottom: 0.75rem;
+  }
+  
+  .prose p {
+    margin-bottom: 1rem;
+  }
+  
+  .prose ul {
+    list-style-type: disc;
+    margin-left: 2rem;
+    margin-bottom: 1rem;
+  }
+  
+  .prose li {
+    margin-bottom: 0.5rem;
+  }
+  
+  .prose a {
+    color: #0066cc;
+    text-decoration: underline;
+  }
+  
+  .prose a:hover {
+    color: #0052a3;
+  }
+  
+  .prose code {
+    background-color: #f5f5f5;
+    padding: 0.2rem 0.4rem;
+    border-radius: 3px;
+    font-family: 'Courier New', monospace;
+  }
+  
+  .prose pre {
+    background-color: #f5f5f5;
+    padding: 1rem;
+    border-radius: 5px;
+    overflow-x: auto;
+    margin-bottom: 1rem;
+  }
+  
+  .prose pre code {
+    background: none;
+    padding: 0;
+  }
+</style>
