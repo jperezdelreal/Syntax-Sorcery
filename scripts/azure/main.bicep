@@ -1,10 +1,10 @@
 // main.bicep — Syntax Sorcery Test 3 VM Infrastructure
 // Deploys: B2s_v2 Ubuntu 24.04 VM with SSH-only NSG, public IP, managed identity
-// Budget: ~€25-30/month | Region: West Europe
+// Budget: ~€25-30/month | Region: North Europe
 // Cloud-init installs: tmux, git, Node.js 20, gh CLI, clones 5 downstream repos
 
 @description('Azure region for all resources')
-param location string = 'westeurope'
+param location string = 'northeurope'
 
 @description('VM size — B2s_v2 is the cost-optimal choice (~€25-30/mo)')
 param vmSize string = 'Standard_B2s_v2'
@@ -45,9 +45,6 @@ package_upgrade: false
 
 apt:
   sources:
-    nodesource:
-      source: "deb [signed-by=$KEY_FILE] https://deb.nodesource.com/node_20.x nodistro main"
-      keyid: "1655A0AB68576280"
     github-cli:
       source: "deb [arch=amd64 signed-by=$KEY_FILE] https://cli.github.com/packages stable main"
       keyid: "23F3D4EA75716059"
@@ -57,10 +54,11 @@ packages:
   - git
   - curl
   - jq
-  - nodejs
   - gh
 
 runcmd:
+  - curl -fsSL https://deb.nodesource.com/setup_20.x | bash -
+  - apt-get install -y nodejs
   - mkdir -p /home/{0}/repos
   - cd /home/{0}/repos
   - for repo in flora ComeRosquillas pixel-bounce ffs-squad-monitor FirstFrameStudios; do git clone "https://github.com/jperezdelreal/$repo.git" || true; done

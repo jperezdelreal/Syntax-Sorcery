@@ -6,6 +6,30 @@ Autonomous AI dev company (€500/mo Azure, unlimited GitHub). Strict context hy
 
 ## Active Decisions (Last 7 Days)
 
+### 2026-03-14T17:00Z: User directive — No AWS, no Google Cloud
+**By:** jperezdelreal (via Copilot)
+**What:** AWS y Google Cloud estan VETADOS. Solo Azure. Issue #116 (Phase 14: Multi-Cloud) debe redefinirse sin AWS ni GCP. Nada de multi-cloud — Azure only.
+**Why:** Decision del founder. La plataforma es Azure-only.
+
+---
+
+### 2026-03-14T16:44Z: User directive — Azure Test 3 scope
+**By:** jperezdelreal (via Copilot)
+**What:** 
+1. La suscripción Azure YA EXISTE — cerrar issue #123
+2. Desplegar la VM y hacer tests de infraestructura (abrir terminales, acceder a GitHub, verificar que todo funciona) PERO sin interactuar con los squads de los repos ni activar Ralph Go
+3. Es un dry-run de infraestructura, no el Test 3 completo
+**Why:** El founder quiere verificar que la infra funciona antes de lanzar el Test 3 real. Paso intermedio seguro.
+
+---
+
+### 2026-03-14T16:38Z: User directive — Visual gameplay testing with Playwright
+**By:** jperezdelreal (via Copilot)
+**What:** El framework de gameplay testing debe evolucionar para usar Playwright/Puppeteer: abrir el juego en un browser real, tomar screenshots, simular inputs visualmente, y validar que el juego se ve y funciona correctamente. No solo tests headless — tests visuales reales donde el agente literalmente "juega" el juego.
+**Why:** El founder quiere que los agentes puedan verificar la experiencia real del juego, no solo la mecánica interna. Detectar bugs visuales, problemas de rendering, UX issues que solo se ven jugando.
+
+---
+
 ### 2026-03-22T00:00Z: T2 Decision — Pre-flight Validation Architecture
 
 **By:** Trinity (Full-Stack Developer)  
