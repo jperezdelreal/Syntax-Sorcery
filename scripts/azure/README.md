@@ -180,6 +180,59 @@ Log levels: `INFO`, `WARNING`, `ERROR`, `CRITICAL`
 
 A `CRITICAL` entry means a session failed to restart 3 consecutive times and needs manual intervention.
 
+## Deployment Verification
+
+After deploying the VM, run the verification script to confirm readiness:
+
+```bash
+# Auto-detect VM IP from Azure
+./scripts/azure/verify-deployment.sh
+
+# Or specify IP manually
+./scripts/azure/verify-deployment.sh --ip 20.73.x.x
+
+# Preview checks without running
+./scripts/azure/verify-deployment.sh --dry-run
+```
+
+The script SSHs into the VM and checks 10+ items: SSH, cloud-init, Node.js, gh CLI auth, repos cloned, tmux, disk, memory, network, and watchdog. Output is a structured pass/fail report with exit code 0 (all pass) or 1 (any fail).
+
+## Constellation Management
+
+The constellation scripts manage `ss-*` tmux sessions — the Test 3 naming convention for downstream repo sessions.
+
+### Start the constellation
+
+```bash
+./scripts/azure/start-constellation.sh
+
+# Dry run (validate only)
+./scripts/azure/start-constellation.sh --dry-run
+```
+
+Each session: `cd <repo>` → `git pull` → `copilot` → `Ralph, go`. Idempotent — skips existing sessions.
+
+### Stop the constellation
+
+```bash
+./scripts/azure/stop-constellation.sh
+
+# Preview what would be stopped
+./scripts/azure/stop-constellation.sh --dry-run
+
+# Custom log directory
+./scripts/azure/stop-constellation.sh --log-dir /tmp/constellation-logs
+```
+
+Saves the last 5000 lines of each session buffer to `~/logs/constellation/` before killing. Log files are timestamped: `ss-flora-20260322-100000.log`.
+
+### Attach to a constellation session
+
+```bash
+tmux attach -t ss-flora
+# Detach with Ctrl+B, then D
+```
+
 ## Environment Variables
 
 | Variable | Default | Description |
@@ -189,3 +242,7 @@ A `CRITICAL` entry means a session failed to restart 3 consecutive times and nee
 | `MAX_SESSION_HOURS` | `6` | Max session uptime before auto-recycle |
 | `WATCHDOG_LOG` | `/var/log/ss-watchdog.jsonl` | Structured log file path |
 | `WATCHDOG_STATE_DIR` | `/var/lib/ss-watchdog` | Directory for restart failure state tracking |
+| `CONSTELLATION_LOG_DIR` | `~/logs/constellation` | Directory for constellation session logs |
+| `RESOURCE_GROUP` | `syntax-sorcery-satellites` | Azure resource group (verify-deployment) |
+| `VM_NAME` | `ss-satellite-vm` | Azure VM name (verify-deployment) |
+| `VM_USER` | `ssadmin` | SSH user for VM (verify-deployment) |

@@ -144,3 +144,51 @@
 
 **Status:** READY for founder approval and launch phase.
 
+### Downstream Repo Quality Issues — Issue #90 (2026-03-21T15:45Z)
+
+**Task:** Create concrete improvement issues in 5 downstream repos based on downstream-audit.md findings.
+
+**Execution:**
+
+Created 9 issues across all 5 downstream repos using `gh issue create`:
+
+1. **pixel-bounce (jperezdelreal/pixel-bounce)**
+   - #37: Add gameplay tests using SS gameplay framework
+   - #38: Improve test coverage — currently 0 tests
+
+2. **flora (jperezdelreal/flora)**
+   - #225: Add gameplay tests using SS gameplay framework
+   - #226: Improve test coverage — currently 0 tests
+
+3. **ComeRosquillas (jperezdelreal/ComeRosquillas)**
+   - #106: Replace inflated tests with real gameplay tests (97% are expect(10).toBe(10) style)
+   - #107: Add Game class instantiation tests (currently zero Game instances in tests)
+
+4. **FirstFrameStudios (jperezdelreal/FirstFrameStudios)**
+   - #200: Add test infrastructure (zero tests despite 310-line QUICK_TEST_REFERENCE.txt)
+   - #201: Define concrete development roadmap (strategic/abstract issues, no actionable milestones)
+
+5. **ffs-squad-monitor (jperezdelreal/ffs-squad-monitor)**
+   - #138: Expand test suite with integration tests (only repo with real tests; 544 passing, 1 failing)
+
+All issues:
+- Labeled `squad`
+- Reference gameplay test template from downstream-audit.md
+- Include specific acceptance criteria
+- Provide template code examples
+
+**Documentation:**
+- Updated `docs/downstream-audit.md` with "## Action Items Created" section
+- Added issue table with links to all 9 issues
+- Added "Next Steps for Squad" (Gameplay Framework implementation, CI gates, branch protection)
+- Created commit: `squad/90-downstream-issues` → PR-ready
+
+**Strategic Value:**
+- Operationalizes audit findings into concrete work
+- Routes each issue with specific, measurable deliverables (not abstract "improve testing")
+- Gameplay framework template becomes shared Squad skill
+- Establishes test quality expectations across ecosystem
+- Enables Phase 8 focus: autonomous operation requires high-confidence downstream repos
+
+**Key Insight:** Audit identified the problem; issues operationalize the solution. 9 focused issues are more actionable than "test more and better."
+
