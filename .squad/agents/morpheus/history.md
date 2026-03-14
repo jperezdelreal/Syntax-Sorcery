@@ -67,3 +67,13 @@
 **Safeguards:** 3 issues/cycle × 3 cycles/session = 9 issues max. Pre-condition checks prevent empty spinning. No-retry on failure (fail clean, let next session handle it). Natural endpoint detection (Lead can declare project complete).
 
 **Impact on Test 3:** Each tmux window runs its own independent refueling cycle — no cross-terminal coordination needed. perpetual-motion.yml eliminated. ralph-watch.ps1 deprecated (new role TBD).
+
+### Sprint Planning — Phase 8: Azure Autonomy (2026-03-21)
+
+**Ceremony:** Sprint Planning triggered by board clear (zero open issues). First execution of Refueling v2 protocol.
+
+**Context:** Phase 7 COMPLETE — all 18 roadmap items delivered. 399 tests passing (up from 345). PRs #63-65 merged (security hardening, community kit, auto-deploy). Items 16-18 marked done in roadmap. Badge stale (says 168, actual 399).
+
+**Output:** 6 issues created (#66-#71) as Phase 8 "Azure Autonomy" — the Test 3 launch sequence. Two tracks: infrastructure (#66-#69: pre-flight, Bicep IaC, branch protection, session watchdog) and showroom (#70-#71: metrics dashboard, badge auto-update). Decision written to `.squad/decisions/inbox/morpheus-sprint-planning.md`.
+
+**Key insight:** Phase 8 is the first phase focused on OPERATING the system rather than BUILDING it. All prior phases built capabilities; Phase 8 builds the operational envelope for 24/7 autonomous deployment. The shift from "can it work?" to "can it run unsupervised?" is the defining transition.
