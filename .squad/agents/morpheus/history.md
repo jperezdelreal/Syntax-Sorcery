@@ -47,3 +47,28 @@
 **Board Status:** 3 open issues (#60, #61, #62). Phase 7 DEFINED. Ralph can assign to @copilot.
 
 **Strategic Note:** Phase 7 is the capstone. Security proves the system is RESPONSIBLE (not just functional). Community kit proves it's WELCOMING (not just impressive). Auto-deploy proves it's FULLY AUTOMATED (not just CI-validated). Together they transform SS from "a working autonomous system" to "a production-grade open-source platform." The founder wakes up to a system that not only built itself, but secured itself, opened its doors, and deployed itself. Elite.
+
+## Learnings
+
+### Test 2 Post-Mortem Analysis (2026-03-14)
+
+**Decision:** Test 2 "Ralph Go Multi-Terminal" evaluated at 8/10 (improvement over Test 1: 7/10). Post-mortem written to `.squad/decisions/inbox/morpheus-test2-postmortem.md`, test metrics updated in `docs/autonomy-tests.md`.
+
+**Key Findings:**
+- 86 PRs merged across 6 repos in ~5 hours, zero human intervention (29x improvement over Test 1)
+- Best performers: ffs-squad-monitor (30 PRs, 0 duplicates), pixel-bounce (8 PRs, perfect cycle)
+- Critical deficiency: perpetual-motion duplicate issue storm in flora (41 dupes) and ComeRosquillas (16 dupes) — Test 1 deficiency NOT fixed, AMPLIFIED
+- FirstFrameStudios produced 0 output — hub repos need actionable issues, not strategic roadmap requests
+- Branch protection absent in downstream repos — PRs merged in <3 seconds without review
+- Multi-terminal model confirmed as correct architecture — independence IS efficiency
+- Dedup guard is BLOCKER for Test 3: duplicates scale worse than linearly with volume
+
+**File Paths:**
+- Post-mortem: `.squad/decisions/inbox/morpheus-test2-postmortem.md`
+- Test matrix: `docs/autonomy-tests.md`
+- Test 1 eval: `.squad/orchestration-log/2026-03-13T1700-morpheus-autonomy-eval.md`
+- Hub/spoke design: `.squad/orchestration-log/2026-03-13T2032-morpheus-hub-spoke.md`
+- Test 2 launch log: `.squad/log/2026-03-13T20-54-test2-start.md`
+- Constellation config: `.squad/constellation.json`
+
+**User Preference:** Análisis estratégicos en español cuando el founder lo solicita. Post-mortems with full data tables, per-repo breakdowns, and comparative metrics.
