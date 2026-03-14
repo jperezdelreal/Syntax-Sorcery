@@ -6,6 +6,31 @@ Autonomous AI dev company (€500/mo Azure, unlimited GitHub). Strict context hy
 
 ## Active Decisions (Last 7 Days)
 
+### 2026-03-21T00:00Z: T1 Decision — Ralph Refueling Protocol Redesign
+
+**By:** Morpheus (Lead/Architect)
+**Tier:** T1
+**Status:** 📐 DESIGN PROPOSED — pending founder approval
+
+**Executive Summary:**
+
+Replaces event-driven `perpetual-motion.yml` with loop-driven internal refueling (Ralph→Lead→issues→Ralph). Eliminates race conditions and duplicate issues by moving refueling decision to single-threaded Ralph. Lead spawned with full context (history, PRs, roadmap) creates exactly 3 issues per cycle, max 3 cycles per session (9 issues max).
+
+**Key Parameters:**
+- **Architecture:** Single-threaded refueling within session (Ralph controls cycle timing)
+- **Issues per cycle:** Exactly 3 (quality threshold + prevent overhead)
+- **Max cycles/session:** 3 (9 issues max, prevents context saturation)
+- **Safeguards:** Cycle counter, completed-issue check, quality prompt with anti-repetition rules
+- **Eliminates:** perpetual-motion.yml (GitHub Actions coupling)
+- **Resolves:** Race conditions, dedup storms, lack of context, external coupling
+- **Recommended:** Opción C (detailed safeguards + full implementation)
+
+Full technical design (2.4 Decisión T1 phases, implementation sections, safety analysis) archived in orchestration log for reference: `.squad/orchestration-log/2026-03-14T09-24Z-morpheus-refueling-redesign.md`
+
+---
+
+### Previous Active Decisions
+
 ### 2026-03-14T09:14Z: User corrections + directive — Test 2 post-mortem
 
 **By:** jperezdelreal (via Copilot)
