@@ -108,6 +108,18 @@
 2. **Founder pain points drive platform evolution** — "Agents write superficial tests instead of playing games" is not a one-off complaint; it's a systemic gap that #75 (gameplay testing) and #72 (downstream audit highlighting test quality) together address.
 3. **Ecosystem thinking ≠ distraction** — Issues #73-74 (MCP, marketplace) feel like "nice-to-have" but are strategic: they transform Squad from internal tool to platform, enabling external teams to extend it. Phase 8+ requires ecosystem maturity.
 4. **Documentation as product** — Issue #76 (Test 3 runbook) is not afterthought; it's product. A launch checklist is the operational interface. Clarity here is the difference between "ran once" and "runs 24/7 unsupervised."
+### Downstream Repo Audit — Testing Quality Crisis (2026-03-21)
+
+**Task:** Full audit of all 5 downstream repos (pixel-bounce, flora, ComeRosquillas, FirstFrameStudios, ffs-squad-monitor) per issue #72. Founder pain point: "me desespera que el testing de los juegos es pobre."
+
+**Findings:** 3 of 5 repos have ZERO tests. ComeRosquillas has 597 tests but 95% are arithmetic assertions (`expect(10).toBe(10)`) — no Game class ever instantiated. Only ffs-squad-monitor (544 tests) tests real behavior. No game repo has a single gameplay integration test.
+
+**Root cause:** Agents avoid mocking Canvas2D/AudioContext complexity, so they extract helper functions and test those in isolation. The result is high test counts with zero gameplay coverage. The Game class — the thing that matters — is never tested.
+
+**Key insight:** Test count is a vanity metric. 597 tests that verify JavaScript's equality operator provide false confidence. The fix is architectural: gameplay test templates with Canvas mocks, test quality tiers (T0-T4), and CI gates that require Game class instantiation in tests. The agents CAN write tests — they need to be told to PLAY the game.
+
+**Output:** `docs/downstream-audit.md` — comprehensive report with per-repo scorecards, specific shallow vs good test examples, gameplay testing gap analysis, and priority-ordered recommendations.
+
 ### Test 3 Launch Runbook Written (2026-03-21T12:30Z)
 
 **Deliverable:** `docs/test3-runbook.md` — comprehensive 602-line operational guide for autonomous Test 3 deployment.
