@@ -1,0 +1,378 @@
+---
+import '../styles/global.css';
+import '../styles/dashboard.css';
+
+/**
+ * Dashboard — Real-time constellation visualization.
+ * Loads data from public/data/dashboard.json at build time for initial render,
+ * then auto-refreshes every 60s via client-side fetch.
+ */
+import { readFileSync, existsSync } from 'node:fs';
+import { join } from 'node:path';
+
+let dashboardData: any = null;
+try {
+  const jsonPath = join(process.cwd(), 'public', 'data', 'dashboard.json');
+  if (existsSync(jsonPath)) {
+    dashboardData = JSON.parse(readFileSync(jsonPath, 'utf8'));
+  }
+} catch {
+  // Fallback handled in template
+}
+
+const REPOS = ['Syntax-Sorcery', 'pixel-bounce', 'flora', 'ComeRosquillas', 'FirstFrameStudios', 'ffs-squad-monitor'];
+
+function getRepoStatus(repo: string, lastActivity: Record<string, string | null>) {
+  const ts = lastActivity?.[repo];
+  if (!ts) return 'inactive';
+  const diff = Date.now() - new Date(ts).getTime();
+  const hours = diff / (1000 * 60 * 60);
+  if (hours < 24) return 'active';
+  if (hours < 72) return 'stale';
+  return 'inactive';
+}
+
+function formatTimeAgo(ts: string | null): string {
+  if (!ts) return 'No activity';
+  const diff = Date.now() - new Date(ts).getTime();
+  const mins = Math.floor(diff / 60000);
+  if (mins < 60) return `${mins}m ago`;
+  const hours = Math.floor(mins / 60);
+  if (hours < 24) return `${hours}h ago`;
+  const days = Math.floor(hours / 24);
+  return `${days}d ago`;
+}
+
+const kpis = dashboardData?.kpis ?? {};
+const lastActivity = dashboardData?.last_activity ?? {};
+const generatedAt = dashboardData?.generatedAt ?? new Date().toISOString();
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Syntax Sorcery — Real-time Constellation Dashboard" />
+    <meta name="theme-color" content="#00ff41" />
+    <link rel="icon" type="image/svg+xml" href="/Syntax-Sorcery/favicon.svg" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet" />
+    <title>Dashboard — Syntax Sorcery</title>
+  </head>
+  <body class="dashboard-root">
+    <!-- Scanline overlay for sci-fi effect -->
+    <div class="scanline-overlay" aria-hidden="true"></div>
+
+    <!-- Header -->
+    <header class="dash-header">
+      <div class="dash-header-title">
+        <span class="logo">⟨SS⟩</span>
+        <span>Mission Control</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:1.5rem;">
+        <div class="dash-status-live" id="live-indicator">
+          <span class="pulse-dot"></span>
+          <span>LIVE</span>
+        </div>
+        <a href="/Syntax-Sorcery/" class="dash-back-link">← Home</a>
+      </div>
+    </header>
+
+    <!-- Main Dashboard Grid -->
+    <div class="dashboard-grid">
+
+      <!-- ═══════════ KPI BAR ═══════════ -->
+      <div class="kpi-bar" id="kpi-bar">
+        <div class="kpi-item">
+          <div class="kpi-value" data-kpi="issues-opened">{kpis.issues_opened_7d?.value ?? '—'}</div>
+          <div class="kpi-label">Issues Opened</div>
+          <div class="kpi-rate" data-kpi="issues-opened-rate">{kpis.issues_opened_7d?.rate ?? 0}/day</div>
+        </div>
+        <div class="kpi-item">
+          <div class="kpi-value" data-kpi="issues-closed">{kpis.issues_closed_7d?.value ?? '—'}</div>
+          <div class="kpi-label">Issues Closed</div>
+          <div class="kpi-rate" data-kpi="issues-closed-rate">{kpis.issues_closed_7d?.rate ?? 0}/day</div>
+        </div>
+        <div class="kpi-item">
+          <div class="kpi-value" data-kpi="prs-merged">{kpis.prs_merged_7d?.value ?? '—'}</div>
+          <div class="kpi-label">PRs Merged</div>
+          <div class="kpi-rate" data-kpi="prs-merged-rate">{kpis.prs_merged_7d?.rate ?? 0}/day</div>
+        </div>
+        <div class="kpi-item">
+          <div class="kpi-value" data-kpi="prs-open">{kpis.prs_open?.value ?? '—'}</div>
+          <div class="kpi-label">PRs Open</div>
+          <div class="kpi-rate">current</div>
+        </div>
+        <div class="kpi-item">
+          <div class="kpi-value" data-kpi="cycle-time">{kpis.avg_cycle_time?.value !== null && kpis.avg_cycle_time?.value !== undefined ? `${kpis.avg_cycle_time.value}h` : '—'}</div>
+          <div class="kpi-label">Cycle Time</div>
+          <div class="kpi-rate">avg hours</div>
+        </div>
+        <div class="kpi-item">
+          <div class="kpi-value" data-kpi="test-count">{kpis.test_count?.value ?? '—'}</div>
+          <div class="kpi-label">Repos w/ CI</div>
+          <div class="kpi-rate">active pipelines</div>
+        </div>
+        <div class="kpi-item">
+          <div class="kpi-value" data-kpi="active-agents">{kpis.active_agents?.value ?? 0}/{kpis.active_agents?.total ?? 6}</div>
+          <div class="kpi-label">Active Repos</div>
+          <div class="kpi-rate">last 24h</div>
+        </div>
+      </div>
+
+      <!-- ═══════════ CONSTELLATION STATUS ═══════════ -->
+      <div class="dash-card" style="grid-column:1/-1;">
+        <div class="dash-card-title"><span class="icon">🌌</span> Constellation Status</div>
+        <div class="constellation-grid" id="constellation-grid">
+          {REPOS.map((repo) => {
+            const status = getRepoStatus(repo, lastActivity);
+            return (
+              <div class="repo-card" data-repo={repo}>
+                <span class={`status-indicator ${status}`} data-status={status}></span>
+                <div class="repo-name">{repo}</div>
+                <div class="repo-stats">
+                  <span>📋 <span data-stat="issues">—</span> issues</span>
+                  <span>🔀 <span data-stat="prs">—</span> PRs</span>
+                </div>
+                <div class="repo-last-activity" data-last-activity={lastActivity[repo] ?? ''}>
+                  {formatTimeAgo(lastActivity[repo] ?? null)}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+
+      <!-- ═══════════ PIPELINE VIEW ═══════════ -->
+      <div class="dash-card pipeline-container">
+        <div class="dash-card-title"><span class="icon">⚡</span> Pipeline Flow</div>
+        <div class="pipeline-flow" id="pipeline-flow">
+          <div class="pipeline-stage">
+            <div class="stage-bubble" data-stage="issues">{kpis.issues_opened_7d?.value ?? 0}</div>
+            <div class="stage-label">Issues</div>
+            <div class="stage-count">opened</div>
+          </div>
+          <div class="pipeline-arrow"></div>
+          <div class="pipeline-stage">
+            <div class="stage-bubble" data-stage="in-progress">{kpis.prs_open?.value ?? 0}</div>
+            <div class="stage-label">In Progress</div>
+            <div class="stage-count">active</div>
+          </div>
+          <div class="pipeline-arrow"></div>
+          <div class="pipeline-stage">
+            <div class="stage-bubble" data-stage="pr">{kpis.prs_open?.value ?? 0}</div>
+            <div class="stage-label">PR</div>
+            <div class="stage-count">open</div>
+          </div>
+          <div class="pipeline-arrow"></div>
+          <div class="pipeline-stage">
+            <div class="stage-bubble" data-stage="review">{kpis.test_count?.value ?? 0}</div>
+            <div class="stage-label">Review</div>
+            <div class="stage-count">CI checks</div>
+          </div>
+          <div class="pipeline-arrow"></div>
+          <div class="pipeline-stage">
+            <div class="stage-bubble" data-stage="merged">{kpis.prs_merged_7d?.value ?? 0}</div>
+            <div class="stage-label">Merged</div>
+            <div class="stage-count">7 days</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ═══════════ ACTIVITY FEED ═══════════ -->
+      <div class="dash-card activity-feed">
+        <div class="dash-card-title"><span class="icon">📡</span> Activity Feed</div>
+        <div class="feed-list" id="activity-feed">
+          <div class="feed-empty">Loading activity data...</div>
+        </div>
+      </div>
+
+      <!-- ═══════════ REFRESH BAR ═══════════ -->
+      <div class="refresh-bar">
+        <span>Auto-refresh in</span>
+        <span class="countdown" id="countdown">60</span>
+        <span>s</span>
+        <div class="refresh-progress">
+          <div class="refresh-progress-fill" id="refresh-progress" style="width:100%"></div>
+        </div>
+        <span style="margin-left:0.5rem;color:#444;">Last: <span id="last-update">{new Date(generatedAt).toLocaleTimeString()}</span></span>
+      </div>
+
+    </div>
+
+    <!-- ═══════════ CLIENT-SIDE AUTO-REFRESH ═══════════ -->
+    <script define:vars={{ BASE_URL: '/Syntax-Sorcery', REPOS }}>
+
+      const REFRESH_INTERVAL = 60; // seconds
+      let countdown = REFRESH_INTERVAL;
+      let dashboardData = null;
+
+      // --- Helpers ---
+      function timeAgo(ts) {
+        if (!ts) return 'No activity';
+        const diff = Date.now() - new Date(ts).getTime();
+        const mins = Math.floor(diff / 60000);
+        if (mins < 1) return 'Just now';
+        if (mins < 60) return `${mins}m ago`;
+        const hours = Math.floor(mins / 60);
+        if (hours < 24) return `${hours}h ago`;
+        const days = Math.floor(hours / 24);
+        return `${days}d ago`;
+      }
+
+      function getStatus(repo, lastActivity) {
+        const ts = lastActivity?.[repo];
+        if (!ts) return 'inactive';
+        const diff = Date.now() - new Date(ts).getTime();
+        const hours = diff / (1000 * 60 * 60);
+        if (hours < 24) return 'active';
+        if (hours < 72) return 'stale';
+        return 'inactive';
+      }
+
+      // --- KPI Update ---
+      function updateKPIs(kpis) {
+        const setKpi = (sel, val) => {
+          const el = document.querySelector(`[data-kpi="${sel}"]`);
+          if (el) { el.textContent = val; el.classList.add('dash-updated'); setTimeout(() => el.classList.remove('dash-updated'), 600); }
+        };
+        const setRate = (sel, val) => {
+          const el = document.querySelector(`[data-kpi="${sel}"]`);
+          if (el) el.textContent = val;
+        };
+
+        setKpi('issues-opened', kpis.issues_opened_7d?.value ?? '—');
+        setRate('issues-opened-rate', `${kpis.issues_opened_7d?.rate ?? 0}/day`);
+        setKpi('issues-closed', kpis.issues_closed_7d?.value ?? '—');
+        setRate('issues-closed-rate', `${kpis.issues_closed_7d?.rate ?? 0}/day`);
+        setKpi('prs-merged', kpis.prs_merged_7d?.value ?? '—');
+        setRate('prs-merged-rate', `${kpis.prs_merged_7d?.rate ?? 0}/day`);
+        setKpi('prs-open', kpis.prs_open?.value ?? '—');
+        setKpi('cycle-time', kpis.avg_cycle_time?.value != null ? `${kpis.avg_cycle_time.value}h` : '—');
+        setKpi('test-count', kpis.test_count?.value ?? '—');
+        setKpi('active-agents', `${kpis.active_agents?.value ?? 0}/${kpis.active_agents?.total ?? 6}`);
+      }
+
+      // --- Pipeline Update ---
+      function updatePipeline(kpis) {
+        const setStage = (sel, val) => {
+          const el = document.querySelector(`[data-stage="${sel}"]`);
+          if (el) { el.textContent = val; el.classList.add('dash-updated'); setTimeout(() => el.classList.remove('dash-updated'), 600); }
+        };
+        setStage('issues', kpis.issues_opened_7d?.value ?? 0);
+        setStage('in-progress', kpis.prs_open?.value ?? 0);
+        setStage('pr', kpis.prs_open?.value ?? 0);
+        setStage('review', kpis.test_count?.value ?? 0);
+        setStage('merged', kpis.prs_merged_7d?.value ?? 0);
+      }
+
+      // --- Constellation Update ---
+      function updateConstellation(lastActivity) {
+        REPOS.forEach((repo) => {
+          const card = document.querySelector(`[data-repo="${repo}"]`);
+          if (!card) return;
+          const status = getStatus(repo, lastActivity);
+          const indicator = card.querySelector('.status-indicator');
+          if (indicator) {
+            indicator.className = `status-indicator ${status}`;
+            indicator.dataset.status = status;
+          }
+          const activityEl = card.querySelector('.repo-last-activity');
+          if (activityEl) {
+            activityEl.textContent = timeAgo(lastActivity?.[repo]);
+            activityEl.dataset.lastActivity = lastActivity?.[repo] ?? '';
+          }
+        });
+      }
+
+      // --- Activity Feed ---
+      function buildActivityFeed(data) {
+        const feed = document.getElementById('activity-feed');
+        if (!feed) return;
+
+        const events = [];
+        const lastAct = data.last_activity || {};
+        const kpis = data.kpis || {};
+
+        // Build synthetic events from available data
+        for (const [repo, ts] of Object.entries(lastAct)) {
+          if (ts) {
+            events.push({ type: 'commit', repo, time: ts, text: `New commit activity` });
+          }
+        }
+
+        if (kpis.prs_merged_7d?.value > 0) {
+          events.push({ type: 'merge', repo: 'constellation', time: data.generatedAt, text: `${kpis.prs_merged_7d.value} PRs merged this week` });
+        }
+        if (kpis.issues_closed_7d?.value > 0) {
+          events.push({ type: 'close', repo: 'constellation', time: data.generatedAt, text: `${kpis.issues_closed_7d.value} issues closed this week` });
+        }
+        if (kpis.issues_opened_7d?.value > 0) {
+          events.push({ type: 'open', repo: 'constellation', time: data.generatedAt, text: `${kpis.issues_opened_7d.value} issues opened this week` });
+        }
+
+        events.sort((a, b) => new Date(b.time) - new Date(a.time));
+
+        if (events.length === 0) {
+          feed.innerHTML = '<div class="feed-empty">No recent activity detected</div>';
+          return;
+        }
+
+        const icons = { commit: '💾', merge: '🔀', close: '✅', open: '📋' };
+        feed.innerHTML = events.slice(0, 12).map((ev, i) => `
+          <div class="feed-item" style="animation-delay:${i * 60}ms">
+            <span class="feed-icon">${icons[ev.type] || '📡'}</span>
+            <div class="feed-content">
+              <div class="feed-text">
+                <span class="repo">${ev.repo}</span> — ${ev.text}
+              </div>
+              <div class="feed-time">${timeAgo(ev.time)}</div>
+            </div>
+          </div>
+        `).join('');
+      }
+
+      // --- Fetch & Refresh ---
+      async function fetchDashboard() {
+        try {
+          const res = await fetch(`${BASE_URL}/data/dashboard.json?t=${Date.now()}`);
+          if (!res.ok) throw new Error(`HTTP ${res.status}`);
+          dashboardData = await res.json();
+
+          const kpis = dashboardData.kpis || {};
+          const lastActivity = dashboardData.last_activity || {};
+
+          updateKPIs(kpis);
+          updatePipeline(kpis);
+          updateConstellation(lastActivity);
+          buildActivityFeed(dashboardData);
+
+          const lastEl = document.getElementById('last-update');
+          if (lastEl) lastEl.textContent = new Date().toLocaleTimeString();
+        } catch (err) {
+          console.warn('Dashboard refresh failed:', err.message);
+        }
+      }
+
+      // --- Countdown Timer ---
+      function tick() {
+        countdown--;
+        const countdownEl = document.getElementById('countdown');
+        const progressEl = document.getElementById('refresh-progress');
+        if (countdownEl) countdownEl.textContent = countdown;
+        if (progressEl) progressEl.style.width = `${(countdown / REFRESH_INTERVAL) * 100}%`;
+
+        if (countdown <= 0) {
+          countdown = REFRESH_INTERVAL;
+          fetchDashboard();
+        }
+      }
+
+      // --- Init ---
+      fetchDashboard();
+      setInterval(tick, 1000);
+    </script>
+  </body>
+</html>
