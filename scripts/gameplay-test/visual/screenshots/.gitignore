@@ -1,0 +1,6 @@
+# Captured screenshots are test artifacts, not committed
+*.png
+.last-run.json
+
+# Keep this directory
+!.gitignore

@@ -80,6 +80,7 @@
   },
   "devDependencies": {
     "@bradygaster/squad-cli": "^0.8.25",
+    "@playwright/test": "^1.58.2",
     "vitest": "^4.1.0"
   },
   "scripts": {
@@ -98,6 +99,7 @@
     "enforce:protection": "node scripts/enforce-branch-protection.js",
     "plugin": "node scripts/plugin-manager.js",
     "gameplay-test": "node scripts/gameplay-test/framework.js",
+    "visual-test": "npx playwright test --config scripts/gameplay-test/visual/playwright.config.js",
     "watch": "node scripts/squad-watch.js",
     "dashboard:data": "node scripts/dashboard-api.js",
     "squad": "node scripts/squad-cli.js"
