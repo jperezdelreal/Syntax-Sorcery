@@ -15,10 +15,13 @@
  *   dedup    Run dedup guard
  *   report   Generate session report
  *   metrics  Run performance metrics engine
+ *   security Run security audit (deps, secrets, SBOM)
  *   help     Show this help message
  *
  * Flags:
- *   --json   Machine-readable JSON output (where supported)
+ *   --json       Machine-readable JSON output (where supported)
+ *   --fix        Auto-fix vulnerabilities (security command)
+ *   --sbom-only  Only generate SBOM (security command)
  */
 
 const { execSync, spawnSync } = require('child_process');
@@ -28,7 +31,7 @@ const path = require('path');
 // Constants
 // ---------------------------------------------------------------------------
 
-const COMMANDS = ['status', 'health', 'review', 'dedup', 'report', 'metrics', 'help'];
+const COMMANDS = ['status', 'health', 'review', 'dedup', 'report', 'metrics', 'security', 'help'];
 
 const HELP_TEXT = `
 Squad CLI — Unified developer CLI for all squad operations
@@ -43,11 +46,14 @@ Commands:
   dedup               Run dedup guard
   report              Generate session report
   metrics             Run performance metrics engine
+  security            Run security audit (deps, secrets, SBOM)
   help                Show this help message
 
 Flags:
   --json              Machine-readable JSON output (where supported)
-  --save              Save metrics snapshot (metrics command)
+  --save              Save metrics snapshot / SBOM
+  --fix               Auto-fix vulnerabilities (security command)
+  --sbom-only         Only generate SBOM (security command)
   --since <date>      Start date filter (metrics, report)
   --until <date>      End date filter (metrics, report)
 
@@ -56,6 +62,9 @@ Examples:
   npm run squad -- health --json
   npm run squad -- review --pr 42
   npm run squad -- metrics --json --save
+  npm run squad -- security --json
+  npm run squad -- security --fix
+  npm run squad -- security --sbom-only --save
 `.trim();
 
 // ---------------------------------------------------------------------------
@@ -68,6 +77,8 @@ function parseCliArgs(argv) {
   const flags = args.slice(1);
   const jsonMode = flags.includes('--json');
   const save = flags.includes('--save');
+  const fix = flags.includes('--fix');
+  const sbomOnly = flags.includes('--sbom-only');
 
   let pr = null;
   const prIdx = flags.indexOf('--pr');
@@ -87,7 +98,7 @@ function parseCliArgs(argv) {
     until = flags[untilIdx + 1];
   }
 
-  return { command, flags, jsonMode, pr, save, since, until };
+  return { command, flags, jsonMode, pr, save, fix, sbomOnly, since, until };
 }
 
 // ---------------------------------------------------------------------------
@@ -253,11 +264,30 @@ function cmdMetrics(jsonMode, save, since, until) {
 }
 
 // ---------------------------------------------------------------------------
+// Command: security
+// ---------------------------------------------------------------------------
+
+function cmdSecurity(jsonMode, fix, sbomOnly, save) {
+  const scriptPath = path.resolve(__dirname, 'security-audit.js');
+  const args = [];
+  if (jsonMode) args.push('--json');
+  if (fix) args.push('--fix');
+  if (sbomOnly) args.push('--sbom-only');
+  if (save) args.push('--save');
+
+  const result = spawnSync(process.execPath, [scriptPath, ...args], {
+    stdio: 'inherit',
+    timeout: 120_000,
+  });
+  return result.status || 0;
+}
+
+// ---------------------------------------------------------------------------
 // Router
 // ---------------------------------------------------------------------------
 
 function route(parsed) {
-  const { command, jsonMode, pr, save, since, until } = parsed;
+  const { command, jsonMode, pr, save, fix, sbomOnly, since, until } = parsed;
 
   if (!command) {
     console.log(HELP_TEXT);
@@ -286,6 +316,8 @@ function route(parsed) {
       return cmdReport(jsonMode);
     case 'metrics':
       return cmdMetrics(jsonMode, save, since, until);
+    case 'security':
+      return cmdSecurity(jsonMode, fix, sbomOnly, save);
     case 'help':
       return cmdHelp();
     default:
@@ -318,6 +350,7 @@ module.exports = {
   cmdDedup,
   cmdReport,
   cmdMetrics,
+  cmdSecurity,
   cmdHelp,
   route,
   main,

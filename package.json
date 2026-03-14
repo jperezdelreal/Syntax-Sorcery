@@ -93,6 +93,7 @@
     "report:session": "node scripts/session-report.js",
     "metrics": "node scripts/metrics-engine.js",
     "setup": "node scripts/bootstrap.js",
+    "security": "node scripts/security-audit.js",
     "squad": "node scripts/squad-cli.js"
   },
   "repository": {
