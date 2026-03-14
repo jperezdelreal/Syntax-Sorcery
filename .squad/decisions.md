@@ -6,6 +6,33 @@ Autonomous AI dev company (€500/mo Azure, unlimited GitHub). Strict context hy
 
 ## Active Decisions (Last 7 Days)
 
+### 2026-03-21T10:42Z: T1 Decision — Refueling v2 Implemented
+
+**By:** Morpheus (Lead/Architect)  
+**Tier:** T1  
+**Status:** ✅ IMPLEMENTED  
+**Date:** 2026-03-21
+
+**What:** Refueling v2 protocol implemented in Syntax Sorcery. Two files changed:
+
+1. **`.github/agents/squad.agent.md`** — 3 surgical edits:
+   - Step 2 "No work found" row: idle → Sprint Planning ceremony trigger
+   - Step 6 (Ralph check): updated to mention Sprint Planning auto-refuel
+   - "Between checks" paragraph: rewritten for perpetual continuous loop
+
+2. **`.squad/ceremonies.md`** — Added Sprint Planning ceremony:
+   - Trigger: auto, When: before, Condition: board clear
+   - Facilitator: lead, Participants: lead-only
+   - Agenda: read project state → analyze holistically → create N issues → anti-repetition check → natural endpoint detection
+
+**Why:** Founder approved the v2 design. The system now has perpetual autonomy — when the board clears, Ralph triggers Sprint Planning instead of idling. No artificial caps, no mechanical counters. The Lead strategically decides what comes next.
+
+**Impact:** Ralph can now run indefinitely without human intervention to refuel the board. This is the foundation for 24/7 autonomous operation on Azure VM (Test 3).
+
+**Orchestration Log:** `.squad/orchestration-log/2026-03-21T10-42Z-morpheus-refueling-v2-impl.md`
+
+---
+
 ### 2026-03-14T09:36Z: T1 Decision — Ralph Refueling Protocol v2 (Supersedes v1)
 
 **By:** Morpheus (Lead/Architect)  
