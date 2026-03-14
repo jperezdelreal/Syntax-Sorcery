@@ -7,9 +7,14 @@
 const {
   COMMANDS,
   HELP_TEXT,
+  GAMEPLAY_TEST_HELP,
   parseCliArgs,
+  extractFlag,
   cmdStatus,
   cmdHelp,
+  cmdEnforceProtection,
+  cmdPlugin,
+  cmdGameplayTest,
   route,
   main,
 } = require('../squad-cli');
@@ -47,6 +52,32 @@ describe('parseCliArgs', () => {
     const result = parseCliArgs(['node', 'squad-cli.js', 'review', '--pr']);
     expect(result.pr).toBeNull();
   });
+
+  it('parses --apply flag for enforce-protection', () => {
+    const result = parseCliArgs(['node', 'squad-cli.js', 'enforce-protection', '--apply']);
+    expect(result.command).toBe('enforce-protection');
+    expect(result.applyProtection).toBe(true);
+  });
+
+  it('parses --repo flag for enforce-protection', () => {
+    const result = parseCliArgs(['node', 'squad-cli.js', 'enforce-protection', '--repo', 'flora']);
+    expect(result.command).toBe('enforce-protection');
+    expect(result.repo).toBe('flora');
+  });
+
+  it('parses plugin command with subcommand flags', () => {
+    const result = parseCliArgs(['node', 'squad-cli.js', 'plugin', 'list']);
+    expect(result.command).toBe('plugin');
+    expect(result.flags).toContain('list');
+  });
+
+  it('parses gameplay-test with --init, --type, --target', () => {
+    const result = parseCliArgs(['node', 'squad-cli.js', 'gameplay-test', '--init', '--type', 'platformer', '--target', '../pixel-bounce']);
+    expect(result.command).toBe('gameplay-test');
+    expect(result.init).toBe(true);
+    expect(result.type).toBe('platformer');
+    expect(result.target).toBe('../pixel-bounce');
+  });
 });
 
 // ---------------------------------------------------------------------------
@@ -55,7 +86,7 @@ describe('parseCliArgs', () => {
 
 describe('COMMANDS', () => {
   it('includes all expected commands', () => {
-    expect(COMMANDS).toEqual(['status', 'health', 'review', 'dedup', 'report', 'metrics', 'security', 'preflight', 'help']);
+    expect(COMMANDS).toEqual(['status', 'health', 'review', 'dedup', 'report', 'metrics', 'security', 'preflight', 'enforce-protection', 'plugin', 'gameplay-test', 'help']);
   });
 });
 
@@ -181,6 +212,31 @@ describe('route', () => {
     expect(code).toBe(1);
     const errorOutput = errorSpy.mock.calls.map(c => c[0]).join('\n');
     expect(errorOutput).toContain('--pr');
+  });
+
+  it('routes enforce-protection command (spawns external script)', () => {
+    // enforce-protection calls spawnSync which will fail in test env, but routing should not throw
+    const code = route({ command: 'enforce-protection', jsonMode: false, pr: null, applyProtection: false, repo: null });
+    expect(typeof code).toBe('number');
+  });
+
+  it('routes plugin command (spawns external script)', () => {
+    const code = route({ command: 'plugin', jsonMode: false, pr: null, flags: ['list'] });
+    expect(typeof code).toBe('number');
+  });
+
+  it('routes gameplay-test command and shows help without --init', () => {
+    const code = route({ command: 'gameplay-test', jsonMode: false, pr: null, init: false, flags: [] });
+    expect(code).toBe(0);
+    const allOutput = logSpy.mock.calls.map(c => c[0]).join('\n');
+    expect(allOutput).toContain('Gameplay Test');
+  });
+
+  it('gameplay-test returns 1 for invalid --type', () => {
+    const code = route({ command: 'gameplay-test', jsonMode: false, pr: null, init: true, type: 'invalid', target: null, flags: [] });
+    expect(code).toBe(1);
+    const errorOutput = errorSpy.mock.calls.map(c => c[0]).join('\n');
+    expect(errorOutput).toContain('--type');
   });
 });
 

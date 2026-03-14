@@ -95,6 +95,9 @@
     "setup": "node scripts/bootstrap.js",
     "security": "node scripts/security-audit.js",
     "preflight": "node scripts/preflight.js",
+    "enforce:protection": "node scripts/enforce-branch-protection.js",
+    "plugin": "node scripts/plugin-manager.js",
+    "gameplay-test": "node scripts/gameplay-test/framework.js",
     "squad": "node scripts/squad-cli.js"
   },
   "repository": {
