@@ -1,0 +1,12 @@
+{
+  "name": "{plugin-name}",
+  "version": "1.0.0",
+  "description": "Describe what this plugin does",
+  "author": "",
+  "tags": [],
+  "domain": "",
+  "compatibility": {
+    "squad": ">=0.8.0"
+  },
+  "repository": ""
+}

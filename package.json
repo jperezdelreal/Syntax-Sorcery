@@ -94,7 +94,8 @@
     "metrics": "node scripts/metrics-engine.js",
     "setup": "node scripts/bootstrap.js",
     "security": "node scripts/security-audit.js",
-    "squad": "node scripts/squad-cli.js"
+    "squad": "node scripts/squad-cli.js",
+    "plugin": "node scripts/plugin-manager.js"
   },
   "repository": {
     "type": "git",

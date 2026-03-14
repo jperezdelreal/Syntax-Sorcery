@@ -31,7 +31,7 @@ const path = require('path');
 // Constants
 // ---------------------------------------------------------------------------
 
-const COMMANDS = ['status', 'health', 'review', 'dedup', 'report', 'metrics', 'security', 'help'];
+const COMMANDS = ['status', 'health', 'review', 'dedup', 'report', 'metrics', 'security', 'plugin', 'help'];
 
 const HELP_TEXT = `
 Squad CLI — Unified developer CLI for all squad operations
@@ -47,6 +47,7 @@ Commands:
   report              Generate session report
   metrics             Run performance metrics engine
   security            Run security audit (deps, secrets, SBOM)
+  plugin <subcmd>     Manage plugins (list, install, search, create, info)
   help                Show this help message
 
 Flags:
@@ -283,11 +284,25 @@ function cmdSecurity(jsonMode, fix, sbomOnly, save) {
 }
 
 // ---------------------------------------------------------------------------
+// Command: plugin
+// ---------------------------------------------------------------------------
+
+function cmdPlugin(flags) {
+  const scriptPath = path.resolve(__dirname, 'plugin-manager.js');
+  // Forward all flags after 'plugin' to the plugin-manager
+  const result = spawnSync(process.execPath, [scriptPath, ...flags], {
+    stdio: 'inherit',
+    timeout: 120_000,
+  });
+  return result.status || 0;
+}
+
+// ---------------------------------------------------------------------------
 // Router
 // ---------------------------------------------------------------------------
 
 function route(parsed) {
-  const { command, jsonMode, pr, save, fix, sbomOnly, since, until } = parsed;
+  const { command, flags, jsonMode, pr, save, fix, sbomOnly, since, until } = parsed;
 
   if (!command) {
     console.log(HELP_TEXT);
@@ -318,6 +333,8 @@ function route(parsed) {
       return cmdMetrics(jsonMode, save, since, until);
     case 'security':
       return cmdSecurity(jsonMode, fix, sbomOnly, save);
+    case 'plugin':
+      return cmdPlugin(parsed.flags);
     case 'help':
       return cmdHelp();
     default:
@@ -351,6 +368,7 @@ module.exports = {
   cmdReport,
   cmdMetrics,
   cmdSecurity,
+  cmdPlugin,
   cmdHelp,
   route,
   main,

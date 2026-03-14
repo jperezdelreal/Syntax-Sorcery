@@ -1,0 +1,12 @@
+{
+  "name": "di-testing-pattern",
+  "version": "1.0.0",
+  "description": "Dependency injection testing pattern for testable Node.js code",
+  "author": "Syntax Sorcery",
+  "tags": ["testing", "dependency-injection", "vitest", "node"],
+  "domain": "testing",
+  "compatibility": {
+    "squad": ">=0.8.0"
+  },
+  "repository": "jperezdelreal/Syntax-Sorcery"
+}

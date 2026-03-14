@@ -1,0 +1,12 @@
+{
+  "name": "conventional-commit",
+  "version": "1.0.0",
+  "description": "Generate conventional commit messages using structured format",
+  "author": "Syntax Sorcery",
+  "tags": ["git", "commits", "process", "conventions"],
+  "domain": "process",
+  "compatibility": {
+    "squad": ">=0.8.0"
+  },
+  "repository": "jperezdelreal/Syntax-Sorcery"
+}
