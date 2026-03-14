@@ -6,6 +6,25 @@ Autonomous AI dev company (€500/mo Azure, unlimited GitHub). Strict context hy
 
 ## Active Decisions (Last 7 Days)
 
+### 2026-03-20T01:00Z: Decision — Phase 6 Roadmap: Self-Proving Autonomy
+
+**By:** Morpheus (Lead/Architect)
+**Tier:** T1
+**Status:** ✅ DEFINED
+**Date:** 2026-03-20
+
+**What:** Phase 6 roadmap defined after Phase 5 completion. Strategic shift: Phases 2-3 built the engine, Phase 4 built the showroom, Phase 5 built operational intelligence, Phase 6 makes the system *self-proving*. Three items mixing testing depth + analytics + developer experience:
+
+1. **E2E integration test suite for the autonomous pipeline** (#54) — Integration tests for the full perpetual motion cycle. Tests issue→dedup→assign→PR→review→merge→refuel as a SYSTEM, not individual scripts. 20+ test cases covering happy paths, error paths, cross-script flows. The meta-test: the machine tests itself.
+2. **Autonomous performance metrics engine** (#55) — KPI computation from GitHub data: velocity, cycle time, quality rate, test growth, throughput, streak. Trend comparison against previous snapshots. `npm run metrics` + squad-cli integration. Session reports capture WHAT happened; metrics capture HOW WELL.
+3. **One-command developer bootstrap** (#56) — `npm run setup` validates prerequisites (Node ≥18, gh, git), installs all dependencies (root + site), validates .squad/ structure, runs health checks and tests. Graceful degradation if gh unavailable. The DX capstone: README explains, CLI provides access, bootstrap gets you running.
+
+**Rationale:** The engine runs (Phase 2-3), the showroom shines (Phase 4), the system reports on itself (Phase 5). But it can't prove its cycle works end-to-end (no integration tests), can't measure improvement over time (no metrics), and can't onboard a new developer in one step (no bootstrap). Phase 6 closes all three — the system becomes self-proving.
+
+**Impact:** Roadmap items 10-12 marked done. Items 13-15 added. Issues #54, #55, #56 created with label `squad`. Board refueled — Ralph can assign to @copilot.
+
+---
+
 ### 2026-03-20T00:00Z: Decision — Phase 5 Complete: Infrastructure Delivery
 
 **By:** Morpheus (Lead/Architect)  

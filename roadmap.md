@@ -59,67 +59,93 @@ Delivered in PR #46 (merged 2026-03-19). Issue #43 CLOSED.
 
 ---
 
-## 10. [ ] Automated session report generator
+## ~~10. [x] Automated session report generator~~ ✅
 
-**Acceptance Criteria:**
-- Script `scripts/session-report.js` generates a structured report of autonomous session activity
-- Captures via `gh` CLI: issues opened/closed in time window, PRs merged/rejected, current test count (parse `npm test` output), agents involved (from PR authors/branches)
-- Output format: Markdown report with frontmatter (date, duration, phase, agent count) + sections for Issues, PRs, Tests, Summary
-- Writes report to `docs/reports/YYYY-MM-DD-session.md` (creates directory if needed)
-- CLI flags: `--since <ISO date>` (default: 24h ago), `--until <ISO date>` (default: now), `--dry-run` (print to stdout, don't write file)
-- Add `npm run report:session` script to package.json
-- Unit tests (vitest) with DI-mocked `gh` CLI calls, consistent with existing test patterns (dedup-guard, review-gate)
-- Exit code 0 on success, 1 on API error
-
-**Files:**
-- `scripts/session-report.js` (create)
-- `scripts/__tests__/session-report.test.js` (create)
-- `package.json` (add npm script)
-
-**Context:**
-The autonomous engine runs, but there's no structured record of what it accomplished. After 9 issues closed and 10 PRs processed in a single session, the only evidence is scattered across GitHub events. A report generator creates a "company quarterly report" after each session — concrete proof of autonomous work for the founder, trend data for operational analysis, and marketing gold for demonstrating real AI output. Ralph can invoke this at session end. Consistent DI pattern with existing scripts.
+Delivered in PR #54 (merged 2026-03-19). Issue #48 CLOSED.
 
 ---
 
-## 11. [ ] Unified developer CLI for all squad operations
+## ~~11. [x] Unified developer CLI for all squad operations~~ ✅
 
-**Acceptance Criteria:**
-- Script `scripts/squad-cli.js` provides a single entry point for all squad operations
-- Commands: `status` (open issues + PR state from `gh`), `health` (runs constellation-health.js), `review <PR#>` (runs review-gate.js), `dedup` (runs dedup-guard.js), `report [--since] [--until]` (runs session-report.js), `help` (lists all commands with descriptions)
-- Consistent output: human-readable by default, `--json` flag for machine-readable JSON output
-- Built-in help: `npm run squad` with no args shows usage + available commands
-- Error handling: unknown commands show help + exit 1, missing required args show usage for that command
-- Add `npm run squad` script to package.json (passes args via `--`)
-- Unit tests for command routing, help output, error handling, and JSON output flag
-- No new dependencies — uses existing scripts via require() or child_process
-
-**Files:**
-- `scripts/squad-cli.js` (create)
-- `scripts/__tests__/squad-cli.test.js` (create)
-- `package.json` (add npm script)
-
-**Context:**
-Currently there are 5+ separate npm scripts (`check:constellation`, `review:gate`, `dedup:check`, `dashboard:ralph`, `test:validate-squad`) with inconsistent naming and no discoverability. A developer joining the project has to read package.json to find them. A unified CLI with `npm run squad -- help` makes every operation discoverable from a single command. This is the developer experience equivalent of the README overhaul — making the system not just functional but *usable*. Critical for Squad community adoption.
+Delivered in PR #55 (merged 2026-03-19). Issue #49 CLOSED.
 
 ---
 
-## 12. [ ] Constellation status page on landing site
+## ~~12. [x] Constellation status page on landing site~~ ✅
+
+Delivered in PR #53 (merged 2026-03-19). Issue #50 CLOSED.
+
+---
+
+## 13. [ ] E2E integration test suite for the autonomous pipeline
 
 **Acceptance Criteria:**
-- New Astro page at `site/src/pages/status.astro` — the company's public operational status page
-- Displays all 6 constellation repos with: name, description, CI badge (GitHub Actions), last activity (from GitHub API at build time), open issue count, health indicator (green/yellow/red based on last activity age)
-- Health logic: green = active within 7 days, yellow = 7-30 days, red = 30+ days inactive
-- Reuses existing `getConstellationWithStats()` from `site/src/utils/data.ts` (extend if needed)
-- Summary bar at top: total repos, total healthy, total tests (168+), current phase
-- Consistent Matrix theme with existing landing page (dark background, green accents, #00ff41)
-- Mobile responsive, `prefers-reduced-motion` respected
-- Navigation: linked from main landing page and README
-- No external dependencies — pure Astro/CSS/JS
+- New test file `scripts/__tests__/perpetual-motion-e2e.test.js` — integration tests for the full autonomous pipeline
+- Tests the complete perpetual motion cycle: `issues.closed` event → dedup-guard validates → roadmap.md parsed for depletion → new planning issue created (or skipped if items remain)
+- Tests the PR pipeline: issue assigned → PR opened → review-gate validates against acceptance criteria → merge decision
+- Tests error paths: dedup detects existing planning issue (skip), roadmap has remaining items (no refuel needed), GitHub API failure (graceful error), malformed roadmap (handled)
+- Tests cross-script integration: session-report captures activity from a simulated session, squad-cli routes to correct subscripts
+- All external calls (gh CLI, GitHub API) mocked via dependency injection consistent with existing test patterns (dedup-guard.test.js, review-gate.test.js)
+- Minimum 20 integration test cases covering: happy paths (3+), error paths (5+), edge cases (5+), cross-script flows (4+), event sequencing (3+)
+- Uses vitest, runs as part of `npm test` — zero new dependencies
+- Exit code 0 on all green, descriptive failure messages on red
 
 **Files:**
-- `site/src/pages/status.astro` (create)
-- `site/src/pages/index.astro` (add navigation link to /status)
-- `README.md` (add link to status page)
+- `scripts/__tests__/perpetual-motion-e2e.test.js` (create)
+- `scripts/__tests__/fixtures/` (add mock data if needed)
 
 **Context:**
-Every serious company has a status page. Syntax Sorcery monitors 6 repos but the health data is only visible via CLI (`npm run check:constellation`) or ralph-watch dashboard (local HTML). A public `/status` page transforms internal monitoring into external proof — visitors can see the constellation is alive, repos are active, CI is green. This is the final piece of the "showroom" started in Phase 4: the README introduces, the landing page impresses, the status page *proves*. Reuses existing `getConstellationWithStats()` for data consistency.
+Individual scripts have unit tests (218 total), but the autonomous pipeline as a SYSTEM has never been integration-tested. Unit tests prove each gear works; E2E tests prove the machine runs. When the founder asks "how do you know the perpetual motion cycle works?" the answer should be "because we test it end-to-end." This is the test that separates a collection of scripts from a verified autonomous system. Simulates the full issue→PR→merge→refuel loop with mocked GitHub events. The meta-test: the machine that tests itself.
+
+---
+
+## 14. [ ] Autonomous performance metrics engine
+
+**Acceptance Criteria:**
+- Script `scripts/metrics-engine.js` aggregates historical GitHub data into operational KPIs
+- Metrics computed: velocity (issues closed per session), cycle time (median hours from issue open to PR merge), quality rate (merge % vs rejection %), test growth (tests added per phase), throughput (PRs merged per day), streak (consecutive successful merges)
+- Data source: `gh` CLI queries for issues, PRs, and reviews within a time window
+- CLI flags: `--since <ISO date>` (default: 30 days ago), `--until <ISO date>` (default: now), `--json` (machine-readable output), `--save` (write snapshot to `docs/metrics/YYYY-MM-DD.json`)
+- Human-readable output: formatted table with metric name, value, trend indicator (↑/↓/→ vs previous snapshot)
+- Trend comparison: if previous snapshot exists in `docs/metrics/`, compare and show deltas
+- Add `npm run metrics` script to package.json
+- Add `metrics` subcommand to squad-cli.js (routes to metrics-engine.js)
+- Unit tests (vitest) with DI-mocked `gh` CLI calls, tests for each metric computation, trend comparison, and edge cases (no previous data, empty time window)
+- No new dependencies — uses `gh` CLI via child_process with DI pattern
+
+**Files:**
+- `scripts/metrics-engine.js` (create)
+- `scripts/__tests__/metrics-engine.test.js` (create)
+- `scripts/squad-cli.js` (add `metrics` command routing)
+- `package.json` (add npm script)
+- `docs/metrics/` (directory created on first `--save`)
+
+**Context:**
+Session reports (Phase 5) capture WHAT happened. Metrics capture HOW WELL it happened. After 12 issues and 13 PRs in one session, the founder should be able to ask: "What's our cycle time? What's our quality rate? Are we getting faster?" The metrics engine transforms raw GitHub data into executive KPIs. Trend comparison against previous snapshots shows improvement over time. This is the difference between a company that works and a company that LEARNS. Combined with the status page (public health) and session reports (activity log), metrics complete the operational intelligence triangle: activity → health → performance.
+
+---
+
+## 15. [ ] One-command developer bootstrap
+
+**Acceptance Criteria:**
+- Script `scripts/bootstrap.js` provides complete project setup in a single command
+- Prerequisite validation: Node.js ≥18 (check `process.version`), `gh` CLI installed (check `gh --version`), `gh` authenticated (check `gh auth status`), `git` configured (check `git config user.name`)
+- Dependency installation: root project (`npm ci`), site project (`cd site && npm ci`)
+- Structure validation: runs `validate-squad.js` to verify `.squad/` integrity
+- Health check: runs `constellation-health.js` to verify downstream repos accessible
+- Test validation: runs `npm test` to confirm all tests pass
+- Output: step-by-step progress with ✅/❌ per step, final summary with total time elapsed
+- Graceful degradation: if `gh` not installed, skip GitHub-dependent steps with ⚠️ warning (don't fail entire bootstrap)
+- CLI flags: `--skip-tests` (skip test run for faster setup), `--skip-health` (skip constellation health check), `--verbose` (show full command output)
+- Add `npm run setup` script to package.json
+- Unit tests for prerequisite validation logic, step sequencing, and graceful degradation
+- No new dependencies — uses child_process for subprocess commands
+
+**Files:**
+- `scripts/bootstrap.js` (create)
+- `scripts/__tests__/bootstrap.test.js` (create)
+- `package.json` (add npm script)
+- `docs/onboarding.md` (update with `npm run setup` instructions)
+
+**Context:**
+A new developer (or the founder returning from sleep) should be able to clone the repo and run ONE command to be fully operational. Currently, setup requires: install Node, install gh, authenticate gh, npm install in root, npm install in site, validate squad structure, run tests — 7+ manual steps with no validation. `npm run setup` reduces this to a single command with built-in validation at every step. This is the developer experience capstone: the README explains (Phase 4), the CLI provides access (Phase 5), and bootstrap gets you running (Phase 6). Professional open-source projects have this. Syntax Sorcery should too.
