@@ -32,4 +32,7 @@
 
 - **2026-03-19 Phase 4 Complete — Landing Page PR #47 MERGED:** Morpheus approved & merged PR #47 (feat: landing page performance + live constellation stats). Issue #42 CLOSED. Phase 4 roadmap complete: README (#44) + Landing Page (#47) + Architecture Docs (#46) all delivered. "The Showroom" phase objectives met. Quality gate validation: Mouse's design-only PR #45 correctly rejected; Trinity's full implementation PR #47 approved. Demonstrates merge gate enforcing implementation over design-only submissions.
 
+## Learnings
+
+- **2026-03-22 Plugin Marketplace (#74, PR #87):** Built full plugin marketplace infrastructure. plugin-manager.js with 6 commands (list/install/search/create/info/help), DI-injected deps for testability. 38 tests, all 437 pass. Plugin template at .squad/templates/plugin-template/. Two example plugins: conventional-commit (metadata.json added), di-testing-pattern (new skill). Squad CLI wired with `plugin` subcommand. docs/plugins.md guide. Branch confusion lesson: always verify `git branch --show-current` after checkout — concurrent agent work can land you on wrong branch via stash.
 
