@@ -1,0 +1,151 @@
+/*
+ * Dashboard Design Tokens — Matrix Theme
+ * Issue: #111
+ * Spec: docs/design/dashboard-design-system.md
+ *
+ * Import BEFORE global.css so tokens are available to all components.
+ */
+
+:root {
+  /* ── Backgrounds ── */
+  --bg-primary: #0a0a0a;
+  --bg-card: rgba(0, 255, 65, 0.05);
+  --bg-surface: #111111;
+  --bg-surface-light: #1a1a1a;
+
+  /* ── Text ── */
+  --text-primary: #00ff41;
+  --text-secondary: #00cc33;
+  --text-body: #e0e0e0;
+  --text-muted: #666666;
+
+  /* ── Accent ── */
+  --accent: #00e5ff;
+  --accent-dim: rgba(0, 229, 255, 0.15);
+
+  /* ── Status ── */
+  --status-success: #00ff41;
+  --status-warning: #ffd700;
+  --status-error: #ff4444;
+  --status-idle: #666666;
+
+  /* ── Borders ── */
+  --border-card: rgba(0, 255, 65, 0.2);
+  --border-card-hover: rgba(0, 255, 65, 0.4);
+  --border-subtle: rgba(255, 255, 255, 0.06);
+  --border-separator: rgba(255, 255, 255, 0.04);
+
+  /* ── Glass Effect ── */
+  --glass-bg: rgba(17, 17, 17, 0.8);
+  --glass-border: rgba(255, 255, 255, 0.06);
+  --glass-blur: blur(10px);
+
+  /* ── Typography ── */
+  --font-mono: 'JetBrains Mono', 'Fira Code', 'Cascadia Code', ui-monospace, monospace;
+  --font-body: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+
+  --text-xs: 12px;
+  --text-sm: 13px;
+  --text-base: 15px;
+  --text-lg: 16px;
+  --text-xl: 20px;
+  --text-2xl: 28px;
+  --text-kpi: 48px;
+
+  /* ── Spacing ── */
+  --space-xs: 4px;
+  --space-sm: 8px;
+  --space-md: 12px;
+  --space-lg: 16px;
+  --space-xl: 20px;
+  --space-2xl: 24px;
+
+  /* ── Radii ── */
+  --radius-sm: 6px;
+  --radius-md: 12px;
+  --radius-pill: 20px;
+  --radius-full: 9999px;
+
+  /* ── Shadows / Glows ── */
+  --glow-text: 0 0 10px rgba(0, 255, 65, 0.6), 0 0 30px rgba(0, 255, 65, 0.3), 0 0 60px rgba(0, 255, 65, 0.1);
+  --glow-box: 0 0 20px rgba(0, 255, 65, 0.1), inset 0 0 20px rgba(0, 255, 65, 0.02);
+  --glow-box-hover: 0 0 30px rgba(0, 255, 65, 0.15);
+
+  /* ── Transitions ── */
+  --transition-fast: 0.15s ease;
+  --transition-base: 0.3s ease;
+  --transition-status: 0.5s ease;
+  --transition-hover: 0.3s ease;
+
+  /* ── Component Sizes ── */
+  --card-min-width: 240px;
+  --card-min-height: 160px;
+  --card-padding: 20px;
+  --kpi-min-width: 180px;
+  --kpi-padding: 24px;
+  --status-dot-size: 8px;
+  --badge-size: 20px;
+  --feed-timestamp-width: 60px;
+  --feed-max-items: 10;
+
+  /* ── Grid ── */
+  --grid-gap: 20px;
+  --grid-padding: 20px;
+
+  /* ── Focus ── */
+  --focus-ring: 2px solid var(--accent);
+  --focus-offset: 2px;
+
+  /* ── Z-Index ── */
+  --z-background: 0;
+  --z-content: 1;
+  --z-overlay: 10;
+  --z-modal: 100;
+}
+
+/* ── Responsive Grid Breakpoints ── */
+.dashboard-grid {
+  display: grid;
+  gap: var(--grid-gap);
+  padding: var(--grid-padding);
+  grid-template-columns: 1fr;
+}
+
+@media (min-width: 768px) {
+  .dashboard-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 1025px) {
+  .dashboard-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+/* ── Dashboard Animations ── */
+@keyframes dashboard-pulse-glow {
+  0%, 100% { box-shadow: 0 0 8px rgba(0, 255, 65, 0.15); }
+  50% { box-shadow: 0 0 20px rgba(0, 255, 65, 0.35); }
+}
+
+@keyframes dashboard-flow-right {
+  from { transform: translateX(-8px); opacity: 0; }
+  to { transform: translateX(0); opacity: 1; }
+}
+
+@keyframes dashboard-fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+/* ── Accessibility: Reduced Motion ── */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
