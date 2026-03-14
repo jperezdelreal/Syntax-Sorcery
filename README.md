@@ -9,7 +9,7 @@
 ![Tests](https://img.shields.io/badge/tests-453%20passing-brightgreen)
 ![Node](https://img.shields.io/badge/node-20-blue)
 ![License](https://img.shields.io/badge/license-ISC-blue)
-![Phase](https://img.shields.io/badge/phase-3%20complete-blueviolet)
+![Phase](https://img.shields.io/badge/phase-9%20complete-blueviolet)
 [![Contributor Covenant](https://img.shields.io/badge/Contributor%20Covenant-2.1-4baaaa.svg)](CODE_OF_CONDUCT.md)
 
 *Where code writes itself.*
@@ -22,7 +22,7 @@
 
 Syntax Sorcery is an autonomous software development company. AI agents design, build, test, and deploy software products with minimal human intervention — the founder reviews only edge cases. Built on [Squad](https://github.com/bradygaster/squad) by Brady Gaster.
 
-**Current status:** Phase 3 complete · 6 repos in constellation · 168 tests · 6 PRs merged autonomously
+**Current status:** Phase 9 complete · 6 repos in constellation · 629 tests (453 hub + 176 satellites) · Gameplay framework deployed · MCP server live · 24/7 Azure autonomy ready
 
 📡 **[Constellation Status](https://jperezdelreal.github.io/Syntax-Sorcery/status/)** — Live health dashboard for all 6 repos
 
@@ -48,7 +48,9 @@ Syntax Sorcery runs on a **perpetual motion engine** — an autonomous cycle tha
 │   └──────────┘    └──────────┘    └──────────┘             │
 │                                                             │
 │   Ralph monitors · Dedup guard prevents duplicates          │
-│   Review gate validates · CI runs 168 tests                 │
+│   Review gate validates · CI runs 629 tests                │
+│   Gameplay framework validates real features                │
+│   Squad-watch monitors constellation health 24/7            │
 └─────────────────────────────────────────────────────────────┘
 ```
 
@@ -80,13 +82,13 @@ Syntax Sorcery governs a constellation of 6 repositories through a hub/spoke mod
 | Agent | Role | Responsibility |
 |---|---|---|
 | **Morpheus** | Lead / Architect | Architecture decisions, PR reviews, quality gates |
-| **Trinity** | Full-Stack Developer | Pipeline scripts, GDD parser, core tooling |
-| **Tank** | Cloud Engineer | Azure infrastructure, Ralph hardening, deployment |
-| **Switch** | Tester / QA | 168 unit tests, CI, review gate, constellation health |
-| **Oracle** | Product & Docs | Documentation, product strategy, skills system |
+| **Trinity** | Full-Stack Developer | Gameplay framework, MCP server, core tooling |
+| **Tank** | Cloud Engineer | Azure infrastructure, session watchdog, deployment |
+| **Switch** | Tester / QA | 629 unit tests, gameplay validation, CI, review gate |
+| **Oracle** | Product & Docs | Product strategy, documentation, roadmapping |
 | **@copilot** | Coding Agent | Code generation from issues, autonomous implementation |
 | **Scribe** | Session Logger | Context hygiene, log rotation, archive management |
-| **Ralph** | Work Monitor | Perpetual motion engine, roadmap-to-issue automation |
+| **Ralph** | Work Monitor | Perpetual motion engine, roadmap-to-issue automation, Sprint Planning |
 
 ---
 
@@ -100,11 +102,14 @@ cd Syntax-Sorcery
 # Install
 npm install
 
-# Run 168 tests
+# Run 629 tests
 npm test
 
 # Check constellation health
 npm run check:constellation
+
+# Monitor team operations
+npm run squad:watch
 ```
 
 ---
@@ -113,11 +118,15 @@ npm run check:constellation
 
 | Component | What It Does |
 |---|---|
-| `perpetual-motion.yml` | Automated issue creation from roadmap |
+| `perpetual-motion.yml` | Automated issue creation from roadmap (refuel via Sprint Planning) |
 | `scripts/review-gate.js` | PR validation — linked issue, CI, files match |
 | `scripts/dedup-guard.js` | Prevents duplicate issue creation |
 | `scripts/constellation-health.js` | Checks all 6 repos for operational health |
-| `.github/workflows/ci.yml` | Runs 168 vitest tests on every PR and push |
+| `scripts/squad-watch.js` | Real-time monitoring: team dashboard + CLI |
+| `scripts/gameplay-framework.js` | Real gameplay validation via Puppeteer (not just unit tests) |
+| `mcp-server/` | MCP server exposing squad state to Copilot ecosystem |
+| `.github/workflows/ci.yml` | Runs 629 vitest tests on every PR and push |
+| `scripts/azure/session-watchdog.sh` | Auto-restarts sessions every 6 hours to prevent context overflow |
 
 ---
 
@@ -150,6 +159,35 @@ npm run check:constellation
 | Phase 1 | ✅ Complete | FFS takeover, integration testing, constellation governance |
 | Phase 2 | ✅ Complete | 168 unit tests, E2E pipeline coverage, proposal→prototype validation |
 | Phase 3 | ✅ Complete | CI quality gate, dedup guard, review gate, Azure launcher |
+| Phase 4 | ✅ Complete | Landing page premium design, constellation status page, architecture docs |
+| Phase 5 | ✅ Complete | Autonomous metrics engine, 399 tests passing, performance dashboards |
+| Phase 6 | ✅ Complete | Session reports, squad CLI, unified developer operations interface |
+| Phase 7 | ✅ Complete | Security hardening, community kit (CONTRIBUTING, CODE_OF_CONDUCT), auto-deploy |
+| Phase 8 | ✅ Complete | Azure autonomy: pre-flight validation, Bicep IaC, session watchdog, metrics dashboard, badge automation |
+| Phase 8b | ✅ Complete | Downstream audit, MCP server, plugin marketplace, gameplay framework, runbook |
+| Phase 9 | ✅ Complete | Gameplay testing pilot, squad-watch CLI, MCP enhancement, downstream integration, research, 629 tests, this documentation |
+
+---
+
+## Strategic Vision (Phase 10+)
+
+### Phase 10: Test 3 Azure Launch
+24/7 autonomous operation on Azure VM. Full constellation running: 629 tests passing, Bicep infrastructure live, session watchdog active, metrics dashboard public. Zero human intervention — founder monitoring only.
+
+### Phase 11: Gameplay Testing Rollout
+Expand gameplay framework to all downstream repos. Real-time gameplay validation CI. Autonomous game feature delivery pipeline.
+
+### Phase 12: Platform Evolution
+Plugin marketplace goes public. Enterprise MCP ecosystem integration. Multi-company federation (FFS + additional studios).
+
+### Phase 13: Community & Open-Source
+Public documentation for AI dev teams. Skills marketplace with community certifications. RFC process for community governance.
+
+### Phase 14: Multi-Cloud & Scaling
+AWS + Google Cloud support. Kubernetes constellation (50+ satellite repos). Global deployment with regional failover.
+
+### Phase 15: Revenue & Sustainability
+Premium plugin marketplace. Enterprise Squad licensing. Autonomous Company-as-a-Service offering.
 
 ---
 

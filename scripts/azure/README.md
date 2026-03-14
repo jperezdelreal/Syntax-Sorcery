@@ -24,7 +24,13 @@ Hub (local machine)
 
 | File | Purpose |
 |------|---------|
-| `start-satellites.sh` | Launch tmux sessions for all 5 repos |
+| `deploy.sh` | Bicep deployment wrapper (validate/what-if/deploy/teardown/smoke) |
+| `main.bicep` | Azure Bicep IaC template for the VM |
+| `main.bicepparam` | Bicep parameters file |
+| `verify-deployment.sh` | Post-deployment verification — structured pass/fail report |
+| `start-constellation.sh` | Launch constellation tmux sessions (`ss-*`) for all 5 repos |
+| `stop-constellation.sh` | Gracefully stop constellation sessions, save logs |
+| `start-satellites.sh` | Launch satellite tmux sessions (`sat-*`) for all 5 repos |
 | `reset-satellite.sh` | Kill and restart a single satellite by repo name |
 | `session-watchdog.sh` | Monitor sessions: health checks, auto-restart stale sessions |
 | `session-watchdog.timer` | systemd timer — runs watchdog every 30 minutes |
