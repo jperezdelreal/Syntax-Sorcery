@@ -21,3 +21,7 @@
 - **Phase 2 Safety Net:** Daily escalation-only cron (00:00 UTC). 4 detection checks: >72h inactivity, >3 build fails, >7d stuck roadmap, >5d copilot-ready without PR. Idempotent escalation creation.
 
 - **Phase 3 (In Progress):** Dedup guard (PR #38) ✅, Azure launcher (PR #39) ✅, Review gate (PR #40) pending. Infrastructure ready for 24/7 Hub/Spoke operation.
+
+## Learnings
+
+- **Bicep IaC (Issue #67, PR #77):** Converted imperative `provision-vm.sh` to declarative Bicep template. Key decisions: cloud-init via `#cloud-config` YAML (not `runcmd` scripts), SSH-only NSG with explicit deny-all, Standard SKU static public IP, user-assigned managed identity for future RBAC. Deploy wrapper (`deploy.sh`) supports 5 modes: validate, what-if, deploy, teardown, smoke. Bicep params file uses `readEnvironmentVariable` for SSH key injection. All resources tagged `project:syntax-sorcery`. Cost stays ~€25-30/mo.
