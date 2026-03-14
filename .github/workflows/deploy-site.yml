@@ -5,7 +5,7 @@ on:
     branches: [master]
     paths:
       - 'site/**'
-      - '.squad/decisions.md'
+      - 'docs/**'
       - '.github/workflows/deploy-site.yml'
   workflow_dispatch:
   schedule:
@@ -18,7 +18,7 @@ permissions:
 
 concurrency:
   group: "pages"
-  cancel-in-progress: false
+  cancel-in-progress: true
 
 jobs:
   build:
@@ -29,23 +29,30 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-        
+
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
           node-version: '20'
           cache: 'npm'
           cache-dependency-path: site/package-lock.json
-          
+
+      - name: Cache Astro build
+        uses: actions/cache@v4
+        with:
+          path: site/.astro
+          key: astro-${{ hashFiles('site/src/**', 'site/astro.config.mjs') }}
+          restore-keys: astro-
+
       - name: Setup Pages
         uses: actions/configure-pages@v5
-        
+
       - name: Install dependencies
         run: npm ci
-        
+
       - name: Build
         run: npm run build
-        
+
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:

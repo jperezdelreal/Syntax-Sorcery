@@ -5,6 +5,7 @@
 **Autonomous software development company powered by AI agents**
 
 [![CI](https://github.com/jperezdelreal/Syntax-Sorcery/actions/workflows/ci.yml/badge.svg)](https://github.com/jperezdelreal/Syntax-Sorcery/actions/workflows/ci.yml)
+[![Deploy Site](https://github.com/jperezdelreal/Syntax-Sorcery/actions/workflows/deploy-site.yml/badge.svg)](https://github.com/jperezdelreal/Syntax-Sorcery/actions/workflows/deploy-site.yml)
 ![Tests](https://img.shields.io/badge/tests-168%20passing-brightgreen)
 ![Node](https://img.shields.io/badge/node-20-blue)
 ![License](https://img.shields.io/badge/license-ISC-blue)
