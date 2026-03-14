@@ -26,6 +26,9 @@ Hub (local machine)
 |------|---------|
 | `start-satellites.sh` | Launch tmux sessions for all 5 repos |
 | `reset-satellite.sh` | Kill and restart a single satellite by repo name |
+| `session-watchdog.sh` | Monitor sessions: health checks, auto-restart stale sessions |
+| `session-watchdog.timer` | systemd timer — runs watchdog every 30 minutes |
+| `session-watchdog.service` | systemd service unit for the watchdog |
 | `provision-vm.sh` | Azure CLI commands to provision the VM |
 | `satellites.service` | systemd unit for auto-start on boot |
 
@@ -116,6 +119,60 @@ tmux attach -t sat-flora
 | VM unreachable | Verify NSG rules allow SSH (port 22): `az vm open-port ...` |
 | Session stuck | Reset it: `./reset-satellite.sh <repo-name>` |
 | All sessions dead | Restart service: `sudo systemctl restart satellites.service` |
+| Watchdog not running | Check timer: `systemctl status session-watchdog.timer` |
+| Session keeps dying | Check `tail /var/log/ss-watchdog.jsonl \| jq .` for CRITICAL entries |
+
+## Session Watchdog
+
+The watchdog monitors all satellite tmux sessions every 30 minutes. It checks:
+
+- **Session alive** — restarts dead sessions automatically
+- **Session duration** — recycles sessions running longer than `MAX_SESSION_HOURS` (default: 6)
+- **Disk space** — warns when usage exceeds 90%
+- **Memory usage** — warns when usage exceeds 90%
+- **Restart failures** — after 3 consecutive failures, writes a CRITICAL log entry
+
+### Install watchdog timer
+
+```bash
+sudo cp ~/scripts/azure/session-watchdog.service /etc/systemd/system/
+sudo cp ~/scripts/azure/session-watchdog.timer /etc/systemd/system/
+sudo mkdir -p /var/lib/ss-watchdog
+sudo chown ssadmin:ssadmin /var/lib/ss-watchdog
+sudo touch /var/log/ss-watchdog.jsonl
+sudo chown ssadmin:ssadmin /var/log/ss-watchdog.jsonl
+sudo systemctl daemon-reload
+sudo systemctl enable session-watchdog.timer
+sudo systemctl start session-watchdog.timer
+```
+
+### Verify watchdog
+
+```bash
+# Check timer status
+sudo systemctl status session-watchdog.timer
+
+# Run manually
+./scripts/azure/session-watchdog.sh
+
+# Dry run (no restarts, no log writes)
+./scripts/azure/session-watchdog.sh --dry-run
+
+# View structured logs
+tail -f /var/log/ss-watchdog.jsonl | jq .
+```
+
+### Log format
+
+Each check writes one JSON line to `/var/log/ss-watchdog.jsonl`:
+
+```json
+{"timestamp":"2026-03-22T10:00:00Z","level":"INFO","host":"ss-satellite-vm","session":"sat-flora","message":"session healthy","uptime_hours":2,"uptime_seconds":7200}
+```
+
+Log levels: `INFO`, `WARNING`, `ERROR`, `CRITICAL`
+
+A `CRITICAL` entry means a session failed to restart 3 consecutive times and needs manual intervention.
 
 ## Environment Variables
 
@@ -123,3 +180,6 @@ tmux attach -t sat-flora
 |----------|---------|-------------|
 | `SATELLITE_BASE_DIR` | `~/repos` | Base directory containing repo clones |
 | `SSH_KEY_PATH` | `~/.ssh/id_rsa.pub` | SSH public key for VM provisioning |
+| `MAX_SESSION_HOURS` | `6` | Max session uptime before auto-recycle |
+| `WATCHDOG_LOG` | `/var/log/ss-watchdog.jsonl` | Structured log file path |
+| `WATCHDOG_STATE_DIR` | `/var/lib/ss-watchdog` | Directory for restart failure state tracking |

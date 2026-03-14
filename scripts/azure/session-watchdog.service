@@ -1,0 +1,13 @@
+[Unit]
+Description=Syntax Sorcery Session Watchdog (health check + auto-restart)
+After=satellites.service
+
+[Service]
+Type=oneshot
+User=ssadmin
+Group=ssadmin
+Environment=SATELLITE_BASE_DIR=/home/ssadmin/repos
+Environment=WATCHDOG_LOG=/var/log/ss-watchdog.jsonl
+Environment=WATCHDOG_STATE_DIR=/var/lib/ss-watchdog
+Environment=MAX_SESSION_HOURS=6
+ExecStart=/home/ssadmin/scripts/azure/session-watchdog.sh

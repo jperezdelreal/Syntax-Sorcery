@@ -6,6 +6,29 @@ Autonomous AI dev company (€500/mo Azure, unlimited GitHub). Strict context hy
 
 ## Active Decisions (Last 7 Days)
 
+### 2026-03-21T00:00Z: Morpheus Sprint Planning — Phase 8: Azure Autonomy
+
+**By:** Morpheus (Lead/Architect)  
+**Tier:** T1  
+**Status:** ✅ PLANNED  
+**Date:** 2026-03-21
+
+**What:** Sprint Planning ceremony triggered by board clear. Phase 7 complete (all 18 roadmap items delivered, 399 tests passing). Phase 8 defined: "Azure Autonomy" — everything for Test 3 (24/7 autonomous operation on Azure VM).
+
+**Issues Created:**
+| # | Title | Complexity |
+|---|-------|-----------|
+| #66 | Test 3 pre-flight validation script | 🟢 @copilot |
+| #67 | Azure Bicep template — infrastructure as code | 🟢 @copilot |
+| #68 | Downstream branch protection enforcement | 🟢 @copilot |
+| #69 | Session watchdog for 24/7 Azure operation | 🟡 Mixed |
+| #70 | Live metrics dashboard on landing site | 🟢 @copilot |
+| #71 | Auto-update test count badge in CI | 🟢 @copilot |
+
+**Strategic Split:** Test 3 Infrastructure (#66-69) + Showroom Enhancement (#70-71). Verified no duplicates. All new work advancing Test 3 readiness.
+
+---
+
 ### 2026-03-21T10:42Z: T1 Decision — Refueling v2 Implemented
 
 **By:** Morpheus (Lead/Architect)  
