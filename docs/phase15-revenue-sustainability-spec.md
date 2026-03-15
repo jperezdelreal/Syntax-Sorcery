@@ -10,11 +10,11 @@
 
 ## TLDR
 
-Phase 15 establishes **three revenue streams** that fund Syntax Sorcery long-term without compromising the open-source mission: (1) **Premium Plugin Marketplace** — 20%+ revenue share on paid plugins, freemium skill tiers, premium support bundles; (2) **Enterprise Squad Licensing** — white-label autonomous development as a service for enterprise customers, per-agent pricing, compliance certifications (SOC2, HIPAA-ready); (3) **Autonomous Company-as-a-Service (SaaS)** — turnkey model where customers bring a game, SS autonomously develops it end-to-end, subscription pricing (€1,500-5,000/mo per project). Combined revenue target: €12K-15K/mo by end of Phase 15, offsetting €500/mo Azure cost 24x, enabling reinvestment in Phase 16+ (open-source sponsorships, contributor rewards, research).
+Phase 15 establishes **three revenue streams** that fund Syntax Sorcery long-term without compromising the open-source mission: (1) **Premium Plugin Marketplace** — 20% revenue share on paid plugins, freemium skill tiers, premium support bundles; (2) **Enterprise Squad Licensing** — white-label autonomous development as a service for enterprise customers, per-agent pricing, compliance certifications (SOC2, HIPAA-ready); (3) **Autonomous Company-as-a-Service (SaaS)** — turnkey model where customers bring a game, SS autonomously develops it end-to-end, subscription pricing (€1,500-5,000/mo per project). **Conservative target: €12K/mo by end of Phase 15** (realistic: €22K/mo), offsetting €480/mo Azure cost 25x+, enabling reinvestment in Phase 16+ (open-source sponsorships, contributor rewards, research).
 
 **Why now?** Phases 12-14 complete platform maturity (federation, multi-cloud readiness, team governance). Phase 15 monetizes that maturity without breaking trust. Open-source core remains free + community-governed. Premium tiers fund ecosystem.
 
-**Azure budget impact:** No change (€500/mo hard limit stands). Revenue streams are SaaS add-ons, not infrastructure expansion.
+**Azure budget impact:** Phase 15 starts at €480/mo (within budget). Scaling to €520/mo+ is **revenue-gated**: infrastructure expands ONLY after revenue materializes (€2K+/mo for week 9-16 scale, €10K+/mo for Phase 16 expansion).
 
 ---
 
@@ -59,11 +59,12 @@ Phase 15 establishes **three revenue streams** that fund Syntax Sorcery long-ter
 
 ### Phase 15 Goals
 
-1. **Establish three revenue streams** — plugins + enterprise licensing + SaaS generates €12K-15K/mo by Q4 2026
-2. **Fund sustainability** — revenue covers Azure (€500/mo) + contributor stipends (€2K-3K/mo) + R&D (€1K-2K/mo)
+1. **Establish three revenue streams** — plugins + enterprise licensing + SaaS generates €12K/mo (conservative) to €22K/mo (realistic) by end of Phase 15
+2. **Fund sustainability** — revenue covers Azure (€480/mo lean tier) + contributor stipends (€2K-4K/mo) + R&D (€2K-3K/mo)
 3. **Preserve open-source ethos** — core platform free, open governance, community-driven; premium = hosting + support + advanced features
 4. **Enable hiring** — revenue allows first contractor/part-time roles, reducing burnout
 5. **Build enterprise trust** — compliance certs + contracts + SLAs unlock Fortune 500 market
+6. **Revenue-gated scaling** — infrastructure expansion (€520/mo+ tiers) ONLY after revenue materializes (€2K+/mo threshold)
 
 ---
 
@@ -222,21 +223,21 @@ Phase 15 establishes **three revenue streams** that fund Syntax Sorcery long-ter
    - 90%+ on-time feature delivery for pilot customers
 
 **Timeline:** 8-10 weeks (infrastructure + agreements + go-to-market)  
-**Budget impact:** +€100/mo (multi-instance scaling, customer support infrastructure) by end of Phase 15  
+**Budget impact:** Starts at €0 (uses existing infrastructure); +€40/mo by Week 8 (lean tier additions); +€100/mo by Week 16 ONLY if revenue justifies it  
 **Revenue potential:** €4K-8K/mo from 3-5 customers at launch; grows to €15K+/mo in Phase 16
 
 ---
 
 ### Revenue Forecast by End of Phase 15
 
-| Stream | Best Case | Realistic | Conservative |
-|--------|-----------|-----------|--------------|
-| **Premium plugins** | €5K/mo | €3K/mo | €1.5K/mo |
-| **Enterprise licensing** (3 customers) | €30K/mo | €9K/mo | €3K/mo |
-| **SaaS** (5 customers) | €40K/mo | €10K/mo | €5K/mo |
-| **TOTAL** | €75K/mo | €22K/mo | €9.5K/mo |
+| Stream | Optimistic (Phase 16+) | Realistic | Conservative (PRIMARY) |
+|--------|------------------------|-----------|------------------------|
+| **Premium plugins** | €5K/mo | €3K/mo | €1.6K/mo |
+| **Enterprise licensing** | €30K/mo | €9K/mo | €3K/mo |
+| **SaaS** | €40K/mo | €10K/mo | €7K/mo |
+| **TOTAL** | €75K/mo | €22K/mo | €11.6K/mo |
 
-**Conservative estimate (€9.5K/mo)** covers:
+**Conservative estimate (€11.6K/mo PRIMARY MODEL)** covers:
 - Azure infrastructure (€500/mo)
 - Contributor stipends (€3K-4K/mo)
 - Legal/compliance/support staff (€4K-5K/mo) — 1 part-time contractor
@@ -297,10 +298,26 @@ Phase 15 establishes **three revenue streams** that fund Syntax Sorcery long-ter
 | **PostgreSQL** | Flexible server (B-series) | €50 | Customer usage tracking, billing data | ACID guarantees for revenue data |
 | **TOTAL ADDITIONS** | | €240-280/mo | | |
 
-**New budget:** €560-600/mo (€500 baseline + €60-100 Phase 15 additions)
+**⚠️ BUDGET CONSTRAINT — PHASED APPROACH REQUIRED:**
 
-**⚠️ Budget Constraint:** Hard €500/mo limit VIOLATED by Phase 15 additions  
-**Solution:** Phase 15 revenue (€10K+/mo realistic estimate) offsets new infrastructure. Early Phase 15 uses lean tier (Cosmos DB throughput scaled down to €50/mo during pilot); scales up with revenue.
+The €500/mo Azure budget is a **HARD LIMIT**. Phase 15 MUST use a phased rollout tied to revenue milestones:
+
+- **Weeks 1-8 (Lean Launch / Pilot):** €480/mo — PRIMARY recommendation  
+  - Start with minimal infrastructure (400 RU/s Cosmos DB, consumption Functions, lean monitoring)
+  - Reserved instances (1-year RI on VMs/App Service) for 30% savings
+  - Supports 1-3 pilot customers (enough to validate product-market fit)
+  - **See Appendix for detailed breakdown**
+
+- **Weeks 9-16 (Revenue-Gated Scale):** €520/mo — ONLY if revenue covers the delta  
+  - Requires €2K+/mo revenue materialized (4x cost delta coverage)
+  - Upgrades: Cosmos DB to 600 RU/s, API Mgmt to Standard, premium storage
+  - Supports 5-8 customers
+  - **See Appendix for detailed breakdown**
+
+- **Week 17+ (Full Scale):** €600-700/mo — ONLY after €10K+/mo revenue threshold  
+  - Infrastructure scaling is **contingent on revenue**, not assumed
+  - Multi-instance VMs, 1000+ RU/s Cosmos DB, enterprise monitoring
+  - **Phase 16 expansion requires proven revenue model**
 
 #### Azure Cost Optimization
 
@@ -310,7 +327,9 @@ Phase 15 establishes **three revenue streams** that fund Syntax Sorcery long-ter
 4. **Monitoring:** Sample logs at 10% instead of 100% (still sufficient for production); saves €10/mo
 5. **Storage:** Blob lifecycle rules (cold tier after 30 days → 80% cheaper storage)
 
-**Optimized Phase 15 budget:** €480-520/mo, fitting within €500 limit if reserved instances + cost optimization applied
+**PRIMARY BUDGET MODEL (Weeks 1-8):** €480/mo lean tier (see Appendix for full breakdown)  
+**CONTINGENT SCALE (Weeks 9-16):** €520/mo ONLY if €2K+/mo revenue achieved  
+**FUTURE SCALE (Week 17+):** €600-700/mo ONLY after €10K+/mo revenue proven
 
 ---
 
@@ -430,23 +449,56 @@ Phase 15 establishes **three revenue streams** that fund Syntax Sorcery long-ter
 
 ### 4.1 Premium Plugin Marketplace
 
-**Economics:**
+#### Conservative Revenue Model (PRIMARY SCENARIO)
+
+**Phase 15 Target: 100 subscriptions across all customers**
 
 ```
-Per plugin per customer:
-  - Customer pays: €50-200/mo (varies by complexity)
-  - Author gets: 80% = €40-160/mo
-  - SS platform takes: 20% = €10-40/mo (covers license server, payment processing, support)
+Realistic customer adoption:
+  - 50 customers total by end of Phase 15 (enterprise + indie studios combined)
+  - 20% try premium plugins = 10 customers with premium subscriptions
+  - Avg 10 plugin subscriptions per customer = 100 total subscriptions
+  
+Per-subscription economics:
+  - Customer pays: €50-200/mo (average €80/mo across plugin types)
+  - Author gets: 80% = €64/mo per subscription
+  - SS platform takes: 20% = €16/mo per subscription
 
-Marketplace scale:
-  - Target: 50+ premium plugins by Phase 16
-  - Adoption rate: 20% of customers try premium plugins (10+ customers → 2K+ subscriptions)
+Phase 15 platform revenue:
+  - 100 subscriptions × €16/mo = €1,600/mo to SS
+  - 100 subscriptions × €64/mo = €6,400/mo to plugin authors (80% flows to creators ✓)
+```
+
+**How to reach 100 subscriptions (acquisition strategy):**
+
+1. **Week 1-4:** Launch with 5 premium plugins (Slack, Jira, Security, Azure Enterprise, PagerDuty)
+2. **Week 5-8:** Onboard 3 pilot enterprise customers + 5 indie studios (8 total) → 15-20 subscriptions
+3. **Week 9-12:** Community authors publish 10+ premium plugins → expands catalog diversity
+4. **Week 13-16:** Marketing push (case studies, webinars, GitHub Sponsors) → 30-50 more customers
+5. **Week 16:** 100 subscriptions achieved = €1.6K/mo platform revenue
+
+**Key assumptions:**
+- NOT every customer buys premium plugins (80% stay on free tier)
+- Average customer buys 1-2 premium plugins, not 20+
+- Growth is linear over 16 weeks, not instant
+
+---
+
+#### Upside Scenario (OPTIMISTIC — NOT PRIMARY)
+
+**If Phase 16+ scales to 500 customers with mature plugin ecosystem:**
+
+```
+Optimistic scale (Phase 16+, not Phase 15):
+  - 500+ customers across all tiers
+  - 30% try premium plugins = 150 customers
+  - Avg 20 plugin subscriptions per customer = 3,000 subscriptions
   - Avg subscription value: €100/mo
-  - Platform revenue from plugins: 20% ├ù €100 ├ù 2K subscriptions = €40K/mo gross
-  - Author revenue: €80K/mo (90% of ecosystem benefit flows to creators ✓)
+  - Platform revenue: 20% × €100 × 3,000 = €60K/mo gross
+  - Author revenue: €240K/mo (distributed across 50+ plugin authors)
 ```
 
-**Community benefit:** Authors earn €1K-5K/mo per plugin; sustainable for full-time plugin developer roles
+**This is a Phase 16+ scenario.** Phase 15 targets €1.6K-3K/mo from plugins, NOT €40K+/mo.
 
 ---
 
@@ -536,33 +588,59 @@ At €6K/mo customer revenue:
 
 ### 4.4 Combined Revenue & Reinvestment
 
-**End of Phase 15 realistic scenario (€22K/mo):**
+**End of Phase 15 CONSERVATIVE scenario (€12K/mo) — PRIMARY MODEL:**
+
+```
+Revenue streams (realistic conservative estimates):
+  - Premium plugins: €1.6K/mo (100 subscriptions @ 20% platform fee)
+  - Enterprise licensing: €3K/mo (1 enterprise + 1 professional customer)
+  - SaaS: €7K/mo (3-4 indie studio customers)
+  Total: €11.6K/mo
+
+Cost structure:
+  - Azure infrastructure: €480/mo (lean tier, Weeks 1-8)
+  - Stripe processing (3% + $0.30): €350/mo
+  - Legal/compliance (amortized): €500/mo
+  - Support staff (0.25 FTE): €1,500/mo
+  Total OpEx: €2,830/mo
+
+Gross profit: €11.6K - €2.8K = €8.8K/mo (76% margin)
+
+Reinvestment (Phase 15 end state):
+  - Contributor stipends: €2K/mo (3 contributors @ €600-800/mo)
+  - Open-source sponsorships: €1K/mo (critical dependencies)
+  - R&D buffer (Phase 16 planning): €2K/mo
+  - Hiring fund: €2K/mo (saving toward first hire)
+  - Contingency: €1.8K/mo
+```
+
+**End of Phase 15 REALISTIC scenario (€22K/mo) — ACHIEVABLE:**
 
 ```
 Revenue streams:
-  - Premium plugins: €3K/mo
-  - Enterprise licensing: €9K/mo (3 customers)
-  - SaaS: €10K/mo (3-5 customers)
+  - Premium plugins: €3K/mo (200 subscriptions, stronger adoption)
+  - Enterprise licensing: €9K/mo (2 enterprise + 1 professional)
+  - SaaS: €10K/mo (5-6 customers)
   Total: €22K/mo
 
 Cost structure:
-  - Azure infrastructure: €500/mo
-  - Stripe processing (3% + $0.30): €200/mo
+  - Azure infrastructure: €520/mo (standard tier, Weeks 9-16, revenue-gated)
+  - Stripe processing (3% + $0.30): €660/mo
   - Legal/compliance (amortized): €500/mo
   - Support staff (0.5 FTE): €2,500/mo
-  Total OpEx: €3,700/mo
+  Total OpEx: €4,180/mo
 
-Gross profit: €22K - €3.7K = €18.3K/mo (83% margin!)
+Gross profit: €22K - €4.2K = €17.8K/mo (81% margin)
 
 Reinvestment (Phase 16+):
   - Contributor stipends: €4K/mo (5 contributors @ €800/mo)
   - Open-source sponsorships: €2K/mo (Python, Node.js, GitHub projects)
   - R&D (Phase 16+ features): €3K/mo
-  - Hiring (1 full-time engineer): €4K-5K/mo
-  - Contingency/growth: €4-5K/mo
+  - Hiring (1 full-time engineer): €5K/mo
+  - Contingency/growth: €3.8K/mo
 ```
 
-**By Phase 16:** SS moves from grant/volunteer model to sustainable open-source business (reference: Mozilla, Canonical, Elastic)
+**Key principle:** Infrastructure scaling is **contingent on revenue**, not assumed. Phase 15 starts lean (€480/mo), scales ONLY when revenue validates product-market fit.
 
 ---
 
