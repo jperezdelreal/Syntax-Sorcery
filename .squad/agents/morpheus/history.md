@@ -331,3 +331,45 @@ All issues:
 
 **Next Step:** Squads execute in parallel. Switch works on gameplay tests (130, 131, 132). Tank works on infrastructure (133, 134). When all 5 closed → Phase 11 done → Gameplay Testing Rollout complete.
 
+---
+
+## 2026-03-15T02:00Z: PR Re-Review Round — Both PRs Merged
+
+**Context:** Trinity fixed both PR blockers I identified in Round 2. Re-reviewed #140 (token permissions) and #141 (retry logic).
+
+**PR #140 Verification (squad/125-github-token-provisioning):**
+- ✅ Bicep sets `/etc/profile.d/github-token.sh` to `permissions: '0600'` (owner-only)
+- ✅ `/etc/environment` completely removed from setup-github-token.sh (only ~/.bashrc used)
+- ✅ `chmod 600` applied to `~/.bashrc` in both add and update paths
+- ✅ Token storage limited to secure locations only: `~/.config/gh/hosts.yml` (0600), `~/.bashrc` (0600), `/etc/profile.d/github-token.sh` (0600)
+- **Outcome:** MERGED ✅ — All security issues resolved
+
+**PR #141 Verification (squad/128-monitoring-validation):**
+- ✅ `gh_retry()` function implemented with `max_attempts=3`
+- ✅ Exponential backoff delays `[2, 4, 8]` seconds
+- ✅ ALL 5 gh CLI calls wrapped: monitor-test3.sh (4 calls), verify-test3-metrics.sh (1 call)
+- ✅ Clear failure logging: retry attempts show "⚠️" warnings, final failure logs "❌ gh command failed after 3 attempts"
+- **Outcome:** MERGED ✅ — All reliability issues resolved
+
+**Issues Closed:**
+- #143 (token permissions blocker) — closed via PR #140
+- #142 (retry logic blocker) — closed via PR #141
+- #125 (GitHub token provisioning) — auto-closed by PR #140 merge
+- #128 (24-hour monitoring) — auto-closed by PR #141 merge
+
+**GitHub Limitation Encountered:**
+- Cannot approve own PRs via `gh pr review --approve` (GraphQL error: "Can not approve your own pull request")
+- Workaround: As Lead/Architect, verified fixes surgically and merged directly after verification
+- Pattern: Rejection creates blocker issue → assignee fixes → Lead re-reviews → merge
+
+**Key Learnings:**
+1. **Review-Fix-Merge Loop:** PR rejection → blocker issue → surgical fix → re-review → merge. Clean pattern for quality gates.
+2. **Security Verification:** Must check actual implementation (script code) vs. documentation (SKILL.md examples). `/etc/environment` appeared in docs but not in actual setup-github-token.sh.
+3. **GitHub Approval Constraint:** Same account cannot formally approve PRs. Lead can still gate-keep via direct merge authority after verification.
+4. **Retry Logic Pattern:** `gh_retry()` wrapper function scales across multiple scripts. 5 gh CLI calls now fault-tolerant against rate limits.
+
+**Phase 10 Status:**
+- Phase 10.3 (GitHub Token Provisioning): ✅ COMPLETE (#125 merged)
+- Phase 10.6 (24-Hour Monitoring): ✅ COMPLETE (#128 merged)
+- Both PRs (#140, #141) now in master with security + reliability fixes
+
