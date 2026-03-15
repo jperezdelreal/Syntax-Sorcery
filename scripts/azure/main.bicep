@@ -20,6 +20,10 @@ param sshPublicKey string
 @allowed(['dev', 'staging', 'prod'])
 param environment string = 'prod'
 
+@description('GitHub Personal Access Token for autonomous operations (optional)')
+@secure()
+param githubToken string = ''
+
 // Resource naming
 var prefix = 'ss-satellite'
 var vmName = '${prefix}-vm'
@@ -38,6 +42,7 @@ var tags = {
 }
 
 // Cloud-init script: installs dependencies and clones all 5 downstream repos
+// If githubToken is provided, it's injected as GH_TOKEN environment variable
 var cloudInitScript = '''
 #cloud-config
 package_update: true
@@ -56,6 +61,23 @@ packages:
   - jq
   - gh
 
+write_files:
+  - path: /etc/profile.d/github-token.sh
+    permissions: '0600'
+    content: |
+      # GitHub Personal Access Token for autonomous operations
+      # Injected via cloud-init during VM provisioning
+      export GH_TOKEN="{1}"
+  - path: /home/{0}/.config/gh/setup-token.sh
+    permissions: '0700'
+    owner: '{0}:{0}'
+    content: |
+      #!/bin/bash
+      # Auto-configure gh auth if GH_TOKEN is set
+      if [ -n "$GH_TOKEN" ] && [ "$GH_TOKEN" != "" ]; then
+        echo "$GH_TOKEN" | gh auth login --with-token 2>/dev/null
+      fi
+
 runcmd:
   - curl -fsSL https://deb.nodesource.com/setup_20.x | bash -
   - apt-get install -y nodejs
@@ -63,6 +85,9 @@ runcmd:
   - cd /home/{0}/repos
   - for repo in flora ComeRosquillas pixel-bounce ffs-squad-monitor FirstFrameStudios; do git clone "https://github.com/jperezdelreal/$repo.git" || true; done
   - chown -R {0}:{0} /home/{0}/repos
+  - mkdir -p /home/{0}/.config/gh
+  - chown -R {0}:{0} /home/{0}/.config
+  - su - {0} -c '/home/{0}/.config/gh/setup-token.sh' || true
 
 final_message: "Syntax Sorcery satellite VM ready after $UPTIME seconds"
 '''
@@ -189,7 +214,7 @@ resource vm 'Microsoft.Compute/virtualMachines@2024-07-01' = {
     osProfile: {
       computerName: vmName
       adminUsername: adminUsername
-      customData: base64(format(cloudInitScript, adminUsername))
+      customData: base64(format(cloudInitScript, adminUsername, githubToken))
       linuxConfiguration: {
         disablePasswordAuthentication: true
         ssh: {
