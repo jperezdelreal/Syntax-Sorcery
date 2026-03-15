@@ -72,7 +72,7 @@ export function getTeamRoster(): TeamMember[] {
     { name: 'Morpheus', role: 'Lead/Architect', emoji: '🕶️', status: '✅ Active', tagline: 'I can only show you the door' },
     { name: 'Trinity', role: 'Full-Stack Developer', emoji: '⚡', status: '✅ Active', tagline: 'Full-stack, full-speed' },
     { name: 'Tank', role: 'Cloud Engineer', emoji: '☁️', status: '✅ Active', tagline: 'Infrastructure is the matrix' },
-    { name: 'Switch', role: 'Tester/QA', emoji: '🔧', status: '✅ Active', tagline: '137 tests and counting' },
+    { name: 'Switch', role: 'Tester/QA', emoji: '🔧', status: '✅ Active', tagline: 'Every line deserves a test' },
     { name: 'Oracle', role: 'Product & Docs', emoji: '📋', status: '✅ Active', tagline: 'You already know the answer' },
     { name: 'Mouse', role: 'UI/UX Designer', emoji: '🎨', status: '✅ Active', tagline: 'If it looks good, it works' },
     { name: '@copilot', role: 'Coding Agent', emoji: '🤖', status: '🤖 Autonomous', tagline: 'Always coding, never sleeping' },

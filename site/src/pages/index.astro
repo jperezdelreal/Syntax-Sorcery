@@ -4,10 +4,16 @@ import MatrixRain from '../components/MatrixRain.astro';
 import TypeWriter from '../components/TypeWriter.astro';
 import HowItWorks from '../components/HowItWorks.astro';
 import { getRecentDecisions, getTeamRoster, getConstellationWithStats } from '../utils/data';
+import metricsData from '../data/metrics.json';
 
 const decisions = getRecentDecisions(5);
 const team = getTeamRoster();
 const constellation = await getConstellationWithStats();
+
+const qualityRate = metricsData.metrics?.qualityRate?.value ?? null;
+const qualityDisplay = qualityRate !== null ? `${qualityRate}%` : '—';
+const testCount = metricsData.metrics?.testGrowth?.value ?? null;
+const testDisplay = testCount !== null ? `${testCount}+` : '—';
 ---
 
 <Layout title="Syntax Sorcery — Autonomous Software Company">
@@ -40,13 +46,13 @@ const constellation = await getConstellationWithStats();
 
         <div class="flex flex-wrap justify-center gap-3 mb-12">
           <span class="px-4 py-2 glass rounded-lg text-sm font-mono text-matrix-green/80 border-glow">
-            🤖 8 AI Agents
+            🤖 {team.length} AI Agents
           </span>
           <span class="px-4 py-2 glass rounded-lg text-sm font-mono text-matrix-green/80 border-glow">
             ⚡ 24/7 Autonomous
           </span>
           <span class="px-4 py-2 glass rounded-lg text-sm font-mono text-matrix-green/80 border-glow">
-            🧪 137+ Tests
+            🧪 {testDisplay} Tests
           </span>
         </div>
 
@@ -275,9 +281,9 @@ const constellation = await getConstellationWithStats();
 
         <div class="grid md:grid-cols-3 gap-6 max-w-4xl mx-auto mb-8">
           <div class="p-6 glass rounded-xl text-center card-hover">
-            <div class="text-4xl font-bold text-matrix-green mb-2 font-mono text-glow">100%</div>
-            <div class="text-gray-400 text-sm">Pipeline Success Rate</div>
-            <div class="text-gray-600 text-xs mt-2 font-mono">Last 30 days</div>
+            <div class="text-4xl font-bold text-matrix-green mb-2 font-mono text-glow">{qualityDisplay}</div>
+            <div class="text-gray-400 text-sm">PR Merge Rate</div>
+            <div class="text-gray-600 text-xs mt-2 font-mono">Last 7 days</div>
           </div>
 
           <div class="p-6 glass rounded-xl text-center card-hover">
@@ -293,17 +299,7 @@ const constellation = await getConstellationWithStats();
           </div>
         </div>
 
-        <div class="p-6 glass rounded-xl max-w-4xl mx-auto">
-          <h3 class="text-lg font-semibold mb-4 text-center font-mono text-matrix-green/80">Cost Efficiency</h3>
-          <div class="flex justify-center items-baseline gap-2">
-            <span class="text-4xl font-bold text-matrix-green font-mono text-glow">€156</span>
-            <span class="text-gray-500 font-mono text-sm">/ €500 monthly budget</span>
-          </div>
-          <div class="mt-4 w-full bg-gray-800 rounded-full h-2 overflow-hidden">
-            <div class="bg-gradient-to-r from-matrix-green/60 to-matrix-green h-2 rounded-full transition-all duration-1000" style="width: 31.2%"></div>
-          </div>
-          <p class="text-center text-gray-600 text-xs mt-2 font-mono">31% utilized • €344 under budget</p>
-        </div>
+
       </section>
 
       <!-- ═══════════ FOOTER ═══════════ -->

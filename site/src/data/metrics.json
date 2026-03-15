@@ -1,12 +1,12 @@
 {
-  "since": "2026-03-08T02:05:06.222Z",
-  "until": "2026-03-15T02:05:06.222Z",
-  "generatedAt": "2026-03-15T02:05:13.643Z",
+  "since": "2026-03-08T10:08:16.826Z",
+  "until": "2026-03-15T10:08:16.826Z",
+  "generatedAt": "2026-03-15T10:08:26.746Z",
   "metrics": {
     "velocity": {
-      "value": 11.71,
+      "value": 12.29,
       "unit": "issues/day",
-      "raw": 82
+      "raw": 86
     },
     "cycleTime": {
       "value": null,
@@ -14,20 +14,20 @@
       "raw": 0
     },
     "qualityRate": {
-      "value": 88.41,
+      "value": 86.67,
       "unit": "%",
-      "merged": 61,
-      "rejected": 8,
-      "total": 69
+      "merged": 65,
+      "rejected": 10,
+      "total": 75
     },
     "testGrowth": {
-      "value": null,
+      "value": 778,
       "unit": "tests"
     },
     "throughput": {
-      "value": 8.71,
+      "value": 9.29,
       "unit": "PRs/day",
-      "raw": 61
+      "raw": 65
     },
     "streak": {
       "value": 3,

@@ -58,6 +58,37 @@ function main() {
     metricsJson = FALLBACK_METRICS;
   }
 
+  // If testGrowth is null, try counting tests locally
+  if (metricsJson.metrics?.testGrowth?.value == null) {
+    try {
+      let raw;
+      try {
+        raw = execSync('npx vitest run --reporter=json', {
+          cwd: rootDir,
+          encoding: 'utf8',
+          timeout: 120_000,
+          stdio: ['pipe', 'pipe', 'pipe'],
+        });
+      } catch (execErr) {
+        // vitest exits non-zero when tests fail, but stdout still has valid JSON
+        raw = execErr.stdout || '';
+      }
+      if (raw) {
+        // vitest may prefix non-JSON output; extract the JSON object
+        const jsonStart = raw.indexOf('{"numTotalTestSuites"');
+        if (jsonStart !== -1) {
+          const parsed = JSON.parse(raw.slice(jsonStart));
+          if (parsed.numTotalTests) {
+            metricsJson.metrics.testGrowth = { value: parsed.numTotalTests, unit: 'tests' };
+            console.log(`✓ Test count resolved locally: ${parsed.numTotalTests}`);
+          }
+        }
+      }
+    } catch {
+      console.warn('⚠ Could not count tests locally, testGrowth remains null');
+    }
+  }
+
   writeFileSync(outputPath, JSON.stringify(metricsJson, null, 2), 'utf8');
   console.log(`✓ Metrics written to ${outputPath}`);
 }
