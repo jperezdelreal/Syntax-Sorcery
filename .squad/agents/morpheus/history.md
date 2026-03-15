@@ -59,6 +59,8 @@
 - **Key Decision:** Loop-driven refueling eliminates race conditions. Ralph spawns Lead when board clear. No external event-driven triggers
 - **Phase 8-15 Roadmap:** Infrastructure (Azure VM), Showroom (metrics, badge), Game delivery (feature framework), Monetization (marketplace), Scalability (multi-team), Production (SLA/compliance)
 - **Round 13 Finale:** 12 issues closed, 9 PRs merged, 2 PRs pending gate review (#160, #161). Orchestration log + session log written. All .squad/ files now compliant with context hygiene hard limits.
+- **BiciCoruña Evaluation (2025-07-13):** T1 APPROVED (conditional). Founder proposed bike-sharing route planner for A Coruña. Verified BiciCoruña GBFS v2 API is live (55 stations, CC-BY-4.0). Stack: React+Leaflet+openrouteservice, €0/mo prototype. Recommended as new downstream company (civic-tech, distinct from FFS games). Scope-locked v0.1 to map+routing, deferred ML prediction. Decision at `.squad/decisions/inbox/morpheus-bicicoruña-evaluation.md`. **Key pattern: pure client-side SPA consuming public APIs = €0 infrastructure. No backend needed for prototype.**
+- **Portfolio Diversification:** First SS product outside gaming. Real-time data + geospatial + multi-modal routing proves SS can handle non-trivial domains. GBFS is a global standard — same pattern works for any bike-share city.
 
 | Criterion | Result | Notes |
 |-----------|--------|-------|
