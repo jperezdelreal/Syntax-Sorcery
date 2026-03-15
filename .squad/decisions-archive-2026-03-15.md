@@ -1,9 +1,122 @@
 # Squad Decisions Archive — 2026-03-15
 
-**Archived:** 2026-03-15T12:00:00Z by Scribe  
-**Reason:** decisions.md at 12.75KB (exceeds 12KB hard limit). Archived foundational Phase 1 decisions (P1-07 through P1-14) to dated archive; retained T1 FFS Takeover decisions in main file.
+**Archived:** 2026-03-15T03:31:00Z by Scribe  
+**Reason:** decisions.md at 14.36KB (exceeds 12KB hard limit). Archived Phase 15 entries from 2026-03-15 (older than 7 days); retained Phase 22-24 entries (within 7 days) in main file for active reference.
 
-## Archived Phase 1 Entries
+## Recent Archived Entries (2026-03-15)
+
+### 2026-03-15T02:00Z: PR Re-Review Process — Security & Reliability Gates
+
+**By:** Morpheus (Lead/Architect)  
+**Tier:** T1 (Quality Gate Authority)  
+**Status:** ✅ COMPLETE  
+
+**Context:** Round 2 review blocked two PRs with critical issues. Trinity assigned blocker issues #143 and #142 to fix both PRs. Re-review conducted after fixes pushed.
+
+**Decisions:**
+- **PR #140 (GitHub Token Provisioning):** ✅ APPROVED & MERGED
+  - Bicep cloud-init sets `/etc/profile.d/github-token.sh` permissions to `0600` (owner-only)
+  - `/etc/environment` removed from setup-github-token.sh (no system-wide world-readable storage)
+  - Token storage limited to secure locations: `~/.config/gh/hosts.yml` (0600), `~/.bashrc` (0600), `/etc/profile.d/github-token.sh` (0600)
+  - **Outcome:** Closed #143 (permissions blocker), #125 (parent issue) auto-closed on merge
+
+- **PR #141 (24-Hour Monitoring):** ✅ APPROVED & MERGED
+  - `gh_retry()` function with `max_attempts=3`, exponential backoff `[2, 4, 8]` seconds
+  - ALL 5 gh CLI calls wrapped with retry logic
+  - **Outcome:** Closed #142 (retry logic blocker), #128 (parent issue) auto-closed on merge
+
+**Key Learnings:**
+1. Surgical verification: Check actual implementation vs. documentation examples
+2. Exponential backoff standard: 3 attempts with [2s, 4s, 8s] balances reliability vs. responsiveness
+3. Wrapper functions scale: `gh_retry()` pattern reusable across multiple scripts
+4. Approval vs. merge authority: Lead can gate-keep via merge when operating from same account
+
+**Impact:**
+- Phase 10.3 & 10.6 complete (2/6 issues)
+- Security: All token storage now 0600 (owner-only)
+- Reliability: GitHub API rate limits handled with exponential backoff
+
+---
+
+### 2026-03-15T01:35Z: Phase 14 Scaling & High-Availability Spec Delivered
+
+**By:** Oracle #1 (Product/Research)  
+**Tier:** T1 (Phase Authority — pending Morpheus approval)  
+**Status:** ✅ DELIVERED (PR #145 opened, pending review)
+
+**What:** Oracle #1 delivered comprehensive Phase 14 Scaling & High-Availability research spec (docs/phase14-scaling-ha-spec.md). Spec covers multi-region failover, load balancing, database replication, and monitoring strategy for 10K+ concurrent users.
+
+**Architecture:**
+- Azure-exclusive (Standard Load Balancer, Traffic Manager, multi-region setup)
+- Database: Cosmos DB multi-region replication (strong consistency in primary, eventual in replicas)
+- Monitoring: Azure Monitor + Application Insights with 5-minute SLA enforcement
+- Network: DDoS protection (Standard tier), WAF enabled
+
+**Cost Model:**
+- Infrastructure baseline: €439/mo (€250/mo primary, €189/mo disaster recovery)
+- Scaling elasticity: ±€50/mo per 100K MAU
+- Within €500 budget (headroom: €61/mo)
+
+**Key Risks Identified:**
+- Multi-region failover testing complexity in rapid sprint cycles
+- Eventual consistency in replicas requires application-level conflict resolution
+- DDoS protection upgrade needed if attack patterns emerge
+
+**Decisions (Pending T1 Approval):**
+- Primary region: EU-West (Ireland) vs. EU-North (Sweden)? → Defer to Sprint Planning
+- Failover RTO/RPO targets: 15 min RTO / 5 min RPO? → Validate against SLA
+- Database strong consistency scope: Global or primary-region only? → Primary-only (lower latency)
+
+**Status:** ✅ SPEC DELIVERED, PR #145 ready for Morpheus review  
+**Label Removed:** `go:needs-research` from #116
+
+---
+
+### 2026-03-15T01:37Z: Phase 15 Revenue & Sustainability Model Delivered
+
+**By:** Oracle #2 (Product/Research)  
+**Tier:** T1 (Phase Authority — pending Morpheus approval)  
+**Status:** ✅ DELIVERED (PR #146 opened, pending review & revision)
+
+**What:** Oracle #2 delivered Phase 15 Revenue & Sustainability Model research spec (docs/phase15-revenue-spec.md). Spec covers €11.6K/mo conservative baseline model + €25K/mo optimistic upside, freemium player acquisition strategy (Stripe, paywall at feature-tier), and enterprise partnerships (Copilot, GitHub, Azure).
+
+**Conservative Model (PRIMARY — Weeks 1–8):**
+- 50 customers (founder referrals + organic via GitHub)
+- 20% plugin adoption (10 plugins/customer)
+- €16/mo per plugin subscription
+- **Total:** €1.6K/mo plugins + €10K/mo SaaS = **€11.6K/mo** revenue target
+
+**Freemium Strategy:**
+- Tier 1 (Free): 5 games, basic Squad skills, read-only status dashboard
+- Tier 2 (Pro): Unlimited games, premium Squad skills, write API, advanced metrics (€24/mo)
+- Tier 3 (Enterprise): Custom skills, dedicated Squad agent, SLA support (€249+/mo)
+
+**Payment Processing & Partnerships:**
+- Payment processor: Stripe (recommended, EU-compliant, agent-friendly APIs)
+- GitHub Marketplace integration: Revenue split TBD (40-60% GitHub vs SS)
+- Azure credits partnership: Negotiable, low priority Phase 15
+
+**Infrastructure Scaling (Phased, Revenue-Contingent):**
+- Weeks 1–8 (PRIMARY): €480/mo lean tier (B2s v2 VM, basic monitoring, 2-hour CI window)
+- Weeks 9–16: €520/mo ONLY if €2K+/mo revenue covers delta (scaling contingent on proven demand)
+- Weeks 17+: €600-700/mo ONLY after €10K+/mo proven (premium tier investment)
+
+**Success Metrics:**
+- €15K/mo by week 16 (proof of product-market fit)
+- 20K signed-up users by week 16
+- <5% monthly churn rate
+- >25% enterprise conversion rate (5+ of 20 enterprise outreach targets)
+
+**Status:** ✅ SPEC DELIVERED, PR #146 ready for Morpheus review  
+**Label Removed:** `go:needs-research` from #117
+
+---
+
+## Phase 1-14 Historical Entries
+
+See decisions-archive-2026-03-15.md (moved at 2026-03-15T12:00:00Z).
+
+**Last Updated:** 2026-03-15T03:31Z
 
 ### 2026-03-14: P1-07 Skills Cherry-Pick Complete
 
