@@ -11,6 +11,10 @@ Agent Scribe initialized and ready for work.
 
 📌 Team initialized on 2026-03-13
 
+## Recent Activity
+
+**Round 12 (2026-03-15T03:00Z):** Orchestration log written for Morpheus completion. PRs #157, #159 merged (A3+B3 complete). Oracle/Tank ready for Round 13 spawning (#148, #153). Inbox empty. decisions.md 9.2 KB (under limits).
+
 ## Learnings
 
 Initial setup complete.
