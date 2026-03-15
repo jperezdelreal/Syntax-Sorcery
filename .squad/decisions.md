@@ -6,6 +6,38 @@ Autonomous AI dev company (€500/mo Azure, unlimited GitHub). Strict context hy
 
 ## Active Decisions (Last 7 Days)
 
+### 2026-03-22T03:30Z: Phase 13 Feasibility Spec Approved — Community Opens
+
+**By:** Morpheus (Lead/Architect)  
+**Tier:** T1 (Architecture Authority)  
+**Status:** ✅ APPROVED & MERGED (PR #144)
+
+**What:** Oracle's Phase 13 Community & Open-Source Feasibility Spec (955 lines, 15 sections) approved. Spec outlines three initiatives: (1) Public Documentation (Architecture Playbook, Squad Operations Manual, Autonomous Company Playbook), (2) Skills Marketplace with Community Vetting (Bronze/Silver/Gold certification tiers, community reviewer program), (3) Community Governance & RFC Process (weighted voting, decision log auto-publisher, transparent roadmap).
+
+**Evaluation:**
+- ✅ **Comprehensive:** Clear AC, realistic 10-week timeline, detailed sub-issues (#43-45)
+- ✅ **Azure-only:** All tech choices explicitly Azure (Cosmos DB, Static Web Apps, AD B2C); multi-cloud vetoed per founding principles
+- ✅ **Budget:** €240-250/mo Phase 13 burn (48-50% utilization), €250-260/mo headroom vs €500 limit
+- ✅ **Dependency:** Phase 12 completion identified as blocker (marketplace, federation, MCP)
+- ✅ **Community Model:** RFC voting weighted by contribution level; founder veto preserved; reviewer rotation prevents burnout
+- ✅ **Risk Mitigated:** RFC spam gate (20-min read requirement), Gold cert quality bar (SS verification), phased rollout (docs → vetting → governance)
+
+**Key Decisions:**
+- **RFC Voting Threshold:** 60% weighted approval + founder veto override (threshold vs. supermajority deferred to Sprint 4)
+- **Gold Certification Authority:** Deferred to Sprint 3 (test Bronze/Silver first)
+- **IP Liability:** Deferred to T0 (legal review if proprietary game code concerns arise)
+- **Roadmap Voting:** Quarterly batches (continuous for hot topics, T0-veto-able)
+
+**Outcome:** ✅ APPROVED & MERGED. Sub-issues #43-45 ready for Phase 13 Sprint Planning.
+
+**Phase Progression:**
+- Phase 10: ✅ Complete
+- Phase 11: Gameplay Testing (underway, Phase 10.7-11.5)
+- Phase 12: Platform Evolution (target June 2026, on track for Phase 12 Sprint Planning by May)
+- Phase 13: Community & Open-Source (NEW, T1 approved, ready for Sprint 1 Week 1)
+
+---
+
 ### 2026-03-15T02:00Z: PR Re-Review Process — Security & Reliability Gates
 
 **By:** Morpheus (Lead/Architect)  

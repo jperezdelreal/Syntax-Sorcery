@@ -373,3 +373,45 @@ All issues:
 - Phase 10.6 (24-Hour Monitoring): ✅ COMPLETE (#128 merged)
 - Both PRs (#140, #141) now in master with security + reliability fixes
 
+---
+
+## 2026-03-22T03:30Z: Phase 13 Spec Approved & Merged
+
+**Context:** Oracle (Product) authored comprehensive Phase 13 feasibility spec (docs/phase13-community-opensource-spec.md, 955 lines, 15 sections, Issue #115). Submitted as PR #144 for T1 architectural review.
+
+**Evaluation (Morpheus Review):**
+
+| Criterion | Result | Notes |
+|-----------|--------|-------|
+| **Comprehensiveness** | ✅ PASS | 955 lines, 15 sections, clear AC, realistic timeline |
+| **Azure-Only** | ✅ PASS | CDN, Static Web Apps, Cosmos DB, AD B2C; multi-cloud explicitly vetoed |
+| **Budget Compliance** | ✅ PASS | €240-250/mo Phase 13; €250-260/mo headroom vs €500 limit |
+| **Phase 10-12 Dependencies** | ✅ PASS | Section 5 identifies marketplace, federation, MCP as blockers |
+| **Sub-Issues Scoped** | ✅ PASS | #43 (docs 3-4w), #44 (marketplace 4-5w), #45 (governance 2-3w) |
+| **Community Model Realistic** | ✅ PASS | RFC voting weighted by contributions; founder veto preserved; reviewer rotation |
+
+**Key Strengths:**
+1. **RFC Design:** Weighted voting (base 1 + 0.1 per 10 PRs, capped 3) prevents tyranny-of-majority
+2. **Quality Gates:** Gold certification requires SS verification → maintains quality bar for high-trust patterns
+3. **Risk Mitigation:** RFC spam prevented via 20-min read requirement + curator gate; reviewer burnout addressed (2-3 skills/month cap, monthly rotation)
+4. **Phased Rollout:** Documentation first (low risk) → community vetting (medium) → governance (highest complexity)
+5. **Transparency:** Decision log + governance FAQ + appeal process builds legitimacy
+
+**Deferred T0 Decisions (non-blocking):**
+- Q1: RFC threshold 60% vs 67%? → Phase 13 Sprint 4 (gather community feedback)
+- Q2: Gold cert authority T0 vs T1 vs consensus? → Phase 13 Sprint 3 (test Bronze/Silver first)
+- Q4: IP liability (proprietary game code in community skills)? → T0 legal review if needed
+
+**Decision:** ✅ APPROVED & MERGED (PR #144 squashed, branch deleted)
+
+**Actions:**
+- Update roadmap.md: Issues #43-45 from "Proposed" → "In Progress"
+- Rally squad for Phase 13 Sprint Planning (Week 1: Core Documentation)
+- Oracle presents community engagement narrative to Ralph for marketing push
+
+**Phase Progression:**
+- Phase 10: ✅ Complete
+- Phase 11: Gameplay Testing (underway)
+- Phase 12: Platform Evolution (target June 2026, on track)
+- Phase 13: Community & Open-Source (NEW, T1 approved, ready Sprint Planning)
+
