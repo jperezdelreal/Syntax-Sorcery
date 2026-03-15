@@ -1,8 +1,8 @@
 {
-  "generatedAt": "2026-03-14T16:26:45.879Z",
+  "generatedAt": "2026-03-15T02:05:13.771Z",
   "period": {
-    "since": "2026-03-07T16:26:45.879Z",
-    "until": "2026-03-14T16:26:45.879Z",
+    "since": "2026-03-08T02:05:13.771Z",
+    "until": "2026-03-15T02:05:13.771Z",
     "days": 7
   },
   "constellation": {
@@ -19,26 +19,26 @@
   },
   "kpis": {
     "issues_opened_7d": {
-      "value": 24,
-      "rate": 3.43,
+      "value": 20,
+      "rate": 2.86,
       "unit": "issues/day"
     },
     "issues_closed_7d": {
-      "value": 350,
-      "rate": 50,
+      "value": 397,
+      "rate": 56.71,
       "unit": "issues/day"
     },
     "prs_merged_7d": {
-      "value": 160,
-      "rate": 22.86,
+      "value": 82,
+      "rate": 11.71,
       "unit": "PRs/day"
     },
     "prs_open": {
-      "value": 6,
+      "value": 2,
       "unit": "PRs"
     },
     "avg_cycle_time": {
-      "value": 5.53,
+      "value": 5.11,
       "unit": "hours"
     },
     "test_count": {
@@ -52,11 +52,11 @@
     }
   },
   "last_activity": {
-    "Syntax-Sorcery": "2026-03-14T16:22:16Z",
-    "pixel-bounce": "2026-03-14T16:15:46Z",
-    "flora": "2026-03-14T13:04:16Z",
-    "ComeRosquillas": "2026-03-14T16:24:24Z",
-    "FirstFrameStudios": "2026-03-14T10:35:38Z",
-    "ffs-squad-monitor": "2026-03-14T12:04:44Z"
+    "Syntax-Sorcery": "2026-03-15T02:02:56Z",
+    "pixel-bounce": "2026-03-15T01:03:49Z",
+    "flora": "2026-03-15T01:56:29Z",
+    "ComeRosquillas": "2026-03-15T01:13:32Z",
+    "FirstFrameStudios": "2026-03-14T17:10:06Z",
+    "ffs-squad-monitor": "2026-03-15T01:55:53Z"
   }
 }

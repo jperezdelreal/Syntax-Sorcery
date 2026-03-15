@@ -6,6 +6,61 @@ Autonomous AI dev company (€500/mo Azure, unlimited GitHub). Strict context hy
 
 ## Active Decisions (Last 7 Days)
 
+### 2026-03-22T03:00Z: Perpetual Motion Event Logging & Rate Limiting Architecture
+
+**By:** Tank (Cloud Engineer)  
+**Tier:** T2 (Implementation)  
+**Issue:** #149  
+**PR:** #156  
+**Status:** ✅ IMPLEMENTED (PR #156 ready for review)
+
+**What:** Enhanced perpetual-motion.yml workflow with event logging, rate limiting, and concurrency control to prevent runaway GitHub Actions costs while maintaining event-driven autonomy.
+
+**Key Decisions:**
+1. **Event Logging:** Structured JSON to `.squad/motor-log/YYYY-MM-DD.json` (daily, ISO 8601 timestamps) for programmatic analysis and git history
+2. **Rate Limiting:** 30-minute cooldown between runs (vs. cron polling rejected for event-driven requirement) — reads motor-log, calculates time since last event
+3. **Concurrency Control:** `concurrency.group: perpetual-motion-${{ github.repository }}` with `cancel-in-progress: false` (prevents race conditions, ensures data integrity)
+4. **Motor Log Persistence:** Git history (vs. GitHub Issues API rejected for query difficulty, vs. artifact uploads rejected for 90-day retention limit)
+5. **Documentation:** 40+ line ASCII-art header explaining all 5 safety mechanisms (self-documenting for maintainers)
+
+**Impact:** Critical path A1 unblocked. Enables autonomous roadmap progression across all repos.  
+**Cost:** €0 (GitHub Actions free tier)  
+**Deployment:** Immediate on merge (Syntax-Sorcery active, cross-repo rollout pending roadmap.md creation)
+
+---
+
+### 2026-03-22T00:00Z: FirstFrame Studios GitHub Page — Issue #150 Closure
+
+**By:** Trinity (Full-Stack Developer)  
+**Tier:** T2 (Implementation)  
+**Issue:** #150  
+**PR:** #155  
+**Status:** ✅ VERIFIED COMPLETE (issue closed, PR #155 with docs verification)
+
+**What:** FirstFrame Studios GitHub Pages site was already complete since 2026-03-13 (3 game embeds live). Decision: Verified all acceptance criteria met and closed issue rather than rebuilding.
+
+**Technical Stack:**
+- Framework: Astro 4.x (static site generation)
+- Styling: Tailwind CSS with glass-morphism effects
+- Deployment: GitHub Pages (€0 cost)
+- Build Time: 1.38s (well under 30s requirement)
+- CI/CD: Auto-deploy on push via deploy-pages.yml
+
+**Acceptance Criteria Verified (All ✅):**
+- Astro SSG site deployed to https://jperezdelreal.github.io/FirstFrameStudios/
+- Hero section: "FirstFrame Studios — AI-Powered Game Development"
+- Game Grid with 3 cards (Flora, ComeRosquillas, Pixel Bounce)
+- Responsive design (mobile + desktop)
+- All game embeds functional (iframes, zero CORS errors)
+- Auto-deploy workflow operational
+
+**Key Decision:** Verification over rebuild — when work already complete, verify → document → close (avoids waste)
+
+**Impact:** First public-facing deliverable for FFS downstream company (marketing + shareable URL)  
+**Cost:** €0 (GitHub Pages free tier)
+
+---
+
 ### 2026-03-22T03:30Z: Phase 13 Feasibility Spec Approved — Community Opens
 
 **By:** Morpheus (Lead/Architect)  

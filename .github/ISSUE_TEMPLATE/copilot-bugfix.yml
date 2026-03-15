@@ -1,0 +1,122 @@
+name: "🤖 Copilot Bug Fix"
+description: Report a bug for @copilot to fix
+title: "[Bug] "
+labels: ["squad:copilot", "copilot-ready", "bug"]
+body:
+  - type: textarea
+    id: objective
+    attributes:
+      label: "🎯 Objective"
+      description: "Clear one-sentence statement of the bug to fix."
+      placeholder: "Fix race condition in database connection pool that causes intermittent 503 errors"
+    validations:
+      required: true
+
+  - type: textarea
+    id: description
+    attributes:
+      label: "📝 Description"
+      description: "What is the bug? What observable behavior is wrong? Help @copilot understand the problem."
+      placeholder: |
+        When multiple requests arrive simultaneously, the connection pool occasionally returns undefined connections, causing downstream code to crash with 'Cannot read property 'query' of undefined'.
+        
+        Observed in production logs: ~2-5 occurrences per 10K requests during peak traffic.
+        First reported: 2026-03-20 10:30 UTC
+      validations:
+        required: true
+
+  - type: textarea
+    id: acceptance_criteria
+    attributes:
+      label: "✅ Acceptance Criteria"
+      description: "Define success with 3-5 testable requirements. Each should be verifiable and observable."
+      placeholder: |
+        - [ ] Concurrent requests no longer produce undefined connection errors
+        - [ ] All 100+ existing tests continue to pass
+        - [ ] Load test (1000 concurrent requests) completes without errors
+        - [ ] Error rate metric drops from 0.02% to 0% in production
+        - [ ] New test case reproduces original bug and passes after fix
+      value: |
+        - [ ] Bug is no longer reproducible (describe test method)
+        - [ ] Root cause is identified and fixed
+        - [ ] All existing tests continue to pass
+        - [ ] New test prevents regression
+    validations:
+      required: true
+
+  - type: textarea
+    id: files_involved
+    attributes:
+      label: "📁 Files Involved"
+      description: "Files suspected to contain the bug or that will be modified to fix it."
+      placeholder: |
+        **Likely root cause:**
+        - `src/db/connection-pool.ts` — Connection allocation logic (lines 45-67)
+
+        **Files to modify:**
+        - `src/db/connection-pool.ts` — Fix allocation logic, add synchronization
+        - `src/__tests__/db.test.ts` — Add concurrent request test case
+
+        **Files to reference (patterns):**
+        - `src/cache/request-queue.ts` — Uses mutex pattern we should follow
+      validations:
+        required: false
+
+  - type: textarea
+    id: scope_boundaries
+    attributes:
+      label: "🔍 Scope Boundaries"
+      description: "What IS the fix? What is NOT in scope?"
+      placeholder: |
+        **In Scope:**
+        - Fix the race condition in connection pool allocation
+        - Add synchronization mechanism
+        - Add regression test
+
+        **Out of Scope:**
+        - Complete connection pool rewrite (defer to issue #789)
+        - Performance optimization (separate effort)
+        - Database migration to new system (future phase)
+      validations:
+        required: false
+
+  - type: textarea
+    id: context_hints
+    attributes:
+      label: "💡 Context Hints"
+      description: "Error logs, stack traces, patterns to follow. Helps @copilot diagnose faster."
+      placeholder: |
+        **Error Stack Trace:**
+        ```
+        TypeError: Cannot read property 'query' of undefined
+          at executeQuery (src/api/handlers.ts:234:15)
+          at async handleRequest (src/server.ts:89:10)
+        ```
+
+        **Existing Patterns:**
+        - Synchronization primitives used in `src/cache/request-queue.ts` (mutex pattern)
+        - Test structure follows `src/__tests__/db.test.ts`
+        - All fixes require zero breaking changes to public API
+
+        **Constraints:**
+        - Must not add external dependencies
+        - Performance regression not acceptable (must maintain <100ms p99 latency)
+        - Cost: €0
+
+        **Related Issues:**
+        - Related to performance issue #555
+      validations:
+        required: false
+
+  - type: checkboxes
+    id: definition_of_done
+    attributes:
+      label: "✔️ Definition of Done"
+      description: "Verification checklist for bug closure."
+      options:
+        - label: "Bug is reproducible and steps documented"
+        - label: "Root cause identified in code"
+        - label: "Fix is implemented and tested"
+        - label: "All existing tests pass"
+        - label: "Regression test added to prevent recurrence"
+        - label: "Comments added to explain non-obvious fix logic"
