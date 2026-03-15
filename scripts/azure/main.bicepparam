@@ -17,5 +17,10 @@ param adminUsername = 'ssadmin'
 // Override via CLI: --parameters sshPublicKey="$(cat ~/.ssh/id_rsa.pub)"
 param sshPublicKey = readEnvironmentVariable('SSH_PUBLIC_KEY', '')
 
+// GitHub Personal Access Token — read from environment variable at deploy time
+// Override via CLI: --parameters githubToken="ghp_..."
+// Leave empty to skip token injection (can be configured manually later)
+param githubToken = readEnvironmentVariable('GITHUB_TOKEN', '')
+
 // Environment tag
 param environment = 'prod'

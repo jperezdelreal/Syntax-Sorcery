@@ -38,6 +38,16 @@ Hub (local machine)
 | `provision-vm.sh` | Azure CLI commands to provision the VM |
 | `satellites.service` | systemd unit for auto-start on boot |
 
+### GitHub Token Provisioning (Phase 10.3)
+
+| File | Purpose |
+|------|---------|
+| `../setup-github-token.sh` | Configure GitHub CLI authentication with PAT |
+| `../verify-github-token.sh` | Verify token validity, scopes, and permissions |
+| `../../docs/MANUAL-GITHUB-TOKEN-SETUP.md` | Manual steps for creating GitHub PAT |
+
+The GitHub token enables autonomous operations by allowing agents to commit, create PRs, and manage issues across all repositories.
+
 ## Setup
 
 ### 1. Provision the VM
@@ -239,6 +249,9 @@ tmux attach -t ss-flora
 |----------|---------|-------------|
 | `SATELLITE_BASE_DIR` | `~/repos` | Base directory containing repo clones |
 | `SSH_KEY_PATH` | `~/.ssh/id_rsa.pub` | SSH public key for VM provisioning |
+| `SSH_PUBLIC_KEY` | (required) | Environment variable read by Bicep params for SSH key |
+| `GITHUB_TOKEN` | (optional) | GitHub PAT injected via cloud-init during VM deploy |
+| `GH_TOKEN` | (optional) | Alternative environment variable name for GitHub token |
 | `MAX_SESSION_HOURS` | `6` | Max session uptime before auto-recycle |
 | `WATCHDOG_LOG` | `/var/log/ss-watchdog.jsonl` | Structured log file path |
 | `WATCHDOG_STATE_DIR` | `/var/lib/ss-watchdog` | Directory for restart failure state tracking |
@@ -246,3 +259,43 @@ tmux attach -t ss-flora
 | `RESOURCE_GROUP` | `syntax-sorcery-satellites` | Azure resource group (verify-deployment) |
 | `VM_NAME` | `ss-satellite-vm` | Azure VM name (verify-deployment) |
 | `VM_USER` | `ssadmin` | SSH user for VM (verify-deployment) |
+
+## GitHub Token Setup
+
+For autonomous operations, agents need a GitHub Personal Access Token with `repo` scope.
+
+### Automated deployment with token
+
+```bash
+# Store token in .squad/secrets/ (gitignored)
+mkdir -p .squad/secrets
+echo "ghp_YOUR_TOKEN_HERE" > .squad/secrets/github-token
+chmod 600 .squad/secrets/github-token
+
+# Deploy VM with token injected via cloud-init
+export GITHUB_TOKEN=$(cat .squad/secrets/github-token)
+cd scripts/azure
+./deploy.sh deploy
+```
+
+The token is automatically configured on the VM via cloud-init.
+
+### Manual token configuration (post-deployment)
+
+If VM already exists, configure token manually:
+
+```bash
+# SSH into VM
+ssh ssadmin@<VM_IP>
+
+# Run setup script
+./scripts/setup-github-token.sh ghp_YOUR_TOKEN_HERE
+
+# Verify
+gh auth status
+./scripts/verify-github-token.sh
+```
+
+### Creating the token (manual step)
+
+See [MANUAL-GITHUB-TOKEN-SETUP.md](../../docs/MANUAL-GITHUB-TOKEN-SETUP.md) for step-by-step instructions on creating a GitHub PAT with proper scopes.
