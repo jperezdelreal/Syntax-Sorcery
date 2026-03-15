@@ -22,6 +22,39 @@ SSH_KEY="${SSH_KEY:-$HOME/.ssh/id_rsa}"
 VM_HOST="${VM_HOST:-azureuser@syntax-sorcery-vm}"
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
+# ---------------------------------------------------------------------------
+# GitHub CLI Retry Logic
+# ---------------------------------------------------------------------------
+# Retries gh commands with exponential backoff to handle rate limits
+# Usage: gh_retry <gh command args...>
+# Returns: Exit code of gh command (0 on success, non-zero on failure)
+gh_retry() {
+  local max_attempts=3
+  local delays=(2 4 8)
+  local attempt=1
+  local exit_code=0
+  
+  while [ $attempt -le $max_attempts ]; do
+    if gh "$@" 2>/dev/null; then
+      return 0
+    fi
+    exit_code=$?
+    
+    if [ $attempt -lt $max_attempts ]; then
+      local delay=${delays[$((attempt - 1))]}
+      echo "⚠️  gh command failed (attempt $attempt/$max_attempts), retrying in ${delay}s..." >&2
+      sleep "$delay"
+    else
+      echo "❌ gh command failed after $max_attempts attempts" >&2
+      return $exit_code
+    fi
+    
+    attempt=$((attempt + 1))
+  done
+  
+  return $exit_code
+}
+
 # Parse args
 while [[ $# -gt 0 ]]; do
   case $1 in
@@ -106,7 +139,7 @@ check_pr_throughput() {
   local pass=true
   
   for repo in "${repos[@]}"; do
-    local count=$(gh pr list --repo "$repo" --state merged --search "merged:>=$(date -u -d '24 hours ago' +%Y-%m-%dT%H:%M:%SZ)" --json number --jq 'length' 2>/dev/null || echo "0")
+    local count=$(gh_retry pr list --repo "$repo" --state merged --search "merged:>=$(date -u -d '24 hours ago' +%Y-%m-%dT%H:%M:%SZ)" --json number --jq 'length' 2>/dev/null || echo "0")
     total=$((total + count))
     
     if [ "$count" -ge "$min_per_repo" ]; then

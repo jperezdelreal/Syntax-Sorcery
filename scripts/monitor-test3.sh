@@ -17,6 +17,39 @@ VM_HOST="${VM_HOST:-azureuser@syntax-sorcery-vm}"
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 ROOT_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"
 
+# ---------------------------------------------------------------------------
+# GitHub CLI Retry Logic
+# ---------------------------------------------------------------------------
+# Retries gh commands with exponential backoff to handle rate limits
+# Usage: gh_retry <gh command args...>
+# Returns: Exit code of gh command (0 on success, non-zero on failure)
+gh_retry() {
+  local max_attempts=3
+  local delays=(2 4 8)
+  local attempt=1
+  local exit_code=0
+  
+  while [ $attempt -le $max_attempts ]; do
+    if gh "$@" 2>/dev/null; then
+      return 0
+    fi
+    exit_code=$?
+    
+    if [ $attempt -lt $max_attempts ]; then
+      local delay=${delays[$((attempt - 1))]}
+      echo "⚠️  gh command failed (attempt $attempt/$max_attempts), retrying in ${delay}s..." >&2
+      sleep "$delay"
+    else
+      echo "❌ gh command failed after $max_attempts attempts" >&2
+      return $exit_code
+    fi
+    
+    attempt=$((attempt + 1))
+  done
+  
+  return $exit_code
+}
+
 # Parse args
 while [[ $# -gt 0 ]]; do
   case $1 in
@@ -138,11 +171,11 @@ check_github_activity() {
   
   for repo in "${repos[@]}"; do
     # Count merged PRs in last 24h
-    local count=$(gh pr list --repo "$repo" --state merged --search "merged:>=$(date -u -d '24 hours ago' +%Y-%m-%dT%H:%M:%SZ)" --json number --jq 'length' 2>/dev/null || echo "0")
+    local count=$(gh_retry pr list --repo "$repo" --state merged --search "merged:>=$(date -u -d '24 hours ago' +%Y-%m-%dT%H:%M:%SZ)" --json number --jq 'length' 2>/dev/null || echo "0")
     merged_today=$((merged_today + count))
     
     # Total PRs in last 7 days
-    local total=$(gh pr list --repo "$repo" --state merged --search "merged:>=$(date -u -d '7 days ago' +%Y-%m-%dT%H:%M:%SZ)" --json number --jq 'length' 2>/dev/null || echo "0")
+    local total=$(gh_retry pr list --repo "$repo" --state merged --search "merged:>=$(date -u -d '7 days ago' +%Y-%m-%dT%H:%M:%SZ)" --json number --jq 'length' 2>/dev/null || echo "0")
     total_prs=$((total_prs + total))
     
     repo_details+=("$repo:$count")
@@ -207,10 +240,10 @@ check_ralph_activity() {
   local closed_today=0
   
   # Check open issues on project board
-  open_issues=$(gh issue list --repo joperezd/Syntax-Sorcery --state open --json number --jq 'length' 2>/dev/null || echo "0")
+  open_issues=$(gh_retry issue list --repo joperezd/Syntax-Sorcery --state open --json number --jq 'length' 2>/dev/null || echo "0")
   
   # Check issues closed in last 24h
-  closed_today=$(gh issue list --repo joperezd/Syntax-Sorcery --state closed --search "closed:>=$(date -u -d '24 hours ago' +%Y-%m-%dT%H:%M:%SZ)" --json number --jq 'length' 2>/dev/null || echo "0")
+  closed_today=$(gh_retry issue list --repo joperezd/Syntax-Sorcery --state closed --search "closed:>=$(date -u -d '24 hours ago' +%Y-%m-%dT%H:%M:%SZ)" --json number --jq 'length' 2>/dev/null || echo "0")
   
   echo "ralph:open_issues=$open_issues|closed_today=$closed_today"
   return 0
