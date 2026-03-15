@@ -91,24 +91,8 @@ else
     exit 1
 fi
 
-# Set up environment variable for all sessions
+# Set up environment variable for current user
 log_info "Setting up GH_TOKEN environment variable..."
-
-# Add to /etc/environment for system-wide access (requires sudo)
-if [ "$EUID" -eq 0 ] || sudo -n true 2>/dev/null; then
-    # Running as root or passwordless sudo available
-    if grep -q "^GH_TOKEN=" /etc/environment 2>/dev/null; then
-        # Update existing entry
-        sudo sed -i "s|^GH_TOKEN=.*|GH_TOKEN=$TOKEN|" /etc/environment
-        log_info "Updated GH_TOKEN in /etc/environment"
-    else
-        # Add new entry
-        echo "GH_TOKEN=$TOKEN" | sudo tee -a /etc/environment > /dev/null
-        log_info "Added GH_TOKEN to /etc/environment"
-    fi
-else
-    log_warn "Cannot write to /etc/environment (requires sudo). Adding to ~/.bashrc instead"
-fi
 
 # Add to ~/.bashrc for current user
 BASHRC="$HOME/.bashrc"
@@ -116,10 +100,12 @@ if ! grep -q "export GH_TOKEN=" "$BASHRC" 2>/dev/null; then
     echo "" >> "$BASHRC"
     echo "# GitHub Personal Access Token (added by setup-github-token.sh)" >> "$BASHRC"
     echo "export GH_TOKEN=$TOKEN" >> "$BASHRC"
+    chmod 600 "$BASHRC"
     log_info "Added GH_TOKEN to ~/.bashrc"
 else
     # Update existing entry
     sed -i "s|^export GH_TOKEN=.*|export GH_TOKEN=$TOKEN|" "$BASHRC"
+    chmod 600 "$BASHRC"
     log_info "Updated GH_TOKEN in ~/.bashrc"
 fi
 
@@ -147,8 +133,7 @@ log_info "Verify with: gh auth status"
 log_info "Check scopes with: scripts/verify-github-token.sh"
 log_info ""
 log_info "⚠️  SECURITY NOTE:"
-log_info "  - Token stored in ~/.config/gh/hosts.yml"
-log_info "  - Token stored in /etc/environment (system-wide)"
-log_info "  - Token stored in ~/.bashrc"
-log_info "  - Ensure proper file permissions (chmod 600)"
+log_info "  - Token stored in ~/.config/gh/hosts.yml (permissions: 0600)"
+log_info "  - Token stored in ~/.bashrc (permissions: 0600)"
+log_info "  - Verify with: ls -la ~/.config/gh/ ~/.bashrc"
 log_info ""

@@ -63,7 +63,7 @@ packages:
 
 write_files:
   - path: /etc/profile.d/github-token.sh
-    permissions: '0644'
+    permissions: '0600'
     content: |
       # GitHub Personal Access Token for autonomous operations
       # Injected via cloud-init during VM provisioning
