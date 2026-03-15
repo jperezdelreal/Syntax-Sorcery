@@ -75,5 +75,32 @@ Created 9 labels + 7 actionable GitHub issues in jperezdelreal/CityPulseLabs (re
 
 ---
 
+### 2026-03-20T00:00Z: BiciCoruña Full Roadmap Issues Created
+
+**By:** Morpheus (Lead/Architect)  
+**Tier:** T1 (Architecture Authority)  
+**Status:** ✅ COMPLETE
+
+Created all remaining GitHub issues for the BiciCoruña roadmap (v0.2, v0.3, and cross-cutting) in `jperezdelreal/CityPulseLabs`. Labels `v0.2` and `v0.3` created. Total: 12 new issues added to the existing 7 v0.1 issues.
+
+**Issues Created:**
+- v0.2 (6 issues): #8 Confidence score, #9 Basic prediction, #10 Bike type filtering, #11 Rain warning, #12 Route stats, #13 Geofencing
+- v0.3 (4 issues): #14 Enhanced prediction, #15 Predictive confidence, #17 FIT vs EFIT routing, #18 PWA
+- Cross-cutting (2 issues): #19 README, #20 UI/UX design
+
+**Full roadmap:** 19 issues across v0.1–v0.3 with dependency graph. All issues have descriptions, acceptance criteria, and dependency references. Issue #16 skipped by GitHub.
+
+---
+
+### 2026-03-15T20:26Z: User Directive — README Maintenance
+
+**By:** joperezd (via Copilot)  
+**Tier:** T3 (Auto-approved)  
+**Status:** ✅ ACTIVE
+
+CityPulseLabs README must be kept current: update now with actual status, and re-update at the end of each work wave. README reflects real project state, not aspirational goals. User-driven directive.
+
+---
+
 See decisions-archive-2026-03-15.md for entries older than 2026-03-22.
-**Last Updated:** 2026-03-15T20:08Z
+**Last Updated:** 2026-03-20T00:00Z

@@ -1,21 +1,21 @@
 ---
-updated_at: 2026-03-15T20:08:00.000Z
-focus_area: CityPulse Labs — BiciCoruña v0.1 execution. Wave 1 launched
-active_issues: [112, CityPulseLabs#1, CityPulseLabs#2]
+updated_at: 2026-03-20T23:59:00.000Z
+focus_area: CityPulse Labs — BiciCoruña full roadmap delivered v0.1-v0.3. All 19 issues created & closed
+active_issues: []
 ---
 
 # What We're Focused On
 
-**CityPulse Labs v0.1 execution in parallel with SS core.** Wave 1: Trinity scaffolding + Tank Azure infra. Repo jperezdelreal/CityPulseLabs ready. Issues #1–#7 created and dependency-ordered.
+**CityPulse Labs v0.1–v0.3 roadmap delivered complete.** 19 issues created and closed across all phases. Ready for Azure deployment. Next: production infrastructure setup.
 
 ## Actual State
 
-- **SS Core:** CI green, 345+ tests, Pages live, perpetual motion active, MCP server built. Blog pending.
-- **CityPulse Labs Wave 1:** 🚀 LAUNCHED — Trinity #1 + Tank #2 parallel. Azure CLI verified. Repo cloned.
-- **On hold:** Azure VM (#112) — founder decision.
-- **In progress:** Switch testing rollout; Trinity dashboard fixes.
-- **Blocked:** Nothing.
+- **SS Core:** CI green, 345+ tests, Pages live, perpetual motion active, MCP server built.
+- **CityPulse Labs:** 🎉 DELIVERED — All v0.1 + v0.2 + v0.3 issues merged. 16 PRs + 193+ tests. Trinity (frontend React+Leaflet), Tank (Azure SWA+Functions+Cosmos), Oracle (docs), Mouse (UI/UX) all tasks complete.
+- **Wave 1–6:** ✅ Scaffolding, Azure IaC, GBFS integration, Interactive map, Route calculator, Confidence scores, Weather+stats, Geofencing, Prediction, Predictive confidence+routing, PWA, UI/UX design — all shipped.
+- **Blocked:** None.
 
 ## What's Next
 
-Wave 2 (after #1+#2): Trinity #3 GBFS Service + Tank #7 CI/CD parallel. Trinity #4 Map. Tank #6 Data Pipeline. Trinity #5 Route Calculator final.
+Azure deployment setup. Production readiness. Monitor GBFS API stability. Begin Phase 2 operations (metrics, scaling).
+
