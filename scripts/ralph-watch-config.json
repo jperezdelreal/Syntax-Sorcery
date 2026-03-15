@@ -1,0 +1,39 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "description": "Configuration for ralph-watch.ps1 - Layer 2 Refueling Engine",
+  "pollIntervalMinutes": 10,
+  "sessionTimeoutMinutes": 30,
+  "constellationFile": ".squad/constellation.json",
+  "dryRun": false,
+  "hardening": {
+    "staleLockHours": 2,
+    "minDiskSpaceGB": 1,
+    "logRotationKeep": 3,
+    "roadmapCycleLimit": 3,
+    "backoff": {
+      "baseMinutes": 5,
+      "maxMinutes": 60
+    }
+  },
+  "logging": {
+    "directory": ".squad/ralph-watch",
+    "retentionDays": 7,
+    "structuredFormat": true
+  },
+  "refueling": {
+    "issueTitle": "Define next roadmap",
+    "issueLabel": "squad:morpheus",
+    "promptTemplate": "You are the Lead/Architect for this repository.\n\nTASK: Define the next roadmap.md for this repository.\n\nThe previous roadmap has been exhausted. Review the repository state and define 3-5 concrete, @copilot-ready work items for the next iteration.\n\nGUIDANCE:\n- Follow .squad/guides/writing-copilot-issues.md standards\n- Each item should have clear acceptance criteria\n- Focus on completing existing work per \"no más juegos sin límite\" directive\n- Roadmaps should have natural endpoints, not infinite work\n- After defining roadmap.md, commit to main branch\n\nExecute the task now."
+  },
+  "alerts": {
+    "escalationThreshold": 3,
+    "escalationLabel": "priority:high",
+    "discordWebhookUrl": null,
+    "githubActionsAlert": true
+  },
+  "monitoring": {
+    "heartbeatFile": ".squad/ralph-watch/heartbeat.txt",
+    "stateFile": ".squad/ralph-watch/state.json",
+    "healthCheckIntervalMinutes": 60
+  }
+}
