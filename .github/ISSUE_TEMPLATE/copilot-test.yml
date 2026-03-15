@@ -1,0 +1,125 @@
+name: "🤖 Copilot Test Addition"
+description: Request @copilot to write tests for existing functionality
+title: "[Test] "
+labels: ["squad:copilot", "copilot-ready", "testing"]
+body:
+  - type: textarea
+    id: objective
+    attributes:
+      label: "🎯 Objective"
+      description: "Clear one-sentence goal. What functionality or code path should be tested?"
+      placeholder: "Add comprehensive test coverage for JWT token validation middleware"
+    validations:
+      required: true
+
+  - type: textarea
+    id: description
+    attributes:
+      label: "📝 Description"
+      description: "Why are tests needed? What is the gap in test coverage? What behavior should be validated?"
+      placeholder: |
+        The JWT validation middleware in `src/middleware/auth.ts` currently has no test coverage. 
+        It needs tests for: valid tokens, expired tokens, malformed tokens, missing tokens, and valid token edge cases.
+        Current coverage: 0%, target: >90%
+      validations:
+        required: true
+
+  - type: textarea
+    id: acceptance_criteria
+    attributes:
+      label: "✅ Acceptance Criteria"
+      description: "Define what test cases and coverage are required. Be specific about scenarios."
+      placeholder: |
+        - [ ] Test valid JWT token acceptance and middleware pass-through
+        - [ ] Test expired token rejection with 401 status code
+        - [ ] Test malformed token rejection
+        - [ ] Test missing Authorization header rejection
+        - [ ] Test token validation with various payload structures
+        - [ ] Test coverage increases from 0% to >90% for auth.ts
+        - [ ] All 100+ existing tests continue to pass
+      value: |
+        - [ ] Test case: Valid input scenario
+        - [ ] Test case: Invalid input scenario
+        - [ ] Test case: Edge case scenario
+        - [ ] Test coverage metric increases by X%
+        - [ ] All existing tests continue to pass
+    validations:
+      required: true
+
+  - type: textarea
+    id: code_to_test
+    attributes:
+      label: "📁 Code to Test"
+      description: "Specific files, functions, or modules that need test coverage."
+      placeholder: |
+        **Primary Code:**
+        - `src/middleware/auth.ts` — JWT validation middleware (validateToken function, authRequired middleware)
+        - `src/auth/jwt-handler.ts` — JWT parsing and validation logic
+
+        **Related Code (may need indirect testing):**
+        - `src/routes/protected.ts` — Routes that use auth middleware (integration testing)
+
+        **Test File Location:**
+        - Create: `src/__tests__/middleware/auth.test.ts` — Test the middleware
+        - Update: `src/__tests__/integration.test.ts` — Add end-to-end test scenarios (optional)
+      validations:
+        required: true
+
+  - type: textarea
+    id: scope_boundaries
+    attributes:
+      label: "🔍 Scope Boundaries"
+      description: "What tests are in scope? What is NOT needed?"
+      placeholder: |
+        **In Scope:**
+        - Unit tests for JWT token validation
+        - Test valid/invalid/expired/malformed token scenarios
+        - Test middleware integration with Express request/response objects
+
+        **Out of Scope:**
+        - Performance testing (separate effort)
+        - Load testing (see issue #888)
+        - Frontend/integration tests beyond API level
+      validations:
+        required: false
+
+  - type: textarea
+    id: context_hints
+    attributes:
+      label: "💡 Context Hints"
+      description: "Test patterns, mocking strategies, and testing conventions in this repo."
+      placeholder: |
+        **Testing Patterns:**
+        - All tests use Jest framework
+        - Mock Express req/res objects using pattern from `src/__tests__/routes.test.ts`
+        - Use factory functions for test data (see `src/__tests__/fixtures.ts`)
+
+        **Mocking Examples:**
+        - Mock JWT library: `jest.mock('jsonwebtoken', () => ({ verify: jest.fn() }))`
+        - Mock middleware: See `src/__tests__/routes.test.ts` lines 45-67
+
+        **Constraints:**
+        - Tests must not require external services
+        - Use only dependencies in package.json
+        - Test data should be in `src/__tests__/fixtures.ts`
+        - Naming: `*.test.ts` suffix
+
+        **Related:**
+        - Baseline test count: 45 tests
+        - Target: 50+ tests after additions
+      validations:
+        required: false
+
+  - type: checkboxes
+    id: definition_of_done
+    attributes:
+      label: "✔️ Definition of Done"
+      description: "Verification checklist for test completeness."
+      options:
+        - label: "All test cases listed in acceptance criteria are written and passing"
+        - label: "Code coverage for target module is >90% (verify with `npm run coverage`)"
+        - label: "Tests follow repository naming conventions (`*.test.ts`)"
+        - label: "Tests use existing patterns and mock strategies from repo"
+        - label: "All 100+ existing tests continue to pass"
+        - label: "No external dependencies added"
+        - label: "Test descriptions are clear and document expected behavior"
