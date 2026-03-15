@@ -19,7 +19,7 @@ FirstFrameStudios (FFS) runs semi-autonomously today but needs engineering disci
 ## Success Criteria
 
 - ✅ **GDD→Issue autonomy**: FFS generates game design issues from PRDs autonomously (zero human input)
-- ✅ **Ralph durability**: ralph-watch runs 24h without failure or human intervention
+- ✅ **Ralph durability**: Squad CLI sessions run 24h without failure or human intervention
 - ✅ **Context hygiene**: No .squad/ file exceeds 15KB; decisions archive < 100KB
 - ✅ **Proposal→Prototype**: New game from text proposal → playable prototype (Git repo + working build) autonomously
 - ✅ **Founder velocity**: Founder reviews ≤2 decisions/week (was ~5/week)
@@ -32,7 +32,7 @@ In scope:
 - Extract 13 reusable skills from FFS playbook
 - Build skill-confidence system (low→medium→high)
 - Define governance tiers (T0-T3) and priorities (P0-P3)
-- Harden ralph-watch + cost alerting
+- Harden Squad CLI sessions + cost alerting
 - Enforce decision hygiene (< 15KB per file)
 
 Out of scope:
@@ -41,7 +41,7 @@ Out of scope:
 ### Phase 1: FFS Intervention (Weeks 4+)
 In scope (with FFS founder coordination):
 - Swap FFS governance for Syntax Sorcery's tier system
-- Integrate ralph-watch + cost alerting
+- Integrate Squad CLI sessions + cost alerting
 - Route GDD→Issue creation autonomously
 - Establish Proposal→Prototype workflow
 - Cherry-pick 13 skills into FFS

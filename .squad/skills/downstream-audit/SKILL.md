@@ -36,7 +36,7 @@ Run this audit on any downstream company (FFS, future clients). Score each categ
 | Agent roster | `.squad/agents/*/history.md` — count. **Pass:** 5+ active, <3 hibernated. **Warning:** 3–4 active, 4–6 hibernated. **Fail:** <3 active or >8 hibernated | ☐ |
 | Agent health | Pick 2 agents. Read history.md (first 1KB). Entries date-stamped & actionable? **Pass:** yes. **Warning:** mostly yes, some noise. **Fail:** vague or stale | ☐ |
 | Skills inventory | `.squad/skills/*/SKILL.md` — count & confidence. `grep confidence:`. **Pass:** 5+, mix of low/medium/high. **Warning:** 3–4, mostly low. **Fail:** <3 or all low | ☐ |
-| Ralph health | `.squad/config.json` — ralph-watch field. `grep -A3 ralph-watch`. **Pass:** version ≥ latest, cycle <1h. **Warning:** outdated or slow cycle. **Fail:** missing or broken | ☐ |
+| Squad health | `.squad/config.json` — Squad CLI sessions active. **Pass:** sessions running. **Warning:** intermittent. **Fail:** missing or broken | ☐ |
 
 ## 4. Governance Effectiveness
 

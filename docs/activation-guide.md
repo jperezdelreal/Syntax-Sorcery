@@ -16,10 +16,9 @@ Esta guía te lleva paso a paso desde código local → GitHub → motor autóno
 2. **Push a GitHub** (manual, tú decides cuándo) → 6 repos con todo el código
 3. **Activación** (manual, una sola vez) → Encender el interruptor, verificar que funciona
 
-**Arquitectura — 3 Capas:**
+**Arquitectura — 2 Capas:**
 - **Layer 1 (Cloud):** perpetual-motion.yml ejecuta roadmaps automáticamente (€0, GitHub Actions)
-- **Layer 2 (Watch):** ralph-watch.ps1 recarga roadmaps cuando se agotan (local background)
-- **Layer 3 (Manual):** Ralph (tú) sólo para casos extremos (<15min/semana)
+- **Layer 2 (Manual):** 1 terminal por repo con sesión Squad CLI continua. Ralph (tú) sólo para casos extremos (<15min/semana)
 
 **Tiempo estimado:** 1-2 horas para push + activación completa
 
@@ -80,7 +79,7 @@ nothing to commit, working tree clean
 
 **constellation.json SIEMPRE debe usar `jperezdelreal`** — es el owner real en GitHub.
 
-**Por qué importa:** ralph-watch.ps1 y safety-net.yml usan esto para saber qué repos monitorear en GitHub.
+**Por qué importa:** safety-net.yml usa esto para saber qué repos monitorear en GitHub.
 
 ---
 
@@ -441,123 +440,6 @@ cat roadmap.md
 
 ---
 
-## ⚙️ PARTE 6: Arrancar ralph-watch.ps1 (Layer 2 — Refueling)
-
-ralph-watch.ps1 es el motor que RECARGA los roadmaps cuando se agotan. Layer 1 crea issues, Layer 2 recarga fuel.
-
-### Qué Hace ralph-watch.ps1
-
-1. **Polling cada 10 minutos:** Consulta los 6 repos
-2. **Detecta issue "📋 Define next roadmap":** Creado por perpetual-motion cuando roadmap.md está vacío
-3. **Abre Squad CLI session:** Invoca al Lead del repo (Morpheus, Trinity, Oracle)
-4. **Lead define nuevo roadmap:** Via Squad AI
-5. **Commitea y cierra issue:** Automático
-6. **Ciclo continúa:** Motor perpetuo sigue funcionando
-
-**Sin ralph-watch.ps1:** El motor se detiene cuando roadmap.md se agota. CON ralph-watch.ps1: motor funciona 24/7 sin intervención.
-
----
-
-### Comando para Arrancar ralph-watch.ps1
-
-**IMPORTANTE:** Arranca ralph-watch.ps1 en una **terminal PowerShell SEPARADA** que permanezca abierta.
-
-```powershell
-# Abre nueva ventana PowerShell
-cd "C:\Users\joperezd\GitHub Repos\Syntax Sorcery"
-
-# Ejecuta ralph-watch en background
-.\scripts\ralph-watch.ps1
-```
-
-**Output esperado (primeros segundos):**
-```
-[INFO] Ralph-Watch starting...
-[INFO] Created log directory: C:\Users\joperezd\GitHub Repos\Syntax Sorcery\.squad\ralph-watch
-[INFO] Loaded constellation: 5 repos
-[INFO] Polling interval: 10 minutes
-[INFO] Session timeout: 30 minutes
-[INFO] Starting monitoring loop...
-[INFO] Round 1 starting...
-[INFO] Checking joperezd/Syntax-Sorcery...
-[INFO] No refueling needed (no 'Define next roadmap' issues)
-[INFO] Checking joperezd/FirstFrameStudios...
-[INFO] No refueling needed
-...
-[INFO] Round 1 complete. Sleeping 10 minutes...
-```
-
----
-
-### Parámetros Opcionales
-
-**Cambiar intervalo de polling:**
-```powershell
-.\scripts\ralph-watch.ps1 -PollIntervalMinutes 5
-```
-
-**Modo dry-run (prueba sin acciones reales):**
-```powershell
-.\scripts\ralph-watch.ps1 -DryRun
-```
-
-**Timeout de sesión personalizado:**
-```powershell
-.\scripts\ralph-watch.ps1 -SessionTimeoutMinutes 45
-```
-
----
-
-### Qué Loguea ralph-watch.ps1
-
-**Ubicación de logs:**
-```
-C:\Users\joperezd\GitHub Repos\Syntax Sorcery\.squad\ralph-watch\YYYY-MM-DD.log
-```
-
-**Tipos de logs:**
-- `[INFO]` — Operaciones normales (polling, detección)
-- `[SUCCESS]` — Refueling exitoso (roadmap recargado)
-- `[WARN]` — Problemas menores (timeout de sesión, repo sin acceso)
-- `[ERROR]` — Errores críticos (falló refueling, issues de escalación creados)
-
-**Comando para ver logs en tiempo real:**
-```powershell
-Get-Content -Path ".\.squad\ralph-watch\$(Get-Date -Format 'yyyy-MM-dd').log" -Wait
-```
-
----
-
-### Cómo Saber que ralph-watch.ps1 Está Funcionando
-
-**Señal 1:** Logs muestran rounds completándose cada 10 minutos
-
-**Señal 2:** Si un roadmap se agota:
-1. perpetual-motion.yml crea issue "📋 Define next roadmap"
-2. En <10 minutos, ralph-watch lo detecta → log muestra `[INFO] Detected refueling issue in repo X`
-3. Squad session se abre → Lead define roadmap → log muestra `[SUCCESS] Refueled repo X`
-4. Issue se cierra automáticamente
-
-**Señal 3:** Verifica proceso corriendo:
-```powershell
-Get-Process -Name powershell | Where-Object { $_.MainWindowTitle -like "*ralph-watch*" }
-```
-
----
-
-### Cómo Detener ralph-watch.ps1
-
-**Opción 1:** Ctrl+C en la terminal donde corre
-
-**Opción 2:** Mata el proceso:
-```powershell
-# Encuentra el PID
-Get-Process -Name powershell | Where-Object { $_.Path -like "*ralph-watch*" }
-
-# Mata por PID (reemplaza 12345 con PID real)
-Stop-Process -Id 12345
-```
-
 ---
 
 ## 🎯 PARTE 7: Verificar Todo el Sistema (Checklist Completo)
@@ -572,16 +454,15 @@ Una vez que todo está corriendo, verifica que las 3 capas están operacionales.
 - [ ] **@copilot asignado:** Nuevos issues tienen @copilot como assignee automáticamente
 - [ ] **Roadmap actualizado:** Después de cerrar issue, `git pull` muestra item marcado `[x]`
 
-### Checklist — Layer 2 (Watch / Refueling)
+### Checklist — Layer 2 (1 Terminal por Repo)
 
-- [ ] **ralph-watch.ps1 corriendo:** Proceso activo en PowerShell, logs generándose cada 10min
-- [ ] **Logs saludables:** Sin `[ERROR]` en última hora, solo `[INFO]` o `[SUCCESS]`
-- [ ] **Refueling funciona:** Simula roadmap vacío → verifica que se crea "Define next roadmap" → ralph-watch lo detecta y recarga
+- [ ] **Sesión Squad CLI activa:** 1 terminal por repo con sesión continua
+- [ ] **Repos respondiendo:** Issues se crean y @copilot los toma
 
-### Checklist — Layer 3 (Manual / Ralph)
+### Checklist — Layer 2 (Manual / Ralph)
 
-- [ ] **Intervención <15min/semana:** En condiciones normales, sólo revisas si ralph-watch escala algo
-- [ ] **Escalaciones legibles:** Si algo falla >3 veces, ralph-watch crea issue en `.squad/escalations/` para ti
+- [ ] **Intervención <15min/semana:** En condiciones normales, sólo revisas si el sistema escala algo
+- [ ] **Escalaciones legibles:** Si algo falla >3 veces, se crea issue en `.squad/escalations/` para ti
 
 ### Checklist — Visibilidad (URLs Públicas)
 
@@ -621,25 +502,21 @@ Una vez que todo está corriendo, verifica que las 3 capas están operacionales.
    ↓
 2. Crea issue "📋 Define next roadmap" asignado a Lead
    ↓
-3. ralph-watch.ps1 detecta issue (<10 min)
+3. En la sesión Squad CLI del repo, el Lead define nuevo roadmap
    ↓
-4. Abre Squad CLI session → Lead define nuevo roadmap
+4. Commitea roadmap.md y cierra issue
    ↓
-5. Commitea roadmap.md y cierra issue
+5. perpetual-motion.yml continúa con nuevo roadmap
    ↓
-6. perpetual-motion.yml continúa con nuevo roadmap
-   ↓
-7. VUELVE AL CICLO NORMAL (perpetuo)
+6. VUELVE AL CICLO NORMAL (perpetuo)
 ```
 
 **Intervención humana necesaria:**
 - ❌ **NO** en ciclo normal (Issues → PR → Merge → Repeat)
-- ❌ **NO** en refueling (ralph-watch maneja automáticamente)
-- ✅ **SÍ** si ralph-watch escala problema persistente (>3 fallos consecutivos)
-- ✅ **SÍ** si @copilot no puede resolver issue (PRs rechazados repetidamente)
+- ✅ **SÍ** si un issue se atasca o @copilot no puede resolver (PRs rechazados repetidamente)
 - ✅ **SÍ** para decisiones T0 (nuevas empresas downstream, cambios arquitectura)
 
-**Meta:** <15min/semana = sólo chequear escalaciones de ralph-watch, todo lo demás es autónomo.
+**Meta:** <15min/semana = operación autónoma con 1 terminal por repo.
 
 ---
 
@@ -731,50 +608,6 @@ gh api repos/joperezd/flora/collaborators/copilot
 
 ---
 
-### Problema 4: ralph-watch.ps1 No Detecta Issues de Refueling
-
-**Síntomas:**
-- perpetual-motion crea issue "📋 Define next roadmap"
-- ralph-watch corre pero NO lo detecta (logs muestran "No refueling needed")
-
-**Diagnóstico:**
-```powershell
-# Verifica que el issue existe y tiene título correcto
-gh issue list --repo joperezd/flora --label "status:needs-roadmap"
-```
-
-**Causas + Soluciones:**
-
-| Causa | Solución |
-|-------|----------|
-| Título del issue no coincide | ralph-watch busca "📋 Define next roadmap" exacto. Verifica título. |
-| constellation.json desactualizado | Verifica que repo está en `.squad/constellation.json` |
-| ralph-watch.ps1 no corriendo | Verifica proceso: `Get-Process powershell` |
-| Polling aún no llegó (espera <10min) | Revisa logs: debe aparecer "Checking repo X..." |
-
----
-
-### Problema 5: ralph-watch.ps1 Falla al Abrir Squad Session
-
-**Síntomas:**
-- Logs muestran `[ERROR] Failed to open Squad session for repo X`
-- Issue de refueling sigue abierto
-
-**Diagnóstico:**
-```powershell
-# Verifica que Squad CLI está instalado
-copilot --version
-```
-
-**Causas + Soluciones:**
-
-| Causa | Solución |
-|-------|----------|
-| Squad CLI no instalado | Instala: `npm install -g @github/copilot-cli` |
-| Sin autenticación | `gh auth login` para configurar credenciales |
-| Timeout (sesión >30min) | Revisa logs, debe escalar automáticamente después de 3 intentos |
-| Lead no responde en sesión | ralph-watch crea issue de escalación en `.squad/escalations/` para ti |
-
 ---
 
 ### Problema 6: GitHub Pages No Carga (Error 404)
@@ -835,7 +668,7 @@ gh api rate_limit
 | Causa | Solución |
 |-------|----------|
 | @copilot PRs frecuentemente rechazados | Mejora calidad de issues (más contexto, ejemplos de código, acceptance criteria específicos) |
-| Roadmaps convergen sin dirección | ralph-watch escala automáticamente después de 3 ciclos sin review (revisa escalaciones) |
+| Roadmaps convergen sin dirección | Revisa periódicamente la dirección de los roadmaps en cada sesión Squad CLI |
 | Issues mal definidos → @copilot confundido | Usa template `copilot-ready.md` con 5 secciones completas |
 | Builds fallan frecuentemente | Añade pre-commit hooks, linters, tests que @copilot debe pasar |
 | Demasiados repos evolucionando simultáneamente | Reduce a 2-3 repos activos, pausa los demás hasta estabilizar |
@@ -854,10 +687,9 @@ gh api rate_limit
 2. **Consulta con Morpheus (tú):** Revisa `.squad/agents/morpheus/history.md` para patrones similares
 
 3. **Consulta documentación:**
-   - `.squad/guides/squad-watch-layer2.md` (Layer 2 troubleshooting)
    - `.squad/guides/writing-copilot-issues.md` (mejora issues para @copilot)
 
-4. **Última opción:** Pausa ralph-watch.ps1 temporalmente, opera manualmente hasta diagnosticar
+4. **Última opción:** Opera manualmente hasta diagnosticar
 
 ---
 
@@ -866,8 +698,7 @@ gh api rate_limit
 **Una vez completados todos los pasos:**
 
 ✅ **Layer 1 (Cloud):** perpetual-motion.yml ejecutándose en los 6 repos, issues auto-creados en <1min  
-✅ **Layer 2 (Watch):** ralph-watch.ps1 corriendo en background, recarga roadmaps automáticamente  
-✅ **Layer 3 (Manual):** Tú sólo intervienes si ralph-watch escala algo (<15min/semana)
+✅ **Layer 2 (Manual):** 1 terminal por repo con sesión Squad CLI continua, roadmaps se definen localmente
 
 ✅ **Visibilidad:** 3 URLs públicas (FFS Page, Squad Monitor, SS Page) mostrando progreso en tiempo real  
 ✅ **Costo:** €0 — todo en GitHub free tier, sin Azure
@@ -877,11 +708,11 @@ gh api rate_limit
 1. Issue cerrado → nuevo issue creado (30s)
 2. @copilot asignado → analiza → crea PR (5-15min)
 3. PR mergeado → issue cerrado → siguiente issue creado
-4. Roadmap agotado → ralph-watch recarga → ciclo continúa
+4. Roadmap agotado → sesión Squad CLI del repo recarga → ciclo continúa
 5. **PERPETUO** — funciona 24/7
 
-**Tu rol como Ralph (Layer 3):**
-- Chequea logs de ralph-watch 1x/semana (5min)
+**Tu rol como Ralph (Layer 2):**
+- Revisa estado de repos 1x/semana vía sesiones Squad CLI (5min)
 - Revisa escalaciones en `.squad/escalations/` si las hay (5-10min)
 - Toma decisiones T0 si el sistema propone algo grande (raro, <5min)
 - **Total: <15min/semana**
@@ -892,12 +723,11 @@ gh api rate_limit
 
 **Semana 1-2: Observación**
 - Deja que el sistema corra solo
-- Monitorea logs de ralph-watch diariamente (sólo lectura, no intervengas)
+- Revisa sesiones Squad CLI en cada repo periódicamente
 - Anota patrones: ¿qué issues completa @copilot bien? ¿Cuáles necesitan re-trabajo?
 
 **Semana 3-4: Optimización**
 - Mejora formato de roadmap.md en base a patrones de éxito de @copilot
-- Ajusta interval de ralph-watch si 10min es muy frecuente o lento
 - Añade rate limiting si ves "rate limit exceeded" en logs
 
 **Mes 2+: Expansión**

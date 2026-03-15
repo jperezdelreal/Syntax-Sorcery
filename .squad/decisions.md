@@ -16,13 +16,13 @@ Autonomous AI dev company (€500/mo Azure, unlimited GitHub). Strict context hy
 - ✅ **A1:** Perpetual Motion Engine (PR #156) — Event-driven workflow, auto-creates issues from roadmap.md
 - ✅ **A2:** Roadmap Bootstrap (PR #160) — 6 roadmaps × 3 features = 18 @copilot-ready work items
 - ✅ **A3:** @copilot Issue Templates (PR #157) — 3 structured YAML forms with comprehensive guide
-- ✅ **A5:** ralph-watch.ps1 Layer 2 (PR #161) — PowerShell watchdog with 6 failure modes, DryRun testing
+- ✅ **A5:** Layer 2 — 1 terminal per repo with continuous Squad CLI sessions
 - ✅ **B1:** FirstFrameStudios Page — GitHub Pages with live game embeds (verified operational)
 - ✅ **B3:** Syntax Sorcery Main Page (PR #159) — Landing page with deploy fix
 
 **Three-Layer Architecture:**
 1. **Cloud (perpetual-motion.yml):** Event-driven (issues.closed) → Parse roadmap → Create issue → Assign @copilot
-2. **Watch (ralph-watch.ps1):** 10min polling → Detect "Define next roadmap" → Open Squad session → Refuel
+2. **Watch (1 terminal per repo):** Squad CLI session per repo → continuous monitoring and refueling
 3. **Manual (Ralph sessions):** Human fallback for strategic decisions and blocked issues
 
 **Validation:**
@@ -33,7 +33,7 @@ Autonomous AI dev company (€500/mo Azure, unlimited GitHub). Strict context hy
 
 **Cost Analysis:** €0/month total
 - Perpetual motion: €0 (GitHub Actions free tier)
-- ralph-watch: €0 (local execution)
+- Layer 2: €0 (local execution, 1 terminal per repo)
 - GitHub Pages: €0 (free for public repos)
 - Human time: <15 min/week (strategic oversight only)
 

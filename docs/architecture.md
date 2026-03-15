@@ -61,7 +61,6 @@ The perpetual motion engine is SS's core autonomous loop. It transforms roadmap 
 │                                                                     │
 │   perpetual-motion.yml ──▶ @copilot ──▶ review-gate.js ──▶ CI     │
 │   dedup-guard.js prevents duplicate issues                          │
-│   ralph-watch.ps1 detects roadmap depletion and refuels             │
 └─────────────────────────────────────────────────────────────────────┘
 ```
 
@@ -76,7 +75,7 @@ The perpetual motion engine is SS's core autonomous loop. It transforms roadmap 
 | **CI** | `ci.yml` | `npm ci` + `npm test` (168+ vitest tests) | Pass/fail status check |
 | **Merge** | Ralph / Agent | `gh pr merge --squash` after gate approval | Code merged to master |
 | **Deplete** | Automatic | Merged item struck through in roadmap | Roadmap shrinks |
-| **Refuel** | `ralph-watch.ps1` | Detects depleted roadmap, triggers planning | New items added to roadmap |
+| **Refuel** | Squad CLI session | Lead defines new roadmap in repo terminal | New items added to roadmap |
 
 ### 2.3 Safety Mechanisms
 
@@ -105,9 +104,9 @@ SS operates across two physical layers: a local development machine (hub) and a 
 │  │  └───────────────────┘  │          │  ┌──────────────────┐  │   │
 │  │                         │          │  │  tmux sessions    │  │   │
 │  │  ┌───────────────────┐  │          │  │                  │  │   │
-│  │  │  ralph-watch.ps1  │  │          │  │  sat-flora       │  │   │
-│  │  │  (Layer 2 watch)  │  │          │  │  sat-ComeRosq.   │  │   │
-│  │  └───────────────────┘  │          │  │  sat-pixel-b.    │  │   │
+│  │  ┌───────────────────┐  │          │  │  sat-flora       │  │   │
+│  │  │  Squad CLI        │  │          │  │  sat-ComeRosq.   │  │   │
+│  │  │  (1 per repo)     │  │          │  │  sat-pixel-b.    │  │   │
 │  │                         │          │  │  sat-ffs-monitor  │  │   │
 │  │  ┌───────────────────┐  │          │  │  sat-FFS          │  │   │
 │  │  │  GitHub CLI (gh)  │  │          │  └──────────────────┘  │   │
@@ -127,7 +126,7 @@ SS operates across two physical layers: a local development machine (hub) and a 
 | Governance & decisions | `.squad/decisions.md` |
 | Quality gates | `review-gate.js`, `ci.yml` |
 | Roadmap management | `roadmap.md`, `perpetual-motion.yml` |
-| Monitoring Layer 2 | `ralph-watch.ps1` |
+| Monitoring Layer 2 | Squad CLI sessions (1 per repo) |
 | Constellation health | `constellation-health.js` |
 
 ### 3.3 Spoke (Azure VM) Details
@@ -182,9 +181,9 @@ SS uses a layered monitoring model where each layer watches a different scope, p
 │                              │                                      │
 │                              ▼                                      │
 │  ┌───────────────────────────────────────────────────────────────┐  │
-│  │  LAYER 2 — Local Watch (ralph-watch.ps1)                     │  │
+│  │  LAYER 2 — Local Watch (1 terminal per repo, Squad CLI)       │  │
 │  │                                                               │  │
-│  │  ralph-watch.ps1        Monitors roadmap depletion, refuels   │  │
+│  │  Squad CLI sessions    1 terminal per repo, continuous         │  │
 │  │  constellation.json     Tracks all 6 repos in the system      │  │
 │  │  constellation-health   Validates repo health across all 6    │  │
 │  │                                                               │  │
@@ -224,7 +223,7 @@ SS uses a layered monitoring model where each layer watches a different scope, p
 | Layer | Component | What It Monitors | Where It Runs |
 |-------|-----------|------------------|---------------|
 | **1** | GitHub Actions workflows | SS itself (CI, perpetual motion, safety net) | GitHub (cloud) |
-| **2** | `ralph-watch.ps1` + `constellation-health.js` | All 6 repos — roadmap status, workflow health | Local PC (hub) |
+| **2** | Squad CLI sessions + `constellation-health.js` | All 6 repos — roadmap status, workflow health | Local PC (hub) |
 | **2.5** | Azure satellite sessions | Downstream repo execution | Azure VM (spoke) |
 | **3** | `ffs-squad-monitor` | FFS game repos only (flora, ComeRosquillas, pixel-bounce) | Separate repo |
 
@@ -335,7 +334,7 @@ roadmap.md ──▶ perpetual-motion.yml ──▶ GitHub Issue (@copilot)
                                     roadmap.md (depleted)
                                               │
                                               ▼
-                                    ralph-watch.ps1 (refuel)
+                                    Squad CLI session (refuel)
 ```
 
 ---
@@ -350,7 +349,6 @@ roadmap.md ──▶ perpetual-motion.yml ──▶ GitHub Issue (@copilot)
 | Review Gate | `scripts/review-gate.js` | 4-check PR validation |
 | Dedup Guard | `scripts/dedup-guard.js` | Duplicate issue prevention |
 | Constellation Health | `scripts/constellation-health.js` | 6-repo health check |
-| Ralph Watch | `scripts/ralph-watch.ps1` | Layer 2 monitoring dashboard |
 | Azure Launcher | `scripts/azure/start-satellites.sh` | VM satellite management |
 | Constellation Config | `.squad/constellation.json` | Repo registry (6 repos) |
 

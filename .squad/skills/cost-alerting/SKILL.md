@@ -51,10 +51,10 @@ File: `scripts/azure-cost-check.sh`
 - Supports `--budget AMOUNT` to override default
 - Exit codes: 0=ok, 1=warn, 2=escalate, 3=emergency, 4=error
 
-### Integration with Ralph-Watch
-The cost check can be added to ralph-watch's pre-round health check:
+### Integration with Squad CLI
+The cost check can be integrated into Squad CLI session health checks:
 ```bash
-# In ralph-watch health check phase
+# In session health check phase
 COST_STATUS=$(./scripts/azure-cost-check.sh --json --budget 500 | jq -r '.level')
 if [ "$COST_STATUS" = "emergency" ]; then
   echo "⚠️ Budget emergency — skipping resource-intensive operations"

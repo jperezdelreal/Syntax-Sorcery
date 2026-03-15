@@ -13,7 +13,7 @@ SS (upstream) ──governs──▶ FFS (downstream)
 ### What Cascades (SS → Downstream)
 - **Governance:** tier definitions (T0–T3), priorities (P0–P3), ceremony cadence
 - **Context hygiene:** file size limits, archival triggers, bloat prevention
-- **Squad infra:** agent patterns, skill templates, ralph-watch core
+- **Squad infra:** agent patterns, skill templates, Squad CLI core
 - **Quality gates:** definitions, metrics thresholds, merge requirements
 
 ### What Stays Local (Downstream Owns)
@@ -48,12 +48,12 @@ SS monitors downstream health via these signals:
 |--------|---------|---------|----------|
 | **Issue throughput** | Issues closing within SLA per tier | >20% overdue | >50% overdue or queue growing |
 | **File sizes** | All `.squad/` files within limits | Any file >80% of limit | Any file over limit |
-| **Ralph-watch uptime** | Running, completing cycles | >2 consecutive failed cycles | Stopped or crashlooping |
+| **Squad CLI uptime** | Sessions active, completing cycles | >2 consecutive failed cycles | Stopped or crashlooping |
 | **Error rate** | <5% of agent actions error | 5–15% error rate | >15% error rate |
 | **Context window** | Total `.squad/` <100KB | >80KB | >100KB |
 
 ### Monitoring Cadence
-- **Automated:** ralph-watch checks every cycle
+- **Automated:** Squad CLI sessions check every cycle
 - **Weekly:** SS reviews issue throughput
 - **On-demand:** read-only audit anytime
 

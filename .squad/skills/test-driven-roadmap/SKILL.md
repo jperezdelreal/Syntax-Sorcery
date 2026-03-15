@@ -80,7 +80,7 @@ Before accepting a roadmap item, ask:
 ✅ **STRONG roadmap — all HIGH-strength items:**
 1. **Configure CI checks + branch protection** → Fixes Test 1 CRITICAL gap
 2. **Add constellation-wide health monitoring** → Enables proactive orchestration (SS is hub for 6 repos)
-3. **Create ralph-watch.ps1 monitoring dashboard** → Operational visibility for Layer 2 refueling engine
+3. **Add constellation-wide health monitoring dashboard** → Operational visibility for Layer 2
 
 **Strength:** All 3 items directly address Test 1 learnings + multi-terminal orchestration needs.
 

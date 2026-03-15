@@ -11,12 +11,12 @@
 3. ✅ Event-driven (`issues.closed`) as PRIMARY driver, NOT cron (A1)
 4. ✅ Motor perpetuo as single cycle: roadmap → issue → @copilot → merge → repeat (A1 architecture)
 5. ✅ Roadmaps by local Lead of each repo, NOT Oracle from SS (A2 ownership model)
-6. ✅ 3 layers: Cloud (Layer 1), Watch (Layer 2: ralph-watch.ps1 + squad watch), Manual (Layer 3: Ralph)
+6. ✅ 2 layers: Cloud (Layer 1), Manual (Layer 2: 1 terminal per repo with Squad CLI)
 7. ✅ Polling 60s for Squad Monitor, NO streaming, €0 cost (B4)
 8. ✅ Devlog DAILY (not weekly), within FFS Page (B2)
-9. ✅ ralph-watch.ps1 as Layer 2 PRIMARY with 6 failure modes (A5.1)
-10. ✅ squad watch as COMPLEMENT to ralph-watch.ps1, clearly distinguished (A5.2)
-11. ✅ Roadmap refueling via ralph-watch.ps1 — "Define next roadmap" → ralph-watch.ps1 → Squad session → auto-generated roadmap (A5 refueling behavior)
+9. ~~✅ ralph-watch.ps1 as Layer 2 PRIMARY with 6 failure modes (A5.1)~~ **SUPERSEDED:** 1 terminal per repo model
+10. ~~✅ squad watch as COMPLEMENT to ralph-watch.ps1, clearly distinguished (A5.2)~~ **SUPERSEDED**
+11. ~~✅ Roadmap refueling via ralph-watch.ps1~~ **SUPERSEDED:** Refueling handled by Squad CLI sessions per repo
 12. ✅ @copilot reads the repo — issues only need what+acceptance criteria, NOT how-to-implement (A3 template guidance)
 13. ✅ ON/OFF switch — ON = populate roadmaps + create first issues + enable copilot-auto-assign:true (documented below)
 
@@ -81,16 +81,15 @@ This is the entire autonomy architecture. Everything else is implementation deta
 └────────────────────────────────────────────────────────────┘
 
 ┌────────────────────────────────────────────────────────────┐
-│  STEP 4: REFUELING (Layer 2, ralph-watch.ps1, Automatic) │
+│  STEP 4: REFUELING (Layer 2, Squad CLI session, Manual)  │
 │  ───────────────────────────────────────────────────────── │
-│  ralph-watch.ps1 running in background:                   │
-│  • Detects "Define next roadmap" issue                    │
-│  • Opens Squad CLI session                                │
-│  • Lead defines new roadmap                               │
+│  1 terminal per repo with Squad CLI session:              │
+│  • Lead detects "Define next roadmap" issue               │
+│  • Lead defines new roadmap in Squad CLI session          │
 │  • Commits and closes issue                               │
 │  • Motor continues from Step 2                            │
 │                                                            │
-│  RESULT: Zero human intervention, perpetual motion        │
+│  RESULT: Continuous operation via 1 terminal per repo     │
 └────────────────────────────────────────────────────────────┘
 ```
 
@@ -99,7 +98,7 @@ This is the entire autonomy architecture. Everything else is implementation deta
 **Supporting details:**
 - **Safety net cron (A4):** Catches stuck repos >72h, escalates only
 - **Issue template (A3):** Helps @copilot understand what to do
-- **3 Layers:** Cloud (GHA + @copilot), Watch (ralph-watch.ps1 + squad watch), Manual (Ralph ~30min/week)
+- **2 Layers:** Cloud (GHA + @copilot), Manual (1 terminal per repo with Squad CLI)
 
 ---
 
@@ -212,36 +211,12 @@ This is the entire autonomy architecture. Everything else is implementation deta
 
 ---
 
-### A5. ralph-watch.ps1 — Layer 2 Refueling
+### ~~A5. ralph-watch.ps1 — Layer 2 Refueling~~ (SUPERSEDED)
 
-**Issue Title:** Implement ralph-watch.ps1 to detect Lead issues and resolve them  
-**Repo:** Syntax Sorcery  
-**Assigned to:** Morpheus (Lead/Architect)  
-**Layer:** 2 (Local Watch — refuels roadmaps)  
-**Dependencies:** A1-A4 (Layer 1 must be operational first)  
-**Labels:** `squad:morpheus`, `type:implementation`, `priority:critical`
+> **Note:** A5 was superseded by the "1 terminal per repo" model. ralph-watch.ps1 has been removed. Layer 2 is now handled by continuous Squad CLI sessions per repo.
 
-**What It Does:**
-- Runs in background (PowerShell loop)
-- Polls all 6 repos every 10 minutes
-- Detects "Define next roadmap" issues assigned to Leads
-- Opens Squad CLI session → Lead defines roadmap → commits → closes issue
-- Includes hardened failure modes from `.squad/skills/ralph-hardening/SKILL.md`
-
-**Acceptance Criteria:**
-- [ ] Script: `scripts/ralph-watch.ps1` with polling loop
-- [ ] Detects issues titled "📋 Define next roadmap"
-- [ ] Opens Squad session: `copilot --mode session --repo {repo} --prompt "Define next roadmap"`
-- [ ] Commits roadmap.md and closes issue
-- [ ] Hardening: session timeout (30m), exponential backoff, stale lock detection, log rotation, health checks
-- [ ] Logs to `.squad/ralph-watch/YYYY-MM-DD.log`
-- [ ] Test: Simulate empty roadmap → verify auto-refueling works
-
-**squad watch (Optional Complement):**
-- Brady Gaster's tool: `npx github:bradygaster/squad watch --interval 10`
-- Different purpose: AI triage and assignment suggestions (NOT refueling)
-- Can run alongside ralph-watch.ps1 if desired
-- Document usage in `.squad/guides/squad-watch-layer2.md`
+**Original Issue Title:** Implement ralph-watch.ps1 to detect Lead issues and resolve them  
+**Status:** ❌ SUPERSEDED — Founder decision: 1 terminal per repo with continuous Squad CLI sessions replaces centralized polling.
 
 ---
 

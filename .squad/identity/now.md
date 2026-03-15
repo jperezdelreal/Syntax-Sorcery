@@ -6,7 +6,7 @@ active_issues: [flora#37, ComeRosquillas#37, pixel-bounce#5]
 
 # What We're Focused On
 
-**AUTONOMOUS OPERATION ACTIVE** 🚀 First full cycle test PASSED (2026-03-13). Perpetual motion verified across 3 repos. @copilot delivering features, ralph-watch.ps1 monitoring. User away — system running autonomously.
+**AUTONOMOUS OPERATION ACTIVE** 🚀 First full cycle test PASSED (2026-03-13). Perpetual motion verified across 3 repos. @copilot delivering features, 1 terminal per repo monitoring. User away — system running autonomously.
 
 ---
 
@@ -16,7 +16,7 @@ active_issues: [flora#37, ComeRosquillas#37, pixel-bounce#5]
 - ✅ Phase 2 consolidated plan created (docs/plan-phase2-visibility.md, 542 lines)
 - ✅ 3-layer autonomy architecture finalized (Cloud/Watch/Manual)
 - ✅ Event-driven perpetual motion motor (issues.closed trigger)
-- ✅ Roadmap refueling loop closed (ralph-watch.ps1 primary Layer 2)
+- ✅ Roadmap refueling loop closed (1 terminal per repo, Squad CLI)
 - ✅ Decentralized roadmap ownership (local Leads, not Oracle)
 - ✅ Visibility strategy locked (FFS Page Day 3, Daily Devlog, Squad Monitor 60s polling)
 - ✅ Repo evolution scope bounded (3 features per repo max, finish existing games)
@@ -41,7 +41,7 @@ active_issues: [flora#37, ComeRosquillas#37, pixel-bounce#5]
 
 **Monday 2026-03-17:**
 - Morpheus: Create 15 GitHub issues across 6 repos
-- Tank: Start A1 (perpetual-motion.yml) + A5 (ralph-watch.ps1)
+- Tank: Start A1 (perpetual-motion.yml) + A5 (Layer 2 sessions)
 - Oracle: Start A2 (roadmaps for 6 repos)
 - Trinity: Start B1 (FFS Page) + B3 (SS Page)
 
@@ -61,7 +61,7 @@ active_issues: [flora#37, ComeRosquillas#37, pixel-bounce#5]
 - **A2:** Roadmaps for 6 repos (decentralized ownership, 3 features max per repo)
 - **A3:** @copilot Integration Templates (strict guidance, issues specify what+criteria only)
 - **A4:** Safety Net Cron (24h escalation, never acts)
-- **A5:** Layer 2 Watch (ralph-watch.ps1 PRIMARY + squad watch COMPLEMENT)
+- **A5:** Layer 2 Watch (1 terminal per repo with Squad CLI sessions)
 - **Status:** Ready to launch, 3 minor conditions documented (rate limiting, feature cap, roadmap convergence)
 - **Cost:** €0
 
@@ -87,7 +87,7 @@ active_issues: [flora#37, ComeRosquillas#37, pixel-bounce#5]
 
 1. **Event-Driven Motor:** issues.closed trigger, reactive (not cron)
 2. **Roadmap Ownership:** Local Leads per repo (not Oracle from SS)
-3. **Layer 2 Refueling:** ralph-watch.ps1 detects "Define next roadmap" → opens Squad CLI → automatic
+3. **Layer 2 Refueling:** 1 terminal per repo with Squad CLI → Lead defines new roadmap → automatic
 4. **Visibility Stack:** GitHub Pages (Astro) + auto devlog + Squad Monitor polling (no Azure)
 5. **Cost Target:** €0 (GitHub free tier, local execution)
 6. **Success Target:** <15min/week human intervention, 80% autonomous work
@@ -98,7 +98,7 @@ active_issues: [flora#37, ComeRosquillas#37, pixel-bounce#5]
 ## Agent Assignments (Week 1)
 
 - **Morpheus:** Issue creation, A4 safety net, gate review, decision capture
-- **Tank:** A1 (perpetual motion), A5 (ralph-watch.ps1)
+- **Tank:** A1 (perpetual motion), A5 (Layer 2 sessions)
 - **Oracle:** A2 (roadmaps), B2 (daily devlog)
 - **Trinity:** B1 (FFS page), B3 (SS page)
 - **Switch:** QA prep, Phase 2 test matrix (ready to activate)
@@ -118,7 +118,7 @@ active_issues: [flora#37, ComeRosquillas#37, pixel-bounce#5]
 
 ## Next Phases (After Week 1 Complete)
 
-- **Week 2:** Complete Workstream B visibility, activate ralph-watch.ps1 refueling
+- **Week 2:** Complete Workstream B visibility, activate Layer 2 refueling sessions
 - **Week 3-4:** @copilot executes C1-C3 features in parallel across 3 repos
 - **Post-Phase 2:** Scale autonomy to all downstream companies, continuous deployment pipeline
 

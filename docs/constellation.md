@@ -118,7 +118,7 @@ Layer 1 (GitHub Actions)
     │  SS self-monitors via perpetual-motion.yml, safety-net.yml, ci.yml
     ▼
 Layer 2 (Local Hub)
-    │  ralph-watch.ps1 monitors all 6 repos
+    │  1 terminal per repo with Squad CLI sessions
     │  constellation-health.js validates operational status
     ▼
 Layer 2.5 (Azure VM)
