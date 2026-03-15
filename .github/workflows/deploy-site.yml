@@ -9,7 +9,7 @@ on:
       - '.github/workflows/deploy-site.yml'
   workflow_dispatch:
   schedule:
-    - cron: '0 2 * * *'  # Daily at 2 AM UTC to update activity
+    - cron: '0 */6 * * *'  # Every 6 hours to update activity
 
 permissions:
   contents: read
