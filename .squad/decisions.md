@@ -55,7 +55,25 @@ Autonomous AI dev company (€500/mo Azure, unlimited GitHub). Strict context hy
 | T2 | Agent authority | Implementation details, test strategies, doc updates |
 | T3 | Auto-approved | Scribe ops, history updates, log entries |
 
+### 2026-03-15T19:59Z: User Directive — Reference Sources
+
+**By:** joperezd (via Copilot)  
+**Tier:** T3 (Auto-approved)  
+**Status:** ✅ ACTIVE
+
+Founder proactively shares resources (awesome-azd, awesome-copilot marketplace, blogs, prior repos). Team must remember and apply when relevant. Known sources: Azure/awesome-azd (React+SWA+Functions+Cosmos templates), 54 Copilot plugins, prior session resources.
+
+---
+
+### 2026-03-15T20:08Z: CityPulse Labs v0.1 — GitHub Issues Decomposition
+
+**By:** Morpheus (Lead/Architect) via Copilot  
+**Tier:** T1 (Architecture Authority)  
+**Status:** ✅ COMPLETE
+
+Created 9 labels + 7 actionable GitHub issues in jperezdelreal/CityPulseLabs (renamed from bici-coruna). Issues: #1 Scaffolding (Trinity), #2 Azure Infra (Tank), #3 GBFS Service, #4 Map, #5 Routing, #6 Data Pipeline, #7 CI/CD. Wave 1: #1+#2 parallel. All tagged v0.1. Dependency graph documented.
+
 ---
 
 See decisions-archive-2026-03-15.md for entries older than 2026-03-22.
-**Last Updated:** 2026-03-15T19:25Z
+**Last Updated:** 2026-03-15T20:08Z

@@ -1,20 +1,21 @@
 ---
-updated_at: 2026-03-24T00:00:00.000Z
-focus_area: Post-audit cleanup — getting honest about what's real
-active_issues: [112]
+updated_at: 2026-03-15T20:08:00.000Z
+focus_area: CityPulse Labs — BiciCoruña v0.1 execution. Wave 1 launched
+active_issues: [112, CityPulseLabs#1, CityPulseLabs#2]
 ---
 
 # What We're Focused On
 
-**Reality check.** Phases 2-7 delivered real infrastructure (CI, perpetual motion, GitHub Pages, metrics, bootstrap). Phases 8-15 were mostly paper. Founder audit exposed the gap. Now cleaning up.
+**CityPulse Labs v0.1 execution in parallel with SS core.** Wave 1: Trinity scaffolding + Tank Azure infra. Repo jperezdelreal/CityPulseLabs ready. Issues #1–#7 created and dependency-ordered.
 
 ## Actual State
 
-- **Working:** CI green, 345+ tests passing, SS GitHub Pages live, FFS GitHub Pages live, perpetual-motion.yml operational, MCP server built
-- **On hold:** Azure VM (#112) — founder decision
-- **In progress:** Switch rolling out Playwright testing to downstream repos; Trinity fixing live dashboard data
-- **Blocked:** Nothing — board is clear except #112
+- **SS Core:** CI green, 345+ tests, Pages live, perpetual motion active, MCP server built. Blog pending.
+- **CityPulse Labs Wave 1:** 🚀 LAUNCHED — Trinity #1 + Tank #2 parallel. Azure CLI verified. Repo cloned.
+- **On hold:** Azure VM (#112) — founder decision.
+- **In progress:** Switch testing rollout; Trinity dashboard fixes.
+- **Blocked:** Nothing.
 
 ## What's Next
 
-Founder wants a **BLOG** (not devlog). Game features belong to each game repo's Lead, not SS. Focus on what's real and deployed.
+Wave 2 (after #1+#2): Trinity #3 GBFS Service + Tank #7 CI/CD parallel. Trinity #4 Map. Tank #6 Data Pipeline. Trinity #5 Route Calculator final.
