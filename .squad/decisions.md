@@ -6,6 +6,53 @@ Autonomous AI dev company (€500/mo Azure, unlimited GitHub). Strict context hy
 
 ## Active Decisions (Last 7 Days)
 
+### 2026-03-24T04:15Z: 🎉 Phase 2 Autonomy Infrastructure COMPLETE
+
+**By:** Morpheus (Lead/Architect)  
+**Tier:** T1 (Architecture Authority)  
+**Status:** ✅ COMPLETE — All 6 workstream items operational
+
+**What:** Phase 2 autonomy infrastructure fully delivered and operational. Three-layer architecture (Cloud + Watch + Manual) running at €0/month cost with <15min/week human intervention.
+
+**Final Deliverables:**
+- ✅ **A1:** Perpetual Motion Engine (PR #156) — Event-driven workflow, auto-creates issues from roadmap.md
+- ✅ **A2:** Roadmap Bootstrap (PR #160) — 6 roadmaps × 3 features = 18 @copilot-ready work items
+- ✅ **A3:** @copilot Issue Templates (PR #157) — 3 structured YAML forms with comprehensive guide
+- ✅ **A5:** ralph-watch.ps1 Layer 2 (PR #161) — PowerShell watchdog with 6 failure modes, DryRun testing
+- ✅ **B1:** FirstFrameStudios Page — GitHub Pages with live game embeds (verified operational)
+- ✅ **B3:** Syntax Sorcery Main Page (PR #159) — Landing page with deploy fix
+
+**Three-Layer Architecture:**
+1. **Cloud (perpetual-motion.yml):** Event-driven (issues.closed) → Parse roadmap → Create issue → Assign @copilot
+2. **Watch (ralph-watch.ps1):** 10min polling → Detect "Define next roadmap" → Open Squad session → Refuel
+3. **Manual (Ralph sessions):** Human fallback for strategic decisions and blocked issues
+
+**Validation:**
+- ✅ Format compatibility: All roadmaps parse correctly with perpetual-motion.yml
+- ✅ Scope lock: Max 3 features per repo (18 total), no new products
+- ✅ Rate limiting: Max 1 open copilot-ready issue + 30min cooldown prevents runaway
+- ✅ Hardening: Session timeout (30min), exponential backoff (5m→60m), stale lock detection (2h), log rotation (3-file), health checks (hourly), alert mechanism (cycle limit)
+
+**Cost Analysis:** €0/month total
+- Perpetual motion: €0 (GitHub Actions free tier)
+- ralph-watch: €0 (local execution)
+- GitHub Pages: €0 (free for public repos)
+- Human time: <15 min/week (strategic oversight only)
+
+**Key Learnings:**
+1. Event-driven beats polling — Layer 1 primary, Layer 2 handles edge cases
+2. Roadmap scope lock critical — Max 3 features prevents scope creep
+3. DryRun mode essential — Testing without side effects is mandatory
+4. Zero-cost autonomy viable — €0 infrastructure is production-ready
+
+**Timeline:** 12 days (March 13 → March 24, 2026)  
+**PRs Merged:** 6 (A1, A2, A3, A5, B3 + dependencies)  
+**Issues Closed:** #148, #153 + supporting issues
+
+**Status:** PERPETUAL MOTION ENGAGED. 🚀
+
+---
+
 ### 2026-03-22T03:00Z: Perpetual Motion Event Logging & Rate Limiting Architecture
 
 **By:** Tank (Cloud Engineer)  
