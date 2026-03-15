@@ -7,12 +7,42 @@
     across constellation repositories and autonomously refuels roadmaps by
     opening Squad CLI sessions for local Leads to define new roadmaps.
     
-    This is the FINAL piece of the perpetual motion engine:
-    - Layer 1: perpetual-motion.yml (issues.closed trigger, @copilot execution)
-    - Layer 2: ralph-watch.ps1 (roadmap refueling, THIS SCRIPT)
-    - Layer 3: squad watch (AI triage complement, Brady's tool)
+    ═══════════════════════════════════════════════════════════════════════
+    THREE-LAYER AUTONOMY ARCHITECTURE
+    ═══════════════════════════════════════════════════════════════════════
     
-    Hardened with 6 failure modes from Tank's ralph-hardening SKILL:
+    Layer 1: CLOUD (perpetual-motion.yml)
+    ─────────────────────────────────────────────────────────────────────
+    • Event-driven GitHub Actions workflow
+    • Trigger: issues.closed
+    • Actions: Parse roadmap → Create next issue → Assign to @copilot
+    • Rate limiting: Max 1 open copilot-ready issue + 30min cooldown
+    • Location: Deployed to all 6 constellation repos
+    • Cost: €0 (GitHub free tier)
+    • Status: ✅ OPERATIONAL (merged PR #156)
+    
+    Layer 2: WATCH (ralph-watch.ps1 — THIS SCRIPT)
+    ─────────────────────────────────────────────────────────────────────
+    • LOCAL watchdog process (runs on developer machine or Azure VM)
+    • Polls GitHub every 10 minutes for "Define next roadmap" issues
+    • When detected: Opens Squad CLI → Lead defines roadmap → Commits
+    • This is the PRIMARY refueling mechanism
+    • Hardened with 6 failure modes (see below)
+    • Cost: €0 (local execution, no cloud resources)
+    • Status: 🔨 IN PROGRESS (this PR)
+    
+    Layer 3: MANUAL (Ralph sessions)
+    ─────────────────────────────────────────────────────────────────────
+    • Human-triggered Squad CLI sessions
+    • Fallback when Layers 1-2 need direction
+    • Used for: Strategic decisions, blocked issues, refueling oversight
+    • Invoked via: `copilot --session` or `squad`
+    • Frequency: <15 min/week (target for full autonomy)
+    
+    ═══════════════════════════════════════════════════════════════════════
+    
+    HARDENING: Six Failure Modes from Tank's ralph-hardening SKILL
+    ═══════════════════════════════════════════════════════════════════════
     1. Session timeout (30min max per refueling session)
     2. Exponential backoff (5m → 10m → 20m → 60m on failures)
     3. Stale lock detection (2h timeout triggers cleanup)
