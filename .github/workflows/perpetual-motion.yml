@@ -1,3 +1,36 @@
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+# PERPETUAL MOTION — Event-Driven Roadmap Progression Engine
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+#
+# PURPOSE:
+#   Autonomous motor that makes the roadmap self-sustaining. When an issue
+#   closes, automatically creates the next issue from roadmap.md, enabling
+#   perpetual autonomous progress.
+#
+# ARCHITECTURE:
+#   Event-driven (issues.closed) → Parse roadmap.md → Create next issue →
+#   Mark completed → Assign to @copilot → Log event → Commit
+#
+# SAFETY MECHANISMS:
+#   1. Rate Limiting: Max 1 open copilot-ready issue at a time (prevents runaway)
+#   2. Time-Based Rate Limit: Max 1 trigger per 30 minutes (cost control)
+#   3. Label Filter: Only acts on 'roadmap' or 'copilot-ready' labeled issues
+#   4. Roadmap Exhaustion: Creates "Define next roadmap" issue when complete
+#   5. Event Logging: All actions logged to .squad/motor-log/YYYY-MM-DD.json
+#
+# CROSS-REPO DEPLOYMENT:
+#   Deployed to all 6 repos: Syntax-Sorcery, FFS, flora, ComeRosquillas,
+#   pixel-bounce, ffs-squad-monitor
+#
+# ROADMAP FORMAT:
+#   - Numbered: "1. [ ] Title"
+#   - Bulleted: "- [ ] Title"
+#   - Acceptance criteria as indented bullet points
+#   - Files: "- Files: file1.js, file2.ts"
+#   - Context: "- Context: Additional context"
+#
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
 name: Perpetual Motion
 
 on:
@@ -13,11 +46,65 @@ jobs:
     # Only trigger on issues with roadmap or copilot-ready label
     if: contains(github.event.issue.labels.*.name, 'roadmap') || contains(github.event.issue.labels.*.name, 'copilot-ready')
     runs-on: ubuntu-latest
+    
+    # Concurrency: Only 1 perpetual motion workflow at a time
+    concurrency:
+      group: perpetual-motion-${{ github.repository }}
+      cancel-in-progress: false
+    
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Fetch all history for log directory
+
+      - name: Check time-based rate limit (30 minutes)
+        id: time-limit
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const path = require('path');
+            
+            // Create motor-log directory if it doesn't exist
+            const logDir = '.squad/motor-log';
+            if (!fs.existsSync(logDir)) {
+              fs.mkdirSync(logDir, { recursive: true });
+            }
+            
+            // Check last run timestamp
+            const now = new Date();
+            const today = now.toISOString().split('T')[0]; // YYYY-MM-DD
+            const logFile = path.join(logDir, `${today}.json`);
+            
+            let logs = [];
+            if (fs.existsSync(logFile)) {
+              logs = JSON.parse(fs.readFileSync(logFile, 'utf8'));
+            }
+            
+            // Find last successful run
+            const lastRun = logs
+              .filter(log => log.action === 'issue_created' || log.action === 'roadmap_exhausted')
+              .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp))[0];
+            
+            if (lastRun) {
+              const lastRunTime = new Date(lastRun.timestamp);
+              const minutesSinceLastRun = (now - lastRunTime) / 1000 / 60;
+              
+              if (minutesSinceLastRun < 30) {
+                const waitMinutes = Math.ceil(30 - minutesSinceLastRun);
+                core.info(`Time-based rate limit: Last run was ${Math.floor(minutesSinceLastRun)} minutes ago. Must wait ${waitMinutes} more minutes.`);
+                core.setOutput('should_proceed', 'false');
+                core.setOutput('wait_minutes', waitMinutes.toString());
+                return;
+              }
+            }
+            
+            core.info('Time-based rate limit: OK (no run in last 30 minutes)');
+            core.setOutput('should_proceed', 'true');
 
       - name: Check rate limit (semaphore)
         id: rate-limit
+        if: steps.time-limit.outputs.should_proceed == 'true'
         uses: actions/github-script@v7
         with:
           script: |
@@ -44,7 +131,9 @@ jobs:
 
       - name: Read and parse roadmap
         id: parse-roadmap
-        if: steps.rate-limit.outputs.should_proceed == 'true'
+        if: |
+          steps.time-limit.outputs.should_proceed == 'true' &&
+          steps.rate-limit.outputs.should_proceed == 'true'
         uses: actions/github-script@v7
         with:
           script: |
@@ -180,6 +269,43 @@ jobs:
             core.setOutput('issue_number', issue.number.toString());
             core.setOutput('issue_url', issue.html_url);
 
+      - name: Log event to motor-log
+        if: steps.parse-roadmap.outputs.has_next_item == 'true'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const path = require('path');
+            
+            const logDir = '.squad/motor-log';
+            if (!fs.existsSync(logDir)) {
+              fs.mkdirSync(logDir, { recursive: true });
+            }
+            
+            const now = new Date();
+            const today = now.toISOString().split('T')[0];
+            const logFile = path.join(logDir, `${today}.json`);
+            
+            // Load existing logs
+            let logs = [];
+            if (fs.existsSync(logFile)) {
+              logs = JSON.parse(fs.readFileSync(logFile, 'utf8'));
+            }
+            
+            // Append new log entry
+            logs.push({
+              timestamp: now.toISOString(),
+              action: 'issue_created',
+              trigger_issue: ${{ github.event.issue.number }},
+              created_issue: parseInt('${{ steps.create-issue.outputs.issue_number }}'),
+              title: `${{ steps.parse-roadmap.outputs.title }}`,
+              repository: context.repo.repo,
+              workflow_run: context.runId
+            });
+            
+            fs.writeFileSync(logFile, JSON.stringify(logs, null, 2));
+            core.info(`Logged event to ${logFile}`);
+
       - name: Assign @copilot to issue
         if: steps.parse-roadmap.outputs.has_next_item == 'true'
         uses: actions/github-script@v7
@@ -250,7 +376,7 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add roadmap.md
+          git add roadmap.md .squad/motor-log/
           git commit -m "Mark roadmap item as completed
 
           Completed: ${{ steps.parse-roadmap.outputs.title }}
@@ -260,7 +386,9 @@ jobs:
           git push
 
       - name: Create "Define next roadmap" issue (roadmap exhausted)
+        id: create-roadmap-refuel
         if: |
+          steps.time-limit.outputs.should_proceed == 'true' &&
           steps.rate-limit.outputs.should_proceed == 'true' &&
           steps.parse-roadmap.outputs.roadmap_exists == 'true' &&
           steps.parse-roadmap.outputs.has_next_item == 'false'
@@ -328,6 +456,60 @@ jobs:
             });
             
             core.info(`Created roadmap refuel issue #${issue.number} (assigned to ${leadLabel})`);
+            core.setOutput('refuel_issue', issue.number.toString());
+
+      - name: Log roadmap exhaustion event
+        if: |
+          steps.time-limit.outputs.should_proceed == 'true' &&
+          steps.rate-limit.outputs.should_proceed == 'true' &&
+          steps.parse-roadmap.outputs.roadmap_exists == 'true' &&
+          steps.parse-roadmap.outputs.has_next_item == 'false'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const path = require('path');
+            
+            const logDir = '.squad/motor-log';
+            if (!fs.existsSync(logDir)) {
+              fs.mkdirSync(logDir, { recursive: true });
+            }
+            
+            const now = new Date();
+            const today = now.toISOString().split('T')[0];
+            const logFile = path.join(logDir, `${today}.json`);
+            
+            let logs = [];
+            if (fs.existsSync(logFile)) {
+              logs = JSON.parse(fs.readFileSync(logFile, 'utf8'));
+            }
+            
+            logs.push({
+              timestamp: now.toISOString(),
+              action: 'roadmap_exhausted',
+              trigger_issue: ${{ github.event.issue.number }},
+              refuel_issue: parseInt('${{ steps.create-roadmap-refuel.outputs.refuel_issue }}'),
+              repository: context.repo.repo,
+              workflow_run: context.runId
+            });
+            
+            fs.writeFileSync(logFile, JSON.stringify(logs, null, 2));
+            core.info(`Logged roadmap exhaustion to ${logFile}`);
+
+      - name: Commit motor log (exhaustion)
+        if: |
+          steps.time-limit.outputs.should_proceed == 'true' &&
+          steps.rate-limit.outputs.should_proceed == 'true' &&
+          steps.parse-roadmap.outputs.roadmap_exists == 'true' &&
+          steps.parse-roadmap.outputs.has_next_item == 'false'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add .squad/motor-log/
+          git diff --staged --quiet || git commit -m "Log roadmap exhaustion event
+
+          Co-authored-by: Copilot <223556219+Copilot@users.noreply.github.com>"
+          git push
 
       - name: Summary
         if: always()
@@ -337,7 +519,9 @@ jobs:
           echo "**Trigger:** Issue #${{ github.event.issue.number }} closed" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           
-          if [ "${{ steps.rate-limit.outputs.should_proceed }}" == "false" ]; then
+          if [ "${{ steps.time-limit.outputs.should_proceed }}" == "false" ]; then
+            echo "⏳ **Time-based rate limit** — Last run was < 30 minutes ago. Wait ${{ steps.time-limit.outputs.wait_minutes }} minutes." >> $GITHUB_STEP_SUMMARY
+          elif [ "${{ steps.rate-limit.outputs.should_proceed }}" == "false" ]; then
             echo "⏸️ **Rate limit active** — Open copilot-ready issue exists. Skipping." >> $GITHUB_STEP_SUMMARY
           elif [ "${{ steps.parse-roadmap.outputs.roadmap_exists }}" == "false" ]; then
             echo "⚠️ **No roadmap.md found** — Cannot proceed." >> $GITHUB_STEP_SUMMARY
