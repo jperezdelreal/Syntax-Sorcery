@@ -1,0 +1,115 @@
+name: "🤖 Copilot Feature Request"
+description: Request a new feature for @copilot to implement
+title: "[Feature] "
+labels: ["squad:copilot", "copilot-ready", "enhancement"]
+body:
+  - type: textarea
+    id: objective
+    attributes:
+      label: "🎯 Objective"
+      description: "Clear one-sentence goal. What outcome does this feature achieve?"
+      placeholder: "Add user authentication via JWT tokens to enable secure API access"
+    validations:
+      required: true
+
+  - type: textarea
+    id: description
+    attributes:
+      label: "📝 Description"
+      description: "Why is this feature needed? What problem does it solve? Context for @copilot to understand the scope."
+      placeholder: "Currently, the API has no authentication mechanism. Users need a secure way to access protected endpoints."
+    validations:
+      required: true
+
+  - type: textarea
+    id: acceptance_criteria
+    attributes:
+      label: "✅ Acceptance Criteria"
+      description: "Define success with 3-5 testable, verifiable requirements. Focus on WHAT to achieve, not HOW. @copilot reads the repo and will determine implementation."
+      placeholder: |
+        - [ ] JWT token generation endpoint created at `/auth/token` that accepts username/password
+        - [ ] Protected endpoints validate JWT tokens before processing requests
+        - [ ] Expired tokens return 401 Unauthorized status code
+        - [ ] Tokens include expiration time (1 hour default)
+        - [ ] All existing tests continue to pass
+      value: |
+        - [ ] First acceptance criterion (testable, observable outcome)
+        - [ ] Second acceptance criterion (verifiable requirement)
+        - [ ] Third acceptance criterion (measurable condition)
+        - [ ] All existing tests continue to pass
+    validations:
+      required: true
+
+  - type: textarea
+    id: files_involved
+    attributes:
+      label: "📁 Files Involved"
+      description: "Specific file paths and what changes are needed. Helps @copilot scope the work."
+      placeholder: |
+        **Files to create:**
+        - `src/auth/jwt-handler.ts` — JWT token generation and validation logic
+        - `src/routes/auth.ts` — Authentication endpoints
+
+        **Files to modify:**
+        - `src/middleware.ts` — Add JWT validation middleware
+        - `src/server.ts` — Register auth routes
+
+        **Files to reference (patterns to follow):**
+        - `src/utils/validation.ts` — Follow existing validation pattern
+      validations:
+        required: false
+
+  - type: textarea
+    id: scope_boundaries
+    attributes:
+      label: "🔍 Scope Boundaries"
+      description: "What IS in scope? What is OUT of scope? Prevents ambiguity."
+      placeholder: |
+        **In Scope:**
+        - JWT token generation and validation
+        - Protected endpoint middleware integration
+        - Token expiration handling
+
+        **Out of Scope:**
+        - Multi-factor authentication (phase 2)
+        - SAML/OAuth integration (future enhancement)
+        - Token refresh endpoint (see issue #456)
+      validations:
+        required: false
+
+  - type: textarea
+    id: context_hints
+    attributes:
+      label: "💡 Context Hints"
+      description: "Patterns from codebase, constraints, conventions. Help @copilot make correct decisions."
+      placeholder: |
+        **Existing Patterns:**
+        - Middleware functions located in `src/middleware/` follow pattern from `src/middleware/cors.ts`
+        - All routes use Express.js with `.post()`, `.get()` syntax (see `src/routes/users.ts`)
+        - Tests use Jest with mocking pattern from `src/__tests__/routes.test.ts`
+
+        **Constraints:**
+        - Must work with Node.js 18+
+        - Use only npm dependencies already in package.json
+        - No external authentication services (e.g., Auth0)
+        - Cost: €0 (GitHub free tier only)
+
+        **Related Issues:**
+        - Related to #123 (User model setup)
+        - Depends on: #150 (Database schema finalized)
+        - Blocks: #200 (API security hardening)
+      validations:
+        required: false
+
+  - type: checkboxes
+    id: definition_of_done
+    attributes:
+      label: "✔️ Definition of Done"
+      description: "How to verify this feature is complete. These serve as a checklist for closure."
+      options:
+        - label: "All acceptance criteria checkboxes are checked"
+        - label: "Existing test suite passes (`npm test`)"
+        - label: "New functionality has test coverage (if applicable)"
+        - label: "Documentation updated or created (README, JSDoc comments)"
+        - label: "Code follows repository style and conventions"
+        - label: "Commits are atomic and messages are descriptive"
