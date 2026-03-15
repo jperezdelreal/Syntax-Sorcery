@@ -1,0 +1,14 @@
+{
+  "marketplaces": [
+    {
+      "name": "awesome-copilot",
+      "source": "github/awesome-copilot",
+      "added_at": "2026-03-15T19:46:00Z"
+    },
+    {
+      "name": "azure-cloud-dev",
+      "source": "github/azure-cloud-development",
+      "added_at": "2026-03-15T19:46:00Z"
+    }
+  ]
+}
