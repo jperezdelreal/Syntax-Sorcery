@@ -44,3 +44,5 @@
 - Resource group: `rg-citypulse-citypulse-prod`. Function App: Linux, Node 20, Consumption plan.
 - Key file paths: `api/src/functions/`, `api/src/shared/cosmos-client.ts`, `.github/workflows/deploy-functions.yml`.
 - Cosmos client uses `ManagedIdentityCredential` when `COSMOS_ENDPOINT` is set (no connection string needed).
+- **Session 2026-03-16:** PR #69 merged. Functions live. Data collection active ~22,752 snapshots/day. Trinity's AnalyticsProvider interface ready to consume Cosmos data.
+- **Cross-agent note:** Trinity built analytics skeleton awaiting Tank's data hookup; Switch has 116 contract tests defining Phase 5 shape; Mouse designed mobile UX with no dependency on analytics visual — all orthogonal.

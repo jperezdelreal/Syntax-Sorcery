@@ -153,3 +153,9 @@ Matrix-themed design system for Syntax Sorcery landing page. Established as spec
 - Ref flags are the cleanest React pattern for distinguishing internal vs external state changes
 - `overscroll-behavior: contain` is a CSS one-liner that prevents the frustrating scroll-through problem on bottom sheets
 - Always position floating elements (CTAs, buttons) above the bottom sheet z-layer on mobile — `bottom-24` + lower z-index
+
+**Cross-agent note (2026-03-16 Phase 5):**
+- Trinity fixed "failed to fetch" root cause (secondary API calls lacked retry/timeout). Mobile experience now faster (3x via ORS parallelization).
+- Tank deployed functions (PR #69) — Timer collecting station snapshots. API endpoints live.
+- Switch built 116 contract tests (PR #66) — defines Phase 5 shape. Trinity will implement against these.
+- Mouse's UX work is orthogonal — bottom sheet pattern is independent of analytics data.

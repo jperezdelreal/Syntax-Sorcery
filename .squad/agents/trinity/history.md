@@ -34,3 +34,29 @@
 - When PRs conflict on routing file: extract non-conflicting files via `git show`, then merge router/config once
 - Concurrent session branch swaps: use atomic checkout+commit chains
 - Design-only PRs already on branch? Update with full implementation, don't create new PR (saves review overhead)
+
+## Session 2026-03-16 (Phase 5 Launch)
+
+**PR #67 merged — Mobile Fixes + Phase 5 Skeleton:**
+- Root cause of "failed to fetch": secondary API calls (prediction, geocoding) used raw `fetch()` instead of `fetchWithRetry`. Creates zombie requests on slow mobile networks. Primary route calls worked → "loads then fails" pattern.
+- Solution: exponential backoff with jitter in `fetchWithRetry` + external `AbortSignal` support. Mobile networks recover in bursts; fixed delays cause retry collisions. Formula: `baseMs * 2^attempt + random(0, baseMs*0.5)`.
+- ORS parallelization: was 6 pairs × 3 sequential calls. Parallelized → 3x mobile speedup. Route caching (30s TTL, 5-decimal rounding) eliminates redundant calls on settings toggle.
+- Tiered timeouts: Weather 6s/1 retry, Prediction 8s/2 retry, ORS 10s/2 retry. Non-critical services can't block UI.
+- Phase 5 analytics skeleton: AnalyticsProvider interface (mock impl) + 4 pure SVG charts. Tank plugs real Cosmos data with one-liner. Trinity's UI code has zero dependency on Tank's implementation — design contract first, swap backend.
+- All 252+ tests passing. PR #67 live.
+
+**Cross-agent:**
+- Tank deployed functions (PR #69) — functions live, Timer collecting ~22K snapshots/day. Trinity's AnalyticsProvider interface now has real data source.
+- Switch created 116 Phase 5 contract tests (PR #66). Trinity will implement Phase 5 services against these contracts (no test rewrites needed).
+- Mouse redesigned mobile UX (PR #68) — unified bottom sheet, Google Maps pattern. Orthogonal to analytics work.
+
+## Learnings
+
+### Mobile Performance Debugging (CityPulseLabs)
+- **Sequential ORS API calls are the #1 mobile bottleneck** — route engine was doing 6 pairs × 3 calls sequentially. Parallel batches of 3 cut load time ~3x on mobile.
+- **`cancelled` boolean ≠ AbortController** — boolean prevents state updates but doesn't cancel in-flight `fetch()` requests. On mobile with slow networks, zombie requests stack up. Always use `AbortController` + `signal` propagation for cancellable data fetching.
+- **Secondary API calls cause "failed to fetch" after apparent success** — prediction and geocoding services used raw `fetch()` while the primary routing used `fetchWithRetry`. The intermittent mobile failure pattern ("loads then errors") is almost always a secondary service call without retry/timeout.
+- **Exponential backoff with jitter > fixed delay** — mobile networks recover in bursts. Fixed 2s delay can cause all retries to hit the same congestion window. `baseMs * 2^attempt + random(0, baseMs*0.5)` spreads retries naturally.
+- **Route caching with 30s TTL** — eliminates redundant ORS API calls when users toggle settings or navigate back. Key: round coordinates to 5 decimals (~1m) to catch near-identical requests.
+- **Non-critical services (weather) should have shorter timeouts and fewer retries** — graceful degradation beats UI blocking. Weather at 6s/1 retry vs routing at 10s/2 retries.
+- **AnalyticsProvider interface pattern** — design the data contract first with a mock implementation, makes the real data switch a one-liner (`setAnalyticsProvider(new CosmosAnalyticsProvider())`). Pure SVG charts avoid adding charting library deps for simple visualizations.
