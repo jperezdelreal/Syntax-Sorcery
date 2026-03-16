@@ -192,6 +192,39 @@ Three major moves: (1) Root cause of "failed to fetch" — secondary API calls l
 
 ---
 
+### 2026-03-16T12:00Z: ORS Route Proxy via Azure Function
+
+**By:** Trinity (Full-Stack Developer)  
+**Tier:** T2 (Implementation)  
+**Status:** PR #70 — Merged. Configuration pending.
+
+**Context:** PR #67 fixed retry logic, caching, and parallelization — but routes still failed in production. Root cause: frontend called `api.openrouteservice.org` directly from the browser.
+
+**Problems with Direct Browser → ORS:**
+1. CORS — ORS doesn't whitelist our Azure SWA domain
+2. API key exposure — `VITE_ORS_API_KEY` baked into client JS bundle
+3. Rate limiting — 18 API calls per route calculation vs 40 req/min free tier
+4. Mobile unreliability — direct external API calls slower and more timeout-prone
+
+**Decision:** Route all ORS calls through Azure Function proxy at `/api/routes`:
+- Server-side `ORS_API_KEY` (never in client bundle)
+- Server-side 30s cache with stale-on-error fallback
+- Frontend calls `/api/routes` instead of ORS directly
+- Removed `VITE_ORS_API_KEY` from CI build
+
+**Action Required:** Tank must add `ORS_API_KEY` to Azure Function app settings:
+```bash
+az functionapp config appsettings set --name func-citypulse-api --resource-group rg-citypulse --settings ORS_API_KEY=<key>
+```
+
+**Impact:**
+- Eliminates CORS, rate limiting, and API key exposure
+- Double caching (client 30s + server 30s) reduces ORS calls significantly
+- Cost impact: negligible (Azure Functions Consumption pricing)
+- All 368 tests pass, both builds clean
+
+---
+
 ### 2026-03-15T20:26Z: User Directive — README Maintenance
 
 **By:** joperezd (via Copilot)  
@@ -203,4 +236,4 @@ CityPulseLabs README must be kept current: update now with actual status, and re
 ---
 
 See decisions-archive-2026-03-15.md for entries older than 2026-03-22.
-**Last Updated:** 2026-03-16T11:24:11Z
+**Last Updated:** 2026-03-16T11:48:19Z

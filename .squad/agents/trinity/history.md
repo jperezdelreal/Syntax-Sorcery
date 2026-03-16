@@ -60,3 +60,11 @@
 - **Route caching with 30s TTL** — eliminates redundant ORS API calls when users toggle settings or navigate back. Key: round coordinates to 5 decimals (~1m) to catch near-identical requests.
 - **Non-critical services (weather) should have shorter timeouts and fewer retries** — graceful degradation beats UI blocking. Weather at 6s/1 retry vs routing at 10s/2 retries.
 - **AnalyticsProvider interface pattern** — design the data contract first with a mock implementation, makes the real data switch a one-liner (`setAnalyticsProvider(new CosmosAnalyticsProvider())`). Pure SVG charts avoid adding charting library deps for simple visualizations.
+
+### ORS Proxy — The Real Root Cause (PR #70 — Merged)
+- **Never call third-party APIs directly from the browser** — PR #67 fixed retry/caching, but the fundamental problem was calling `api.openrouteservice.org` directly from client JS. This causes CORS blocks, exposes the API key in the bundle, and hits rate limits (40 req/min free tier vs 18 calls per route calculation). Server-side proxy via Azure Function eliminates all three.
+- **Double caching layer (client + server) is correct** — client-side 30s TTL prevents redundant requests from re-renders/toggles. Server-side 30s TTL prevents redundant ORS calls when multiple users request similar routes. They complement each other.
+- **Stale-on-error pattern** — server proxy returns stale cached data when ORS is down/slow, rather than failing. This is critical for external API dependencies where uptime is outside our control.
+- **API key in `VITE_*` env vars = exposed in production** — Vite bakes all `VITE_*` vars into the client bundle. Any secret in `VITE_*` is public. Move secrets to server-side env vars read by Azure Functions.
+- **After fixing symptoms (retry, caching), always verify the architecture** — PR #67 treated the symptoms (no retry on secondary calls). The disease was the direct browser→ORS call path. Both fixes were needed.
+- **Session 2026-03-16 (PR #70):** Azure Function `/api/routes` proxy deployed. Requires Tank to configure `ORS_API_KEY` in Function app settings. Route loading 3x faster on mobile with new caching pattern.
