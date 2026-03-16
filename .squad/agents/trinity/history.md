@@ -68,3 +68,8 @@
 - **API key in `VITE_*` env vars = exposed in production** — Vite bakes all `VITE_*` vars into the client bundle. Any secret in `VITE_*` is public. Move secrets to server-side env vars read by Azure Functions.
 - **After fixing symptoms (retry, caching), always verify the architecture** — PR #67 treated the symptoms (no retry on secondary calls). The disease was the direct browser→ORS call path. Both fixes were needed.
 - **Session 2026-03-16 (PR #70):** Azure Function `/api/routes` proxy deployed. Requires Tank to configure `ORS_API_KEY` in Function app settings. Route loading 3x faster on mobile with new caching pattern.
+
+### ORS Call Reduction Approved (Morpheus Evaluation 2026-03-16)
+- **Next iteration (v0.1):** Reduce ORS calls from 18→9 per route by showing top 2 pickups + 1 dropoff instead of 3+2. Morpheus evaluated self-hosting (~€52–70/mo) and rejected due to cost/ops burden. Call reduction is the approved path forward.
+- **Latency impact:** 16–21s cold cache → 8–10s (acceptable for MVP; self-hosted would be 400ms–1.6s but costs €40–60/mo extra).
+- **Implementation owner:** Trinity (routing engine refactor, est. 1–2h). Re-evaluate self-hosting at v0.2 if traffic >500 routes/day.

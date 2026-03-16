@@ -1,6 +1,6 @@
 ---
-updated_at: 2026-03-16T11:48:19.000Z
-focus_area: CityPulse Labs — Phase 5 active. ORS proxy deployed (#70). 4 PRs merged (#66-#69). Data collection active. ORS_API_KEY config pending.
+updated_at: 2026-03-16T11:58:47Z
+focus_area: CityPulse Labs — Phase 5 active. ORS evaluation complete: call reduction (18→9) approved for v0.1, self-hosting deferred to v0.3. ORS proxy deployed (#70). 5 PRs merged (#66-#70). Data collection active. ORS_API_KEY config pending.
 active_issues: [66, 67, 68, 69, 70]
 ---
 

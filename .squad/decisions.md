@@ -6,6 +6,37 @@ Autonomous AI dev company (€500/mo Azure, unlimited GitHub). Strict context hy
 
 ## Active Decisions (Last 7 Days)
 
+### 2026-03-20T14:30Z: Self-Hosted OpenRouteService Evaluation — CityPulseLabs
+
+**By:** Morpheus (Lead/Architect)  
+**Tier:** T1 (Architecture Authority)  
+**Status:** ✅ EVALUATED — Full recommendation document created
+
+**Context:** User reports slow route loading in CityPulseLabs. Evaluation question: Does self-hosting ORS (via Docker) make sense for the €100/mo Azure budget?
+
+**Key Finding:** NO. Self-hosting costs €52–70/mo (breaks budget), adds 8–16 hrs/mo operational burden, and only improves latency by 50–100ms. Better approach: reduce ORS call volume (18→9 calls per route) + use ORS commercial tier on overflow.
+
+**Key Numbers:**
+- Current infra: €8–18/mo
+- Self-hosted ACI + storage: €52–70/mo (too expensive)
+- Self-hosted B1s VM: €40–50/mo (tight, HDD slows it down)
+- Latency today (ORS public + proxy): 16–21s cold, 100–300ms cached
+- Latency self-hosted: 400ms–1.6s (10x better, but cost is €40–60/mo)
+- Rate limiting problem: 18 ORS calls/route vs 40 req/min free tier = peak cost €200+/mo
+
+**Recommendation:**
+1. **NOW (v0.1):** Reduce calls 18→9 (top 2 pickups, 1 dropoff), no cost change, UX acceptable
+2. **v0.2+:** Monitor traffic; only consider self-hosting if >500 routes/day peak AND ORS overages justify it
+3. **Alternative if needed:** Upgrade ORS commercial tier (€0.05/call) on overflow, costs less than self-hosting infra
+
+**Files:** 
+- Full evaluation: `.squad/decisions/inbox/morpheus-self-hosted-ors.md` (detailed 7-section analysis)
+- Cost breakdown, latency modeling, operational complexity, alternatives, and hybrid approach
+
+**Outcome:** Decision deferred; call reduction work assigned to Trinity (v0.1 routing refactor). Re-evaluate at v0.2 with real traffic data.
+
+---
+
 ### 2026-03-16T10:43:54Z: User Directive — Unify Origin/Destination with Route Panel
 
 **By:** joperezd (via Copilot)  
