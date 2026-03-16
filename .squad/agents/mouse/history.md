@@ -196,3 +196,11 @@ Matrix-themed design system for Syntax Sorcery landing page. Established as spec
 - `matchMedia` not available in jsdom — hooks must guard with `typeof window.matchMedia !== 'function'`
 - 16px minimum font size on mobile inputs is non-negotiable — anything smaller triggers iOS Safari zoom
 - Separate component trees > responsive classes for fundamentally different experiences (search at top vs side panel, bottom sheet vs sidebar)
+
+## Cross-Agent Updates (2026-03-21)
+
+**Trinity (PR #71 — ORS Call Reduction):** Reduced 18→9 calls per route. Cache optimization: 5min TTL, 110m precision rounding. All 335 tests passing. Free tier capacity doubled (~222 routes/day). Production-ready.
+
+**Morpheus (ORS Evaluation):** Self-hosted ORS rejected (€52–70/mo). Recommendation: Trinity's call reduction path forward. Re-evaluate v0.2 if traffic >500 routes/day.
+
+**Cross-Phase Note:** Mobile UX (PR #72) orthogonal to analytics (Phase 5 tests). Mobile complete; Trinity will wire real Cosmos data via AnalyticsProvider.

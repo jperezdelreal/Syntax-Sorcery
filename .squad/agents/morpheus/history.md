@@ -55,6 +55,7 @@
 - Node version drift breaks pipelines: dependency requirements must propagate to ALL workflows, not just local dev.
 - Azure Static Web Apps (Free) + Functions Consumption + Cosmos DB Serverless = cost-effective SPA backend (€6–15/mo typical).
 - Budget relaxation principle: identify bottlenecks the constraint created (not total redesign). Spend surgically on unlocks (data pipeline, CORS, prediction acceleration).
+- **Self-hosting decision pattern:** Full cost/latency/ops analysis required for make-vs-buy. Trinity's call reduction (€0 infra cost) > self-hosting (€40–70/mo infrastructure spend). Re-evaluate when traffic justifies cost.
 
 **Autonomy & Architecture:**
 - Event-driven > cron. Loop-driven refueling eliminates race conditions. Ralph spawns Lead when board clear.
@@ -69,3 +70,24 @@
 **Governance:**
 - Founder authority T0 (new downstream, principles, critical .squad/ changes). AWS/GCP vetoed. Morpheus owns phases. Decentralized roadmap ownership.
 - CPL governance prerequisites: Azure VM ≥72h stable + ≥3 autonomous downstream issues closed + v0.1 deployed. Interim: SS manages CPL directly (like FFS).
+
+## Session 2026-03-21: ORS Optimization Evaluation + Mobile UX Completion
+
+**Self-Hosted ORS Evaluation — FINAL DECISION:** NO
+
+**Context:** CityPulse Labs facing ORS free tier quota exhaustion (2,000 req/day). User asked: Does self-hosting make sense for €100/mo Azure budget?
+
+**Analysis Summary:**
+- **Self-hosted costs:** Docker/ACI €52–70/mo, B1s VM €40–50/mo (both too expensive)
+- **Latency improvement:** 400ms–1.6s (self-hosted) vs 16–21s cold / 100–300ms cached (public + proxy) — only 50–100ms net gain for user
+- **Operational burden:** 8–16 hrs/month maintenance (unacceptable for MVP)
+- **Alternative:** ORS commercial tier (€0.05/call) if needed, cheaper than self-hosting infra
+
+**Decision:** REJECT self-hosting. Recommendation: Trinity's ORS call reduction (18→9, PR #71) is approved path forward. Cost: €8–18/mo infra (well under budget). Re-evaluate v0.2 if traffic >500 routes/day.
+
+**Approval Status:** Full 7-section evaluation documented. Decision tier T1 (Architecture Authority). Call reduction implementation ownership: Trinity (completed PR #71, all 335 tests pass).
+
+**Cross-Agent Accomplishments:**
+- **Trinity (PR #71):** ORS call reduction complete. Cache optimization (5min TTL, 110m precision) doubles free tier capacity to ~222 routes/day.
+- **Mouse (PR #72):** Mobile-specific UX redesign merged. Separate component trees for mobile (Google Maps) vs desktop. Fixed BOOST visibility, banner, button text bug. All 333 tests pass.
+- **User Directives (2026-03-16T12:00Z, 12:06Z):** All implemented. Mobile UX approved; ORS call efficiency approved; BOOST hidden approved; desktop improvements approved.

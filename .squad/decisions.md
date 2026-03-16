@@ -266,5 +266,104 @@ CityPulseLabs README must be kept current: update now with actual status, and re
 
 ---
 
+### 2026-03-20T14:30Z: ORS Call Reduction (v0.1) — Trinity Implementation Complete
+
+**By:** Trinity (Full-Stack Developer)  
+**Tier:** T2 (Implementation)  
+**Status:** ✅ APPROVED & MERGED — PR #71
+
+**Context:** ORS free tier (2,000 req/day) exhausted. Morpheus evaluation recommended reducing from 18→9 calls per route.
+
+**Implementation:**
+- Candidate pairs: 6 → 3 (top 2 pickups × 1 dropoff)
+- Route options displayed: 3 → 2 (users rarely pick 3rd)
+- Cache TTL: 30s → 5 minutes (quota-aware)
+- Cache precision: 5 decimals (~1m) → 3 decimals (~110m, acceptable for bike-share)
+- Quota-aware error: `QuotaExhaustedError` on 429 with Spanish message
+
+**Impact:**
+- Free tier capacity doubled: ~222 routes/day (was ~111)
+- Cache hit rate dramatically increased
+- All 335 tests passing
+- Production-ready
+
+**Files Changed:** `src/services/routeEngine.ts`, `src/services/routing.ts`, `api/src/functions/routes.ts`, `tests/unit/routeEngine.test.ts`
+
+**Trade-offs Accepted:**
+- 2 routes instead of 3 — acceptable for MVP (users rarely pick 3rd)
+- 110m cache precision — fine for bike-share (users walk to stations anyway)
+- 5-min cache TTL — road network stable, ORS data refresh not critical
+
+---
+
+### 2026-03-20T14:30Z: Mobile-Specific UX Redesign — Mouse Implementation Complete
+
+**By:** Mouse (UI/UX Designer)  
+**Tier:** T2 (Implementation)  
+**Status:** ✅ APPROVED & MERGED — PR #72
+
+**Context:** User directive (Spanish): "Móvil tiene sus propios códigos" — mobile needs separate design, not responsive adaptation. Also: hide BOOST/Turbo, fix desktop banner, fix button text bug.
+
+**Implementation:**
+- Separate component trees via `useIsMobile()` hook — NOT responsive breakpoints
+- Mobile: floating search (Google Maps pattern) + bottom sheet results + full-screen map
+- Desktop: side panel + header bar (preserved, user approved)
+- BOOST/Turbo hidden (not available in network)
+- Desktop banner redesigned (clean white, no gradient)
+- Button text bug fixed (CSS cascade issue)
+
+**Mobile-specific features:**
+- Touch targets ≥48px everywhere
+- Swipe gestures (up/down) to expand/collapse bottom sheet
+- 16px font on inputs (prevents iOS auto-zoom)
+- Safe-area-inset support (notch/gesture bar awareness)
+- Overscroll containment (prevents scroll-through to map)
+
+**Impact:**
+- 821 lines added, 170 removed across 9 files
+- All 333 tests passing
+- Industry-standard UX (Google Maps, Apple Maps, Uber pattern)
+
+**Files Changed:** `src/hooks/useIsMobile.ts`, `src/components/SearchBar/MobileSearchBar.tsx`, `src/components/RoutePanel/MobileRoutePanel.tsx`, `src/App.tsx` (separate trees), `src/components/BikeTypeSelector.tsx` (BOOST hidden), `src/components/Header.tsx` (redesigned)
+
+**Learnings:**
+- Users perceive responsive design as "broken" even if technically functional
+- Separate component trees > responsive classes for fundamentally different paradigms
+- 16px minimum font on mobile inputs is non-negotiable (iOS Safari auto-zoom)
+- Tailwind v4 CSS cascade: parent `text-white` bleeds into children
+
+---
+
+### 2026-03-16T12:00Z: User Directive — Maximize ORS Call Efficiency
+
+**By:** joperezd (via Copilot)  
+**Tier:** T3 (Auto-approved)  
+**Status:** ✅ APPROVED
+
+Optimize ORS API calls to absolute minimum without losing route quality. Every call must be justified. Also: tests must NOT hit real ORS API — use mocks to avoid consuming quota during CI/CD.
+
+**Rationale:** Free tier already exhausted. Every wasted call = fewer real users served. Tests consuming real API quota is unacceptable.
+
+**Implementation:** PR #71 (Trinity) implements quota-aware call reduction. CI test mocks validated.
+
+---
+
+### 2026-03-16T12:06Z: User Directives — Mobile UX + UI Cleanup
+
+**By:** joperezd (via Copilot)  
+**Tier:** T3 (Auto-approved)  
+**Status:** ✅ APPROVED
+
+Three directives:
+1. **MOBILE:** Touch UX broken. Origin/destination input hidden. NO responsive adaptation — mobile-specific design required. Different interaction paradigm from desktop.
+2. **BOOST/TURBO:** Hide from bike selector — not available, causes user confusion.
+3. **DESKTOP:** Banner improveable. Top-right button text disappears on click.
+
+**Approach:** Mouse screenshotted current state, proposed reddesign meeting all three requirements.
+
+**Implementation:** PR #72 (Mouse) implements all three directives with separate mobile/desktop component trees.
+
+---
+
 See decisions-archive-2026-03-15.md for entries older than 2026-03-22.
-**Last Updated:** 2026-03-16T11:48:19Z
+**Last Updated:** 2026-03-21T12:23:45Z

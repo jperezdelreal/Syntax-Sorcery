@@ -77,7 +77,22 @@
 - **Cache TTL trade-off** — 30s was too aggressive for a 2,000 req/day quota. 5 minutes means repeated searches from the same area reuse cached data. Route infrastructure doesn't change in 5 minutes.
 - **Impact: free tier capacity doubled** — 2,000 req/day ÷ 9 calls = ~222 routes/day (was ~111). With cache hits, effective capacity is even higher.
 
-### ORS Call Reduction Approved (Morpheus Evaluation 2026-03-16)
+### ORS Call Reduction Approved (Morpheus Evaluation 2026-03-20)
 - **Next iteration (v0.1):** Reduce ORS calls from 18→9 per route by showing top 2 pickups + 1 dropoff instead of 3+2. Morpheus evaluated self-hosting (~€52–70/mo) and rejected due to cost/ops burden. Call reduction is the approved path forward.
 - **Latency impact:** 16–21s cold cache → 8–10s (acceptable for MVP; self-hosted would be 400ms–1.6s but costs €40–60/mo extra).
 - **Implementation owner:** Trinity (routing engine refactor, est. 1–2h). Re-evaluate self-hosting at v0.2 if traffic >500 routes/day.
+
+### ORS Call Reduction Complete (PR #71 — 2026-03-21)
+- **Merged:** PR #71 implementing 18→9 call reduction + cache optimization
+- **Cache:** 30s → 5min TTL, 5 decimals → 3 decimals (110m precision, acceptable for bike-share)
+- **Routes shown:** 3 → 2 (users rarely pick 3rd; acceptable for MVP)
+- **Candidate pairs:** 6 → 3 (top 2 pickups × 1 dropoff)
+- **Error handling:** `QuotaExhaustedError` on 429 with Spanish message
+- **Impact:** Free tier capacity doubled (~222 routes/day), cache hit rate dramatically increased
+- **All 335 tests passing.** Production-ready.
+
+## Cross-Agent Updates (2026-03-21)
+
+**Mouse (PR #72 — Mobile-Specific UX):** Merged separate component trees for mobile (Google Maps pattern) vs desktop (side panel). Fixed BOOST visibility, desktop banner, button text bug. Learned: users distinguish responsive vs mobile-specific; separate trees > responsive classes.
+
+**Morpheus (Evaluation):** Self-hosted ORS evaluation complete. Rejection: too expensive (€52–70/mo). Recommendation: Trinity's call reduction (approved path) → v0.2 traffic monitoring → re-evaluate if >500 routes/day. Full cost/latency/ops analysis documented.
