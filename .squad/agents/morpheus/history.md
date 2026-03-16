@@ -248,3 +248,30 @@
 - **Burstable VMs have credit limits:** B2s_v2 burst model means sustained CPU usage depletes credits. Copilot CLI is mostly I/O-bound (good), but npm test/install are CPU-heavy (bad). Keep compute-heavy work on CI/CD, not the VM.
 - **Incremental R&D > big-bang deployment:** Validate cheapest experiment first (1 session, 48h, ~€2.40). Each phase doubles confidence with minimal spend. The cost of learning is almost zero vs the cost of a failed full deployment.
 - **Graceful session recycling is unsolved:** Killing tmux sessions mid-task risks half-done PRs. Need to validate if Copilot CLI respects "finish and exit" instructions before production.
+
+## Session 2026-03-25 (v2): R&D Pivote — Bootstrap Autónomo desde Cero
+
+**Task:** Fundador rechazó propuesta v1 (ejecutar squads existentes en VM). Nuevo enfoque: ¿Puede el sistema CREAR empresas desde cero en una VM headless?
+
+**Pivote fundamental:** De "granja de servidores" a "fábrica de empresas". La VM no ejecuta squads existentes — crea repos nuevos, inicializa Squads nuevos, define productos, y los construye autónomamente.
+
+**Key Architecture Decisions:**
+1. **Bootstrap via template repo:** Crear `joperezd/squad-template` con squad.agent.md + estructura .squad/ pre-seed. `gh repo create --template` como primer paso del factory script.
+2. **Pre-seed Squad para evitar interactividad:** Init Mode de Squad es interactivo (pregunta → respuesta → pregunta). Para headless, pre-cargar `.squad/team.md` y toda la estructura. Copilot CLI arranca directo en Team Mode.
+3. **1 sesión profunda > 5 superficiales:** Con posible modelo 1M contexto, una sesión puede durar días. Mejor invertir todo el rate limit (50-80/h) en 1 producto que repartir entre 5.
+4. **El producto de R&D-1 es irrelevante:** Lo que importa es el pipeline (repo → squad → issues → PRs → CI → deploy). Micro-app simple (TimeBox o similar).
+5. **Watchdog dinámico:** No reciclar por timer fijo (6h). Reciclar por calidad de respuesta o rate limit. Con 1M contexto, la sesión puede ser estable mucho más tiempo.
+
+**Proposal:** `.squad/decisions/inbox/morpheus-multi-squad-rd.md` — Propuesta completa de 12 secciones. T0, awaiting founder approval.
+
+**Decisiones pendientes del fundador:** (1) Aprobar enfoque fábrica, (2) Elegir producto R&D-1, (3) Aprobar €26 R&D budget.
+
+## Learnings (Session 2026-03-25 v2)
+
+- **"Fábrica > Granja":** El fundador quiere bootstrap desde cero, no babysitting de repos existentes. SS no es operadora de squads — es creadora de empresas. Siempre proponer lo generativo sobre lo operacional.
+- **Interactividad es el enemigo del headless:** Squad Init Mode requiere interacción humana. Para operación autónoma en VM, pre-seed toda la estructura .squad/ y saltar directamente a Team Mode. Resolver interactividad ANTES de desplegar.
+- **Template repos como mecanismo de bootstrap:** `gh repo create --template` es la forma más limpia de bootstrappear repos nuevos con estructura Squad. Mantener un template repo actualizado con la última versión de squad.agent.md.
+- **1M contexto cambia la economía:** Si Copilot CLI tiene acceso a 1M tokens, el bottleneck deja de ser context exhaustion y pasa a ser rate limits. Esto favorece sesiones largas y profundas sobre múltiples sesiones cortas.
+- **El producto de R&D no importa, el pipeline sí:** Para validar la fábrica, elegir el producto más simple posible. La complejidad del dominio es ruido para la variable que medimos (¿funciona el bootstrap autónomo?).
+- **Preferencia del fundador — empezar de CERO:** El usuario valora la capacidad de bootstrap total (de nada a producto) sobre la eficiencia de ejecutar cosas existentes. Esto es coherente con su visión de SS como meta-empresa.
+- **Propuesta path:** `.squad/decisions/inbox/morpheus-multi-squad-rd.md` — R&D factory bootstrap proposal v2.

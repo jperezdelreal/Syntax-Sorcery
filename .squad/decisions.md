@@ -6,27 +6,31 @@ Autonomous AI dev company (€500/mo Azure, unlimited GitHub). Strict context hy
 
 ## Active Decisions (Last 7 Days)
 
-### 2026-03-25T18:20Z: Multi-Squad Azure VM R&D — Architecture Proposal
+### 2026-03-25T18:20Z: Bootstrap Autónomo desde Cero en Azure VM — R&D v2 (PIVOTE)
 
 **By:** Morpheus (Lead/Architect)  
-**Tier:** T1 (Architecture Authority)  
-**Status:** 🔬 R&D PROPOSAL — Awaiting founder decision
+**Tier:** T0 (Requiere aprobación del fundador)  
+**Status:** 🔬 R&D PROPOSAL v2 — Awaiting founder decision
 
-Comprehensive R&D proposal for operating multiple Copilot CLI sessions (one per downstream repo) on a single Azure VM B2s_v2 with tmux, enabling 24/7 autonomous squad operation.
+**v1 RECHAZADA por fundador.** Razón: "No usar repos existentes. Empezar de CERO. Crear repo, Squad, producto — todo nuevo. ¿Puede el sistema bootstrappearse a sí mismo?"
+
+**Pregunta central v2:** ¿Puede Copilot CLI, headless en Azure VM, crear un repo, inicializar Squad, definir un producto, y construirlo autónomamente — todo desde cero?
+
+**Cambio fundamental:** La VM no es un servidor-granja — es una FÁBRICA de empresas.
 
 **Key Components:**
-- **Architecture:** tmux-based multi-session (5 repos), no Docker/systemd per-session
-- **Rate Limits:** Per-account Copilot limit (~50-80/hour) shared across sessions — requires staggering (2-3 active max simultaneously)
-- **Resources:** B2s_v2 (8GB RAM, 2 vCPU) comfortably handles 5 sessions idle (~1.5-2.5 GB), RAM peaks during tests (~5-6 GB) manageable with swap
-- **Session Lifecycle:** Auto-start via systemd, 6-hour reciclaje, graceful shutdown protocol
-- **Security:** Single PAT with repo/workflow scopes, zero token exposure in code
-- **Monitoring:** Level 1 (existing) + Level 2 (SSH dashboard + watchdog JSON). Level 3 (alerts) deferred post-R&D
-- **Failure Modes:** Documented (session death, rate limit, context exhaustion, OOM); recovery via watchdog auto-restart
-- **Rollout:** 4-phase incremental (R&D-1 to R&D-4 over 4 weeks, €44/month total)
+- **Bootstrap sequence:** Template repo → `gh repo create --template` → pre-seed `.squad/` → Copilot CLI en Team Mode → Ralph loop
+- **Squad bootstrapping:** Pre-seed (Opción A) para R&D-1. Template repo (`squad-template`) con `.github/agents/squad.agent.md` v0.8.25 + estructura .squad/ base
+- **1M context window:** Si disponible, sesiones de DÍAS (no 6h). Watchdog dinámico basado en calidad, no timer fijo. Rate limits (50-80/h) se convierten en bottleneck real
+- **Credential flow:** PAT joperezd (`repo`, `workflow`, `read:org`) + Azure SP para deployments
+- **Producto R&D-1:** Micro-app simple (TimeBox, QuoteForge, o similar) — el pipeline importa, no el producto
+- **Rollout:** 4 fases (R&D-1 a R&D-4), €26 total en 4 semanas
 
-**Critical Unknowns:** Copilot stability >6h headless, rate limit adequacy for 5 sessions, context compaction impact, graceful shutdown compliance.
+**Success Criteria R&D-1:** Repo creado ✅, Squad inicializado ✅, ≥3 issues cerrados sin intervención ✅, CI green ✅, sesión estable ≥12h ✅. Stretch: app desplegada en Azure SWA.
 
-**Recommendation:** Proceed with R&D-1 this week (€2.40). Low risk, high learning. If rate limit insufficient, options: reduce to 2-3 sessions, upgrade to Copilot Business ($39/mo), or aggressive staggering (1 active at a time, rotating).
+**Recommendation:** Aprobar R&D-1 (€2.40, 48h). Si Copilot CLI funciona headless → la fábrica es viable. Si no → investigar alternativas.
+
+**Full proposal:** `.squad/decisions/inbox/morpheus-multi-squad-rd.md`
 
 ---
 
