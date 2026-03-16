@@ -53,3 +53,10 @@
 - Key config: `injectRegister: false` (manual registration in `main.tsx`), `registerType: 'autoUpdate'`. OSM tile CacheFirst retained (external data, stable).
 - Files: `vite.config.ts`, `src/main.tsx`, `tsconfig.app.json`, `tests/unit/serviceWorker.test.ts` (5 tests, all green). Build clean, 337 tests passing.
 - Branch: `squad/cache-busting`. PR #73 created against `main`.
+
+**Session 2026-03-21: Mobile Testing Strategy Execution (Morpheus Decision T1):**
+- Morpheus evaluated 6 testing options; recommended 3-tier stack (cache busting + Playwright E2E + QA checklist).
+- Tank owned cache busting (Tier 1) — PR #73 merged. Fixes stale-code-serving bug immediately. Foundation for E2E and QA testing.
+- Cross-agent: Switch implementing Tier 2 (Playwright E2E) + Tier 3 (QA checklist) in parallel. All three tiers €0 cost, 10 hours total. Ready for production validation.
+- Metrics: 337 unit tests passing (unaffected). Build clean. Lighthouse validation pending E2E completion.
+
