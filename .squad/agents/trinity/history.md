@@ -69,6 +69,14 @@
 - **After fixing symptoms (retry, caching), always verify the architecture** — PR #67 treated the symptoms (no retry on secondary calls). The disease was the direct browser→ORS call path. Both fixes were needed.
 - **Session 2026-03-16 (PR #70):** Azure Function `/api/routes` proxy deployed. Requires Tank to configure `ORS_API_KEY` in Function app settings. Route loading 3x faster on mobile with new caching pattern.
 
+### ORS Call Reduction — Quota Survival (PR #71)
+- **Reduce candidate pairs, not quality** — 3 pickup × 1 dropoff = 3 pairs × 3 calls = 9 ORS calls (was 6 pairs × 3 = 18). Users rarely pick the 3rd route anyway; showing top 2 is acceptable for MVP.
+- **Pre-filtering already existed** — `filterPickupStations` checks `is_renting` + bike count, `filterDropoffStations` checks `is_returning` + dock count. No wasted calls to empty/full stations.
+- **Quota-aware error propagation** — `QuotaExhaustedError` class stops route calculation immediately on 429 instead of burning remaining calls. Spanish user message: "Servicio de rutas temporalmente no disponible."
+- **Cache precision trade-off** — 5 decimals (~1m) gives almost no cache hits for nearby searches. 3 decimals (~110m) dramatically increases hit rate. For bike-share routing, 110m precision is fine — users are walking to a station anyway.
+- **Cache TTL trade-off** — 30s was too aggressive for a 2,000 req/day quota. 5 minutes means repeated searches from the same area reuse cached data. Route infrastructure doesn't change in 5 minutes.
+- **Impact: free tier capacity doubled** — 2,000 req/day ÷ 9 calls = ~222 routes/day (was ~111). With cache hits, effective capacity is even higher.
+
 ### ORS Call Reduction Approved (Morpheus Evaluation 2026-03-16)
 - **Next iteration (v0.1):** Reduce ORS calls from 18→9 per route by showing top 2 pickups + 1 dropoff instead of 3+2. Morpheus evaluated self-hosting (~€52–70/mo) and rejected due to cost/ops burden. Call reduction is the approved path forward.
 - **Latency impact:** 16–21s cold cache → 8–10s (acceptable for MVP; self-hosted would be 400ms–1.6s but costs €40–60/mo extra).

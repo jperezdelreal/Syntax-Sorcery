@@ -159,3 +159,40 @@ Matrix-themed design system for Syntax Sorcery landing page. Established as spec
 - Tank deployed functions (PR #69) — Timer collecting station snapshots. API endpoints live.
 - Switch built 116 contract tests (PR #66) — defines Phase 5 shape. Trinity will implement against these.
 - Mouse's UX work is orthogonal — bottom sheet pattern is independent of analytics data.
+
+### 2026-07: CityPulseLabs Mobile-Specific UX Redesign — PR #72
+
+**Context:** User feedback (verbatim Spanish): mobile touch experience broken, origin/destination input not visible, "adapting desktop to mobile is an error" — mobile needs its OWN design, not responsive adaptation. Also: hide Turbo/BOOST (unavailable bikes), fix desktop banner, fix button text disappearing bug.
+
+**What I did:**
+- Created `src/hooks/useIsMobile.ts` — platform detection hook (matchMedia-based, jsdom-safe)
+- Created `src/components/SearchBar/MobileSearchBar.tsx` — touch-first search bar with 48px targets, 16px font (prevents iOS zoom), full-width autocomplete overlay
+- Created `src/components/RoutePanel/MobileRoutePanel.tsx` — bottom sheet with peek bar, swipe gestures, horizontal snap-scrolling route cards, step-by-step expandable
+- Rewrote `src/App.tsx` — completely separate component trees for mobile vs desktop via `useIsMobile()` (NOT responsive breakpoints)
+- Stripped mobile code from `UnifiedPanel.tsx` — now desktop-only
+- Commented out BOOST option in `BikeTypeSelector.tsx` (one-line, code preserved)
+- Fixed desktop header: replaced green gradient with clean white + border
+- Fixed button text bug: CSS cascade issue where header's `text-white` was leaking into BikeTypeSelector children; fixed with explicit per-state colors
+- Added mobile CSS: safe-area-inset-top, overscroll containment, zoom prevention
+
+**Mobile design principles applied:**
+- Full-screen map with floating search at top (Google Maps pattern)
+- Bottom sheet for results — peek bar when collapsed, 65vh when expanded
+- Touch targets >= 48px everywhere
+- Swipe-to-expand/collapse gestures on drag handle
+- Auto-expand when routes load or station selected
+- `overscroll-behavior: contain` prevents scroll-through to map
+- `font-size: 16px` on inputs prevents iOS auto-zoom
+- iOS safe area support via `env(safe-area-inset-top)`
+
+**Outcome:**
+- PR #72 in jperezdelreal/CityPulseLabs on branch `squad/mobile-specific-ux`
+- Build passes, TypeScript clean, 333 tests pass (2 pre-existing backend failures unrelated)
+- 821 lines added, 170 removed across 9 files
+
+**Learnings:**
+- Users distinguish between "responsive" and "mobile-specific" — adapting desktop is perceived as lazy/broken even when technically functional
+- CSS cascade bugs in Tailwind v4: parent `text-white` can bleed into child components that set their own text colors — always use explicit per-state colors
+- `matchMedia` not available in jsdom — hooks must guard with `typeof window.matchMedia !== 'function'`
+- 16px minimum font size on mobile inputs is non-negotiable — anything smaller triggers iOS Safari zoom
+- Separate component trees > responsive classes for fundamentally different experiences (search at top vs side panel, bottom sheet vs sidebar)
