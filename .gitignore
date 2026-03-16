@@ -49,3 +49,10 @@ build/
 .squad/secrets/
 
 # NOTE: .copilot/ is tracked — it contains config, not secrets
+
+# Downstream repos — never nest inside SS
+CityPulseLabs/
+beneficial-bar/
+FirstFrameStudios/
+ffs-squad-monitor/
+pixel-bounce/
