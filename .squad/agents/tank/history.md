@@ -32,3 +32,15 @@
 - Layer 1: perpetual-motion.yml (Cloud, event-driven). Layer 2: ralph-watch.ps1 (Watch, 10min polling). Layer 3: Ralph sessions (Manual fallback).
 - ralph-watch hardening: 10min cycle with exponential backoff, Squad CLI integration, max 3 consecutive auto-refuelings before escalation, structured logging to .squad/ralph-watch/*.log.
 - Total cost: €0 perpetual motion + ~€25-30/mo Azure VM = €25-30/mo total. <15min/week human intervention needed.
+
+**Phase 5 CityPulseLabs Function Deployment (#59, #60):**
+- Deployed 5 Azure Functions to `func-citypulse-api` via `func azure functionapp publish`: health, stations, predict, weather, stationCollector (timer).
+- Timer trigger: `0 */5 * * * *` — writes station snapshots to Cosmos DB every 5 minutes. Cosmos container: `bici-coruna/station-snapshots`, partitioned by `/stationId`.
+- EasyAuth v2 was blocking all requests (401). Had to disable platform auth via REST API (`authsettingsV2`). Restart required after auth change.
+- App Insights was NOT wired — added `APPLICATIONINSIGHTS_CONNECTION_STRING` app setting manually.
+- CORS added for SWA: `https://icy-cliff-065550703.2.azurestaticapps.net`.
+- Azure Monitor metric alert `citypulse-missing-data-alert`: fires if FunctionExecutionCount = 0 in 15min window, severity 2.
+- CI/CD: Created `deploy-functions.yml` (OIDC-based, requires AZURE_CLIENT_ID/TENANT_ID/SUBSCRIPTION_ID secrets — not yet configured).
+- Resource group: `rg-citypulse-citypulse-prod`. Function App: Linux, Node 20, Consumption plan.
+- Key file paths: `api/src/functions/`, `api/src/shared/cosmos-client.ts`, `.github/workflows/deploy-functions.yml`.
+- Cosmos client uses `ManagedIdentityCredential` when `COSMOS_ENDPOINT` is set (no connection string needed).
