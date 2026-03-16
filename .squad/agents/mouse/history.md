@@ -356,3 +356,17 @@ Matrix-themed design system for Syntax Sorcery landing page. Established as spec
 - Peek bar must be informative enough to convey "routes are ready" without forcing expansion
 - "Toca para ver" (tap to view) hint reduces confusion when sheet stays collapsed
 - 3px left border is a subtle but effective selected-state indicator (doesn't require background color change alone)
+
+### 2025-01: CityPulseLabs Mobile UX — Bottom Sheet Only (No Duplicate Popup)
+
+**Context:** User tapped a station on mobile and saw TWO info panels: a Leaflet popup on the map AND a bottom sheet below it, both showing the same station data. User said (Spanish): keep only the bottom sheet, make it swipeable, remove ✕ buttons.
+
+**Three Changes (PR #81):**
+1. **Disable Leaflet popup on mobile** — `StationMarkers.tsx` now calls `useIsMobile()` and conditionally renders `<StationPopup>` only when `!isMobile`. Desktop popups unchanged.
+2. **Remove ✕ close button** — `MobileRoutePanel.tsx` no longer passes `onClose` to `<StationPanel>`, so no close button renders. Swipe-down on drag handle is the natural mobile dismissal gesture.
+3. **Swipe-down dismisses station info** — `handleTouchEnd` in `MobileRoutePanel.tsx` now collapses the sheet AND calls `onCloseStation()` when swiping down with station-only content (no routes). If routes exist, swipe-down collapses to peek bar.
+
+**Key Insight:** Duplicate information panels are a common anti-pattern when adapting desktop patterns (Leaflet popups) to mobile. Mobile should have ONE information surface — the bottom sheet — and all interactions should route through it. Close buttons (✕) feel janky on mobile; swipe gestures are the native language.
+
+**Files Changed:** `StationMarkers.tsx`, `MobileRoutePanel.tsx`
+**Tests:** All 356 pass, no regressions.
