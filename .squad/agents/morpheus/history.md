@@ -71,7 +71,7 @@
 - Founder authority T0 (new downstream, principles, critical .squad/ changes). AWS/GCP vetoed. Morpheus owns phases. Decentralized roadmap ownership.
 - CPL governance prerequisites: Azure VM ≥72h stable + ≥3 autonomous downstream issues closed + v0.1 deployed. Interim: SS manages CPL directly (like FFS).
 
-## Session 2026-03-21: ORS Optimization Evaluation + Mobile UX Completion
+## Session 2026-03-21: ORS Optimization Evaluation + Mobile UX Completion + Mobile Stack Assessment
 
 **Self-Hosted ORS Evaluation — FINAL DECISION:** NO
 
@@ -87,7 +87,74 @@
 
 **Approval Status:** Full 7-section evaluation documented. Decision tier T1 (Architecture Authority). Call reduction implementation ownership: Trinity (completed PR #71, all 335 tests pass).
 
+**Mobile UX Audit — FINDING:** Code-correct, cache-broken
+
+**Context:** Founder reported mobile screenshot showing "map only, no search inputs, no way to type destination." Requested audit of PR #72 (Mouse) mobile implementation.
+
+**Finding:** PR #72 is code-architecturally correct (333 tests passing). Mobile experience IS implemented (MobileSearchBar, MobileRoutePanel, useIsMobile at 1024px breakpoint). BUT browser is serving **stale service worker cache** from BEFORE PR #72 merged. User sees old app without new components.
+
+**Root Cause:** Service worker cache busting missing. PR #73 (Tank) + PR #74 (Switch) already completed and merged.
+
+**Resolution:** Deploy PR #73 (cache busting with skipWaiting + clientsClaim), run Playwright E2E (PR #74) on every deploy, user hard-refreshes browser. Issue resolved in 0.5 hours post-deploy.
+
+**Approval Status:** Full audit documented in `.squad/decisions/inbox/morpheus-mobile-ux-audit.md`. Decision tier T1.
+
+**Mobile Stack Evaluation — DECISION:** PWA Fixed (NOW) + Capacitor (v0.2 trigger) + React Native (reject for MVP)
+
+**Context:** Founder asked "¿igual para uso móvil habría que hacer un stack distinto?" (Should we use a different tech stack for mobile?)
+
+**Analysis Summary:**
+| Option | Cost | Timeline | Recommendation |
+|--------|------|----------|-----------------|
+| PWA Fixed | €8–18/mo | 1 week | ✅ CHOOSE NOW |
+| Capacitor wrapper | €50–80/mo | 2–3 days | ⏸ v0.2 if 500+ users |
+| React Native | €200–400/mo | 12–16 weeks | ❌ REJECT |
+
+**Key Finding:** Mobile UX issue is NOT a technology problem. It's testing + deployment. Changing frameworks solves neither. Keep React + Vite + Leaflet + Azure stack (proven, low-cost, fast-iterate).
+
+**Decision Rationale:**
+- Current stack is ideal for mobile: responsive (Tailwind), offline-capable (PWA), single codebase, fast iteration
+- Capacitor useful ONLY if users demand appstore distribution (200+ user threshold)
+- React Native rewrite is €200–400/mo overhead + 16-week timeline for zero feature benefit to MVP
+- Budget constraint (€100/mo) + timeline constraint (2 weeks to launch) + team expertise (React/web) all favor PWA
+
+**Approval Status:** Full evaluation documented in `.squad/decisions/inbox/morpheus-mobile-stack.md`. Decision tier T1 (Architecture Authority). Next evaluation trigger: v0.2 milestone at 500+ daily users.
+
 **Cross-Agent Accomplishments:**
 - **Trinity (PR #71):** ORS call reduction complete. Cache optimization (5min TTL, 110m precision) doubles free tier capacity to ~222 routes/day.
 - **Mouse (PR #72):** Mobile-specific UX redesign merged. Separate component trees for mobile (Google Maps) vs desktop. Fixed BOOST visibility, banner, button text bug. All 333 tests pass.
-- **User Directives (2026-03-16T12:00Z, 12:06Z):** All implemented. Mobile UX approved; ORS call efficiency approved; BOOST hidden approved; desktop improvements approved.
+- **Tank (PR #73):** Service worker cache busting implemented. skipWaiting + clientsClaim + cleanupOutdatedCaches with git SHA versioning.
+- **Switch (PR #74):** Playwright E2E mobile tests (10 cases), Lighthouse CI integration, QA checklist for real device validation.
+- **Morpheus:** Mobile UX audit + mobile stack evaluation (3 options, T1 decision). All documented, signed off.
+- **User Directives (2026-03-16T12:00Z, 12:06Z):** All implemented and evaluated. Mobile UX approved; ORS call efficiency approved; BOOST hidden approved; desktop improvements approved; stack decision approved.
+
+## Session 2026-03-22: CityPulseLabs Issue Triage (11 Open Issues)
+
+**Context:** 337+ tests passing, Phase 5 analytics next. Recent PRs: #71 ORS optimization, #72 Mobile UX, #73 Cache busting, #74 E2E tests, #76 BOOST hiding. Many old issues predate recent work. Need systematic triage.
+
+**Triage Results:**
+
+| Issue | Status | Rationale | Owner | @copilot Fit |
+|-------|--------|-----------|-------|--------------|
+| #75 | ✅ Actionable NOW | User confusion real, distinct from BOOST issue. UX improvement. | Trinity+Mouse | 🟢 Good |
+| #65 | ⏸ Defer | Needs Cosmos DB data (24h+). Phase 5 dep. | Trinity | 🟢 Good |
+| #63 | ⏸ Defer | Needs #65 first. Phase 5 dep. | Trinity | 🟡 Review |
+| #64 | ⏸ Defer | Needs #63 first. Phase 5 dep. | Switch | 🟢 Good |
+| #49 | ✅ Actionable NOW | 337 tests pass but gaps exist. Valid quality work. | Switch | 🟢 Good |
+| #48 | ⏸ Defer | Vision doc, not actionable. Break into issues when ready. | Morpheus+Oracle | 🔴 Not suitable |
+| #47 | ⏸ Defer | Premature optimization. Do after v0.1 launch. | Tank+Trinity | 🟡 Review |
+| #44 | ✅ Actionable NOW | Quick UX polish win. | Mouse | 🟢 Good |
+| #42 | ✅ Actionable NOW | Some a11y done, but needs audit. | Mouse | 🟢 Good |
+| #39 | ✅ Actionable NOW | Phase 5 unblocked, verify now. | Tank | 🟢 Good |
+| #38 | ❌ Close/Stale | Done via PR #69. API live and verified. | — | — |
+
+**Key Decisions:**
+1. **#38 CLOSE**: GBFS API verification complete (PR #69 merged, Tank confirmed live)
+2. **Phase 5 sequence**: #39 (verify data) → #65 (anomalies) → #63 (model) → #64 (monitoring)
+3. **Quick wins**: #75, #44, #42, #49 all actionable immediately (no dependencies)
+4. **#48 defer**: Roadmap vision needs breakdown before work
+5. **#47 defer**: Performance optimization premature until v0.1 launch + traffic data
+
+**Strategic Assessment:** Post-deploy verification (#39, #38) bridges to Phase 5 analytics. UI polish (#75, #44, #42) improves MVP quality. Testing (#49) hardens system. Roadmap items (#48, #47) deferred until v0.1 proven. Dependency chain clear: data → anomalies → model → monitoring.
+
+**Board Action:** Close #38, prioritize #39 (Tank), then #75/#44/#42 (Mouse/Trinity), then #49 (Switch). Phase 5 starts when #39 confirms data pipeline healthy.

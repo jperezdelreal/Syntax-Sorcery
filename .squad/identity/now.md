@@ -1,6 +1,6 @@
 ---
-updated_at: 2026-03-16T15:25Z
-focus_area: Mobile UX Fix 1-5 complete. 356 tests passing. All Google Maps alignment targets met. Ready for user review on real device.
+updated_at: 2026-03-16T15:32Z
+focus_area: PR #77 open (CityPulseLabs) — Mobile UX overhaul with 6 fixes. Critical: Leaflet stacking context fixed (search bar was invisible). Awaiting deploy + user validation on device.
 active_issues: [75]
 ---
 

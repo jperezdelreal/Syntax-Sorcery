@@ -126,6 +126,20 @@ Validated dependencies:
 
 ---
 
+### 17. T2 Result: Leaflet Map Z-Index Stacking Context (Mouse)
+
+**By:** Mouse | **Date:** 2025-01 | **Status:** ✅ IMPLEMENTED (PR #77)
+
+**Problem:** Search bar invisible on mobile in CityPulseLabs due to Leaflet's internal z-indexes (200, 400, 600) competing globally with search bar z-index (40). Root cause: `<main>` element had `position: relative` but no `z-index`, failing to create CSS stacking context.
+
+**Solution:** Added `z-[1]` to main container to isolate Leaflet layers within a stacking context, constraining internal z-indexes and elevating search bar above map.
+
+**Outcome:** Search bar visible, 21 new MobileRoutePanel tests, 356 tests passing, 9/9 Google Maps alignment targets met. PR #77 open (CityPulseLabs).
+
+**Key Learning:** Wrap third-party map libraries in stacking context; reserve z-[1]–z-[10] for layout containers, z-[40]–z-[50] for floating UI.
+
+---
+
 ## Immediate Action Items
 
 | Priority | Action | Owner | Gate | Duration |
