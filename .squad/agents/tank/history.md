@@ -46,3 +46,10 @@
 - Cosmos client uses `ManagedIdentityCredential` when `COSMOS_ENDPOINT` is set (no connection string needed).
 - **Session 2026-03-16:** PR #69 merged. Functions live. Data collection active ~22,752 snapshots/day. **PENDING:** Configure `ORS_API_KEY` in Function app settings for Trinity's route proxy: `az functionapp config appsettings set --name func-citypulse-api --resource-group rg-citypulse --settings ORS_API_KEY=<key>`
 - **Cross-agent note:** Trinity built analytics skeleton awaiting Tank's data hookup; Switch has 116 contract tests defining Phase 5 shape; Mouse designed mobile UX with no dependency on analytics visual — all orthogonal.
+
+**Session 2026-03-21: PWA Cache-Busting Fix (PR #73):**
+- Root cause: `CacheFirst` runtime cache for static assets (JS/CSS) with 30-day expiration was serving stale Vite-hashed bundles after new deploys. Users saw old Boost/Turbo option and old UI.
+- Fix: Removed `static-assets` CacheFirst workbox rule (redundant — Vite content-hashes bundles, VitePWA precaches with revisions). Added `cleanupOutdatedCaches`, explicit `skipWaiting` + `clientsClaim`, manual SW registration with 60s periodic update checks, and `controllerchange` auto-reload with Spanish toast ("Nueva versión disponible").
+- Key config: `injectRegister: false` (manual registration in `main.tsx`), `registerType: 'autoUpdate'`. OSM tile CacheFirst retained (external data, stable).
+- Files: `vite.config.ts`, `src/main.tsx`, `tsconfig.app.json`, `tests/unit/serviceWorker.test.ts` (5 tests, all green). Build clean, 337 tests passing.
+- Branch: `squad/cache-busting`. PR #73 created against `main`.
