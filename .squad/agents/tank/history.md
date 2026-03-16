@@ -54,9 +54,9 @@
 - Files: `vite.config.ts`, `src/main.tsx`, `tsconfig.app.json`, `tests/unit/serviceWorker.test.ts` (5 tests, all green). Build clean, 337 tests passing.
 - Branch: `squad/cache-busting`. PR #73 created against `main`.
 
-**Session 2026-03-21: Mobile Testing Strategy Execution (Morpheus Decision T1):**
-- Morpheus evaluated 6 testing options; recommended 3-tier stack (cache busting + Playwright E2E + QA checklist).
-- Tank owned cache busting (Tier 1) — PR #73 merged. Fixes stale-code-serving bug immediately. Foundation for E2E and QA testing.
-- Cross-agent: Switch implementing Tier 2 (Playwright E2E) + Tier 3 (QA checklist) in parallel. All three tiers €0 cost, 10 hours total. Ready for production validation.
-- Metrics: 337 unit tests passing (unaffected). Build clean. Lighthouse validation pending E2E completion.
+**Session 2026-03-25: Multi-Squad Azure VM R&D — Morpheus Proposal (T1 Architecture):**
+- Morpheus delivered comprehensive R&D proposal for 5-session tmux-based VM constellation (~€44/mo B2s_v2 + Cosmos). No Docker, no per-service systemd — simple and proven pattern.
+- Critical unknown: Copilot CLI rate limit (50-80 completions/hour per account, shared across sessions). Proposal recommends staggering (2-3 active max), with 4-phase rollout starting €2.40/week.
+- Tank will own Phase 1 VM deployment when founder approves. Bicep template ready (PR #54), cloud-init proven. Prerequisite: founder decision + PAT.
+- Cross-agent note: Morpheus also proposed 3 downstream products (CostaPulse, AccesoPulse, RutaViva) and BOLD services (FORJA, AUTONOMO.AI, CAMBIAZO). Both await founder approval. Tank's multi-squad work likely blocked until these foundational decisions made.
 

@@ -6,6 +6,90 @@ Autonomous AI dev company (€500/mo Azure, unlimited GitHub). Strict context hy
 
 ## Active Decisions (Last 7 Days)
 
+### 2026-03-25T18:20Z: Multi-Squad Azure VM R&D — Architecture Proposal
+
+**By:** Morpheus (Lead/Architect)  
+**Tier:** T1 (Architecture Authority)  
+**Status:** 🔬 R&D PROPOSAL — Awaiting founder decision
+
+Comprehensive R&D proposal for operating multiple Copilot CLI sessions (one per downstream repo) on a single Azure VM B2s_v2 with tmux, enabling 24/7 autonomous squad operation.
+
+**Key Components:**
+- **Architecture:** tmux-based multi-session (5 repos), no Docker/systemd per-session
+- **Rate Limits:** Per-account Copilot limit (~50-80/hour) shared across sessions — requires staggering (2-3 active max simultaneously)
+- **Resources:** B2s_v2 (8GB RAM, 2 vCPU) comfortably handles 5 sessions idle (~1.5-2.5 GB), RAM peaks during tests (~5-6 GB) manageable with swap
+- **Session Lifecycle:** Auto-start via systemd, 6-hour reciclaje, graceful shutdown protocol
+- **Security:** Single PAT with repo/workflow scopes, zero token exposure in code
+- **Monitoring:** Level 1 (existing) + Level 2 (SSH dashboard + watchdog JSON). Level 3 (alerts) deferred post-R&D
+- **Failure Modes:** Documented (session death, rate limit, context exhaustion, OOM); recovery via watchdog auto-restart
+- **Rollout:** 4-phase incremental (R&D-1 to R&D-4 over 4 weeks, €44/month total)
+
+**Critical Unknowns:** Copilot stability >6h headless, rate limit adequacy for 5 sessions, context compaction impact, graceful shutdown compliance.
+
+**Recommendation:** Proceed with R&D-1 this week (€2.40). Low risk, high learning. If rate limit insufficient, options: reduce to 2-3 sessions, upgrade to Copilot Business ($39/mo), or aggressive staggering (1 active at a time, rotating).
+
+---
+
+### 2026-03-24T00:00Z: BOLD Product Proposals — FORJA, AUTONOMO.AI, CAMBIAZO
+
+**By:** Morpheus (Lead/Architect)  
+**Tier:** T0 (Requires founder approval)  
+**Status:** 📋 PROPOSAL — Awaiting visceral reaction
+
+Three product proposals targeting real pain points, leveraging SS's proven autonomous system:
+
+1. **FORJA** (€99-999 one-shot + €299/mo subs): Software construction service. "Describe your app in 3 paragraphs → 48h later: production-ready repo with 150+ tests, CI/CD, deployed PWA, docs." Target: founders, startups, agencies. Moat: 629+ tests, proven system nobody else has.
+
+2. **AUTONOMO.AI** (€19-39/mo): AI gestoría (accounting) for Spain's 3.7M autonomos. Reads bank, categorizes expenses, prepares IVA models, answers tax questions in 10 seconds. Regulatory moat: VeriFactu migration (July 2027) = forced demand. Revenue: €500 users Pro × €19 = €9.5K/mo in 6 months.
+
+3. **CAMBIAZO** (€99 one-shot or €29/mo): Transform old websites into modern, responsive designs. User provides URL → AI crawls → generates clean version → deploys. Lead gen via free preview. Viral via before/after content. Revenue: 50 transformations/month × €99 = €4.95K/mo.
+
+**Comparative Analysis:** FORJA (€10-20K/year, dev-focused, 3-4 week MVP) vs AUTONOMO.AI (€20-50K/year, regulatory moat, 5-6 week MVP) vs CAMBIAZO (€10-15K/year, viral potential, 4-5 week MVP). All fit within €500 infra budget.
+
+**Morpheus Recommendation:** Pick FORJA (most authentic to SS). If time allows, aggressive sequence: FORJA (April) → CAMBIAZO (May) → AUTONOMO.AI (June).
+
+---
+
+### 2026-03-24T00:00Z: Three New Downstream Projects — CostaPulse, AccesoPulse, RutaViva
+
+**By:** Morpheus (Lead/Architect)  
+**Tier:** T0 (Founder decision required)  
+**Status:** 📋 PROPOSAL — Awaiting approval
+
+Three products within €500/mo infra budget, building on proven patterns (CityPulseLabs, FirstFrameStudios).
+
+1. **AccesoPulse** (MVP 3-4 weeks, €10-20/mo): WCAG 2.2 + EAA compliance SaaS. Scan any site → audit report + continuous monitoring. Demanda obligada (EAA enters force 28 June 2025). Revenue: 50 customers × €29/mo = €1.45K/mo.
+
+2. **CostaPulse** (MVP 5-6 weeks, €8-18/mo): Real-time coastal info (tides, waves, water quality, UV, wind, alerts) for Spain's 8,000 km coastline. B2C freemium + B2B (tourism offices). Revenue: €50K/mo potential (500 towns × €100/mo).
+
+3. **RutaViva** (MVP 6-8 weeks, €10-20/mo): AI-curated walking routes for historic cities. User picks city + interests (history, gastronomy, architecture) + time → optimized route offline. B2C freemium + B2B tourism + affiliations. Revenue: 0.01% of 85M tourists/year × €3/route = €25K/year conservative.
+
+**Total Infra:** €41-91/mo (vs €500 budget). **Sequence:** AccesoPulse (April) → CostaPulse (May, pre-summer) → RutaViva (June).
+
+**Morpheus Recommendation:** All 3 approved. Regulatory deadline (EAA) and seasonal timing (beach summer, tourism) justify priority order.
+
+---
+
+### 2026-03-16T18:15Z: User Directive — Multi-Squad Architecture
+
+**By:** joperezd (via Copilot)  
+**Tier:** T3 (User directive)  
+**Status:** 🔬 R&D INITIATION
+
+Next evolution: SS (this Squad) operates its own downstream Squad on Azure VM. Not 24/7 autonomous (quality not yet there), but inter-squad orchestration: one Squad directing another Squad. Explore Squad-to-Squad communication as the next frontier after proven autonomous single-squad.
+
+---
+
+### 2026-03-16T16:12Z: User Directive — Downstream Repo Placement
+
+**By:** joperezd (via Copilot)  
+**Tier:** T3 (User directive)  
+**Status:** ✅ ENFORCED
+
+Downstream repos (CityPulseLabs, beneficial-bar, etc.) must NEVER be cloned inside Syntax Sorcery. Always clone to sibling directories under `GitHub Repos/`. Prevents gitlink nesting, dirty git state.
+
+---
+
 ### 2026-03-16T15:25Z: Mobile UX Fixes 3-5 Implementation Complete
 
 **By:** Mouse & Switch (UI/UX Designer & Tester)  
