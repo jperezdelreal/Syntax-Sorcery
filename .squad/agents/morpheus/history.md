@@ -158,3 +158,93 @@
 **Strategic Assessment:** Post-deploy verification (#39, #38) bridges to Phase 5 analytics. UI polish (#75, #44, #42) improves MVP quality. Testing (#49) hardens system. Roadmap items (#48, #47) deferred until v0.1 proven. Dependency chain clear: data → anomalies → model → monitoring.
 
 **Board Action:** Close #38, prioritize #39 (Tank), then #75/#44/#42 (Mouse/Trinity), then #49 (Switch). Phase 5 starts when #39 confirms data pipeline healthy.
+
+## Session 2026-03-24: New Project Proposals — Portfolio Expansion
+
+**Task:** Founder requested deep strategic thinking on 3 new projects/challenges for SS.
+
+**Analysis:** SS has proven autonomous development capability (629+ tests, 95 issues closed, 9 phases). Current portfolio: SS Hub, CityPulseLabs (civic-tech), FirstFrameStudios (gaming). Budget utilization: ~€33-91/mo of €500/mo. Massive headroom for expansion. Key insight: SS's proven strengths (React+Leaflet+Azure+PWA+API aggregation) are a reusable template for any "public data → beautiful UX" problem.
+
+**3 Proposals Delivered:**
+
+1. **CostaPulse** — Real-time coastal monitoring (beaches, tides, waves, water quality). Spain's 8,000km coastline. Same architecture as CPL. €8-18/mo. MVP 5-6 weeks. Revenue: tourism boards €50-150/mo, hotels €20-50/mo. Risk: seasonality.
+
+2. **AccesoPulse** — Automated web accessibility auditing (WCAG 2.2 + European Accessibility Act). SaaS €29-99/mo. €10-20/mo infra. MVP 3-4 weeks (fastest — reuses Playwright+Lighthouse). Revenue: regulatory mandate = forced demand. 3.7M Spanish SMEs potential market. Risk: competition (mitigated by Spanish-language focus + continuous monitoring).
+
+3. **RutaViva** — Walking tour planner for historic Spanish cities. AI-curated routes combining heritage, gastronomy, culture. PWA offline. Multilingual. €10-20/mo. MVP 6-8 weeks. Revenue: freemium + tourism board B2B + affiliate commissions. Risk: content quality (not 100% autonomous initially).
+
+**Recommended Sequence:** AccesoPulse (April) → CostaPulse (May, pre-summer) → RutaViva (June, tourist season). All 3 fit within €500/mo budget with room to spare (total ~€41-91/mo including existing projects).
+
+**Decision:** T0 — awaiting founder approval. Written to `.squad/decisions/inbox/morpheus-new-projects.md`.
+
+## Session 2026-03-24 (v2): BOLD Project Proposals — Round 2
+
+**Task:** Founder rejected CostaPulse/AccesoPulse/RutaViva ("no me llaman la atención"). Too safe, too civic-tech. Morpheus tasked with researching REAL trends and proposing 3 BOLD projects.
+
+**Research Conducted (7 web searches):**
+- Micro-SaaS making money 2025-2026 with small teams
+- Spanish/European SME pain points they pay for
+- AI-native viral products with wow factor
+- Underserved niches for autonomous AI teams
+- AI dev agency as a service trends ("vibe coding")
+- AI-generated app marketplaces
+- Spanish autónomo pain points (VeriFactu, invoicing)
+
+**Key Research Findings:**
+1. VeriFactu (mandatory digital invoicing Spain) = forced demand for 3.7M autónomos by 2027
+2. "AI Dev Agency as a Service" is emerging but nobody has a PROVEN autonomous system
+3. Vertical AI for SMBs is the fastest-growing micro-SaaS niche
+4. Before/after content (web transformations) is naturally viral
+5. 70% of Spanish freelancers still use paper/Excel for invoicing
+
+**3 BOLD Proposals Delivered:**
+1. **FORJA** — Productize SS's autonomous dev capability. "Describe tu app → 48h → repo con tests, CI/CD, desplegada." €99-999/proyecto, €299/mes suscripción. El producto ES SS.
+2. **AUTONOMO.AI** — AI gestoría for Spain's 3.7M autónomos. Conectas banco → IA lleva IVA/IRPF/VeriFactu. €19-39/mes. Regulatory tailwind (VeriFactu 2027).
+3. **CAMBIAZO** — URL de web fea → web moderna en 10 min. €99 one-shot. Contenido before/after = marketing viral gratuito.
+
+**Recommended sequence:** FORJA (Abril, 3-4 sem) → CAMBIAZO (Mayo, 4-5 sem) → AUTONOMO.AI (Junio, 5-6 sem). Total infra: €75-160/mes.
+
+**Decision:** T0 — awaiting founder approval. Written to `.squad/decisions/inbox/morpheus-bold-projects.md`.
+
+**Key insight:** Las propuestas anteriores fallaron porque seguían el patrón "datos públicos → mapa." Esta vez cada propuesta tiene un ángulo único: FORJA es meta (el producto = SS), AUTONOMO.AI tiene demanda regulatoria forzada, CAMBIAZO tiene viralidad visual natural.
+
+## Session 2026-03-25: Multi-Squad Azure VM R&D Proposal
+
+**Task:** Founder asked for R&D architecture proposal for running multiple Copilot CLI sessions (one per downstream repo) on a single Azure VM. Phase 10, Item #37.
+
+**Key Findings:**
+
+1. **Architecture:** tmux-based multi-session (already designed). No Docker/systemd needed — tmux provides PTY that Copilot CLI requires. Infrastructure scripts ready: `start-constellation.sh`, `session-watchdog.sh`, systemd units.
+
+2. **Critical Risk — Copilot Rate Limits:** Rate limits are PER ACCOUNT, not per session. ~50-80 completions/hour shared across ALL sessions. 5 concurrent sessions = ~10-16 turns/hour each. This is the primary constraint on multi-squad scaling.
+
+3. **VM Resources (B2s_v2):** 2 vCPU, 8 GiB RAM. Sufficient for 5 idle sessions (~1.5-2.5 GB). Tight during peak (test execution). CPU burst credits are finite — sustained workload could throttle. Real cost: ~€36/mo on-demand, ~€26/mo reserved.
+
+4. **Rollout Plan:** 4-phase incremental approach:
+   - R&D-1 (Week 1): 1 session, 1 repo, 48h — validate "does Copilot work headless?"
+   - R&D-2 (Week 2): 3 sessions — validate resource contention + rate limits
+   - R&D-3 (Week 3): Full constellation (5 sessions), 24h observation
+   - R&D-4 (Week 4): 7-day sustained operation + resilience testing
+
+5. **Open Questions:** Session stability >6h untested. Graceful recycling unvalidated. Context compaction quality degradation unknown. Burst CPU credit sustainability unknown.
+
+**Decision:** T1 — R&D proposal written to `.squad/decisions/inbox/morpheus-multi-squad-rd.md`. Awaiting founder approval to start R&D-1. Estimated R&D cost: ~€44/month. Tank deploys VM on approval.
+
+**Key Architecture Decisions:**
+- Independent sessions, zero shared state (each repo autonomous)
+- Stagger session starts by 5 min (avoid thundering herd on rate limits)
+- Graceful shutdown injection before watchdog recycle
+- Single PAT shared across sessions (future: GitHub App for higher limits)
+- Tests run in CI/CD, NOT on VM (preserve resources)
+
+## Learnings
+
+- **Portfolio expansion pattern:** SS's "public data → map/dashboard UX" architecture is a reusable template.CostaPulse, RutaViva, and any future civic-tech product can reuse 70-80% of CPL's codebase (proxy pattern, cache, Leaflet maps, PWA offline, mobile bottom sheet).
+- **Regulatory-driven demand > nice-to-have demand:** AccesoPulse targets mandatory compliance (EAA June 2025). Projects with legal deadlines have built-in urgency and sales pitch. Prefer regulated markets when choosing new products.
+- **Seasonality risk in tourism-adjacent products:** CostaPulse and RutaViva both face summer-heavy usage. Mitigate by finding year-round user segments (surfers, fishermen, local residents) before tourist season ends.
+- **Azure serverless scales to zero:** 3 new projects add only €28-58/mo total. At €500/mo budget, SS can run 10+ products simultaneously. The bottleneck is team bandwidth, not infrastructure cost.
+- **Content-heavy products break autonomy:** RutaViva requires human-validated content (route descriptions, cultural context). Not all products can be 100% autonomous — and that's acceptable if the non-autonomous part is clearly scoped.
+- **Copilot CLI rate limits are per-account, not per-session:** Running N concurrent sessions divides the ~50-80 completions/hour pool. This is the #1 constraint for multi-squad. Measure before scaling. Stagger sessions to avoid contention.
+- **Burstable VMs have credit limits:** B2s_v2 burst model means sustained CPU usage depletes credits. Copilot CLI is mostly I/O-bound (good), but npm test/install are CPU-heavy (bad). Keep compute-heavy work on CI/CD, not the VM.
+- **Incremental R&D > big-bang deployment:** Validate cheapest experiment first (1 session, 48h, ~€2.40). Each phase doubles confidence with minimal spend. The cost of learning is almost zero vs the cost of a failed full deployment.
+- **Graceful session recycling is unsolved:** Killing tmux sessions mid-task risks half-done PRs. Need to validate if Copilot CLI respects "finish and exit" instructions before production.
