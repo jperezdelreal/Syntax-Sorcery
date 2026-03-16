@@ -104,3 +104,52 @@ Matrix-themed design system for Syntax Sorcery landing page. Established as spec
 - Align new design tokens with existing `global.css` theme to avoid conflicts
 - ASCII wireframes in spec docs communicate layout intent better than prose descriptions
 - Accessibility must be baked into the spec, not an afterthought — contrast ratios, reduced motion, focus states all specified upfront
+
+### 2026-03-16: CityPulseLabs Mobile UX Redesign — Google Maps-style Unified Panel
+
+**Context:** User feedback (verbatim Spanish): mobile experience is "far from Google Maps", routes slow to load, "failed to fetch" errors, and suggestion to unify search+routes into one panel. Desktop was "bastante guapo" (quite nice). Issue: jperezdelreal/CityPulseLabs.
+
+**What I did:**
+- Created `src/components/UnifiedPanel/UnifiedPanel.tsx` — Google Maps-style bottom sheet combining search bar + route results + station info into one cohesive panel
+- Created `src/components/UnifiedPanel/RouteSkeleton.tsx` — shimmer/skeleton loading animation replacing generic spinner
+- Restructured `src/App.tsx` — removed floating SearchBar and separate aside, replaced with unified panel
+- Added `retry()` function to `useRoutes` hook for error recovery
+- Added friendly error state with retry button ("😵 No pudimos calcular las rutas" + connection hint)
+
+**Mobile bottom sheet behavior:**
+- Collapsed by default: shows just `🔍 ¿A dónde quieres ir?` peek (76px)
+- Tap to expand: reveals origin/destination fields + route results
+- Drag handle with swipe gestures (up to expand, down to collapse)
+- Auto-expands when routes load, station selected, or map clicked
+- `overscroll-behavior: contain` prevents scroll-through to page
+- Max-height 75vh when expanded, scrollable content section
+
+**Map click → fills form:**
+- Clicking map auto-fills origin (first click) or destination (second click)
+- Shows "📍 Punto en el mapa" in the search field
+- Geolocation shows "📍 Mi ubicación"
+- Used ref flags (`originSetBySearch`/`destSetBySearch`) to distinguish search-set vs map-set coordinates
+
+**Desktop preserved:**
+- Side panel with integrated search at top (360px/400px)
+- Same layout philosophy but search now part of the panel instead of floating overlay
+- User said desktop "looks great" — kept the aesthetic
+
+**Technical decisions:**
+- Kept original `SearchBar.tsx` untouched (tests import it directly)
+- Reused existing `RoutePanel` and `StationPanel` as sub-components in unified panel
+- Skeleton shimmer via CSS `background-size: 200%` animation (no JS shimmer library)
+- Repositioned WelcomeCTA (z-index 30, bottom-24 mobile) and GeolocationButton (bottom-24) above bottom sheet
+
+**Outcome:**
+- PR #68 in jperezdelreal/CityPulseLabs on branch `squad/mobile-ux-redesign`
+- Build passes, all 218 tests pass (2 pre-existing backend test failures unrelated)
+- 681 lines added, 73 removed across 8 files
+
+**Learnings:**
+- Bottom sheets > sidebars for mobile map apps — users expect the Google Maps pattern
+- Skeleton/shimmer loading creates perception of speed even when actual load time doesn't change
+- Error states with retry buttons are essential for flaky network APIs — users need agency, not just error text
+- Ref flags are the cleanest React pattern for distinguishing internal vs external state changes
+- `overscroll-behavior: contain` is a CSS one-liner that prevents the frustrating scroll-through problem on bottom sheets
+- Always position floating elements (CTAs, buttons) above the bottom sheet z-layer on mobile — `bottom-24` + lower z-index
