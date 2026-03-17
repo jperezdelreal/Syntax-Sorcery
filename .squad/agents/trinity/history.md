@@ -96,3 +96,28 @@
 **Mouse (PR #72 — Mobile-Specific UX):** Merged separate component trees for mobile (Google Maps pattern) vs desktop (side panel). Fixed BOOST visibility, desktop banner, button text bug. Learned: users distinguish responsive vs mobile-specific; separate trees > responsive classes.
 
 **Morpheus (Evaluation):** Self-hosted ORS evaluation complete. Rejection: too expensive (€52–70/mo). Recommendation: Trinity's call reduction (approved path) → v0.2 traffic monitoring → re-evaluate if >500 routes/day. Full cost/latency/ops analysis documented.
+
+## Learnings — Route Service Diagnosis (2026-03-17)
+
+### Root Cause: SWA Managed API vs Linked Backend Conflict
+- **The "Route service not configured" 503 error** was caused by the SWA managed API shadowing the linked backend. The SWA deployment included `--api-location ./api`, creating managed functions that intercepted `/api/*` requests BEFORE they reached the linked backend (`func-citypulse-api`).
+- **`ORS_API_KEY` was set on the wrong resource.** It was added to the standalone function app (`func-citypulse-api`), but the SWA managed API serves the routes function. The managed API has its own environment variables (SWA app settings), which didn't include `ORS_API_KEY`.
+- **Fix:** Set `ORS_API_KEY` as a SWA app setting (`az staticwebapp appsettings set`), then redeploy the SWA to force the managed API to pick up the new setting. Settings changes require a redeployment — they don't propagate to running managed API instances automatically.
+
+### Architecture Clarity: Two API Hosting Layers
+- **SWA managed API** (from `--api-location ./api`): Handles all HTTP-triggered functions (health, predict, routes, stations, weather). Runs in SWA's managed function infrastructure. Environment comes from SWA app settings.
+- **Standalone function app** (`func-citypulse-api`): Linked backend. Runs timer triggers (stationCollector). Environment comes from function app settings.
+- **Conflict:** When both exist, the managed API takes precedence for matching HTTP routes. The linked backend is only used for endpoints NOT in the managed API.
+- **Key insight:** `VITE_ORS_API_KEY` (the old client-side var) was set on SWA, but the server-side proxy reads `ORS_API_KEY` (no `VITE_` prefix). Variable naming mismatch.
+
+### Data Pipeline Status
+- **stationCollector timer** stopped ~13h before diagnosis. The standalone function app container entered a restart loop (likely from resource constraints or deployment conflicts). Timer triggers can only run on standalone function apps, not SWA managed functions.
+- **Cosmos writes:** ~22K snapshots/day when timer is active. Pipeline was healthy 2026-03-16 (12 executions/hour = every 5 min). Stopped around midnight March 17.
+
+### deploy-functions.yml Never Ran
+- The CI/CD workflow for the standalone function app requires OIDC secrets (`AZURE_CLIENT_ID`, `AZURE_TENANT_ID`, `AZURE_SUBSCRIPTION_ID`) that were never configured as GitHub repo secrets. This means the routes function was never deployed to the standalone app via CI — only Tank's initial manual deployment deployed the original 5 functions.
+
+### Operational Learnings
+- **Never rapid-restart a function app** — multiple restarts in quick succession can cause container instability (`SiteStartupCancelled`, `ContainerTimeout`). The function host needs 60-90 seconds for cold start on Node 20.
+- **`func azure functionapp publish` lists functions from the Azure control plane** — the function list after deployment may not reflect the actual runtime state until the container fully boots.
+- **SWA app settings don't propagate to managed API without redeployment** — unlike Azure Function app settings (which trigger a host restart), SWA managed API settings need a fresh deployment to take effect.
