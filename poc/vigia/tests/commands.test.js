@@ -9,6 +9,7 @@ import { extractCommands } from '../lib/extract-commands.js';
 vi.mock('../tools/browser.js', () => ({
   navigate: vi.fn().mockResolvedValue({ status: 'ok', url: 'https://test.com', title: 'Test', loadTimeMs: 100 }),
   click: vi.fn().mockResolvedValue({ status: 'ok', selector: '#btn', currentUrl: 'https://test.com' }),
+  clickText: vi.fn().mockResolvedValue({ status: 'ok', text: 'Mecánica', currentUrl: 'https://test.com/mecanica' }),
   type: vi.fn().mockResolvedValue({ status: 'ok', selector: '#input', text: 'hello' }),
   screenshot: vi.fn().mockResolvedValue({ status: 'ok', filename: '01_test.png', filepath: '/path/01_test.png' }),
   getPageInfo: vi.fn().mockResolvedValue({ status: 'ok', title: 'Test', url: 'https://test.com' }),
@@ -28,7 +29,7 @@ vi.mock('../tools/reporter.js', () => ({
 // Importar mocks para verificar llamadas
 import * as browser from '../tools/browser.js';
 import * as reporter from '../tools/reporter.js';
-import { executeCommand } from '../lib/execute-command.js';
+import { executeCommand, extractTextFromSelector } from '../lib/execute-command.js';
 
 // ════════════════════════════════════════════════════════════
 //  C. TESTS — extractCommands (Parsing de JSON)
@@ -215,6 +216,55 @@ describe('executeCommand() — despacho de acciones', () => {
     const result = await executeCommand({ action: 'navigate', url: 'https://crash.com' });
     expect(result.status).toBe('error');
     expect(result.error).toContain('Boom');
+  });
+
+  // ── click_text fallback tests ─────────────────────────────
+  it('fallback: retries with clickText when CSS click fails and selector has :contains', async () => {
+    browser.click.mockResolvedValueOnce({ status: 'error', selector: "button:contains('Mecánica')", error: 'not found' });
+    browser.clickText.mockResolvedValueOnce({ status: 'ok', text: 'Mecánica', currentUrl: 'https://test.com/mecanica' });
+
+    const result = await executeCommand({ action: 'click', selector: "button:contains('Mecánica')" });
+
+    expect(browser.click).toHaveBeenCalledWith("button:contains('Mecánica')");
+    expect(browser.clickText).toHaveBeenCalledWith('Mecánica');
+    expect(result.status).toBe('ok');
+    expect(result.text).toBe('Mecánica');
+  });
+
+  it('fallback: no retry when CSS click succeeds', async () => {
+    browser.click.mockResolvedValueOnce({ status: 'ok', selector: '#btn', currentUrl: 'https://test.com' });
+
+    await executeCommand({ action: 'click', selector: '#btn' });
+
+    expect(browser.click).toHaveBeenCalledWith('#btn');
+    expect(browser.clickText).not.toHaveBeenCalled();
+  });
+
+  it('fallback: no retry when selector has no :contains text', async () => {
+    browser.click.mockResolvedValueOnce({ status: 'error', selector: '#missing', error: 'not found' });
+
+    const result = await executeCommand({ action: 'click', selector: '#missing' });
+
+    expect(browser.clickText).not.toHaveBeenCalled();
+    expect(result.status).toBe('error');
+  });
+
+  it('fallback: returns original error when clickText also fails', async () => {
+    browser.click.mockResolvedValueOnce({ status: 'error', selector: "a:contains('Gone')", error: 'not found' });
+    browser.clickText.mockResolvedValueOnce({ status: 'error', text: 'Gone', error: 'text not found' });
+
+    const result = await executeCommand({ action: 'click', selector: "a:contains('Gone')" });
+
+    expect(browser.clickText).toHaveBeenCalledWith('Gone');
+    expect(result.status).toBe('error');
+  });
+
+  it('extractTextFromSelector extracts text from :contains patterns', () => {
+    expect(extractTextFromSelector("button:contains('Mecánica')")).toBe('Mecánica');
+    expect(extractTextFromSelector('a:contains("About Us")')).toBe('About Us');
+    expect(extractTextFromSelector(':has-text("Login")')).toBe('Login');
+    expect(extractTextFromSelector('#btn')).toBeNull();
+    expect(extractTextFromSelector('.nav-link')).toBeNull();
   });
 
   it('despacha type_and_select a browser.typeAndSelect con selector, texto y opciones', async () => {

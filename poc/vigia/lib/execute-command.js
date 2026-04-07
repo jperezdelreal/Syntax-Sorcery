@@ -5,14 +5,30 @@
 import * as browser from "../tools/browser.js";
 import * as reporter from "../tools/reporter.js";
 
+/** Extract text from :contains('...') or :has-text('...') pseudo-selectors */
+export function extractTextFromSelector(selector) {
+  const match = selector.match(/:(?:contains|has-text)\(\s*['"](.+?)['"]\s*\)/i);
+  return match ? match[1] : null;
+}
+
 export async function executeCommand(cmd) {
   try {
     switch (cmd.action) {
       case "navigate":
         return await browser.navigate(cmd.url);
 
-      case "click":
-        return await browser.click(cmd.selector);
+      case "click": {
+        const result = await browser.click(cmd.selector);
+        if (result.status === "error") {
+          const text = extractTextFromSelector(cmd.selector);
+          if (text) {
+            console.log(`   🔄 CSS click failed, retrying with clickText("${text}")`);
+            const fallback = await browser.clickText(text);
+            if (fallback.status === "ok") return fallback;
+          }
+        }
+        return result;
+      }
 
       case "click_text":
         return await browser.clickText(cmd.text, { exact: cmd.exact });
