@@ -71,3 +71,7 @@
 - Exit code mapping: VIGÍA exit 1 = critical issues → action fails the check. Exit 0 = pass.
 - Cost: $0 (runs on ubuntu-latest GitHub-hosted runners, free tier for public repos).
 
+**Session 2026-04-07: VIGÍA v0.8 Completion (PR #174 merged):**
+- PR #174 merged to dev after Morpheus approval. Tank infrastructure ready. Switch test coverage (57 CI + 49 regression) validated permissions fix.
+- Downstream: Trinity v0.9 regression framework ready (PR #175 open). All agents delivered on schedule.
+

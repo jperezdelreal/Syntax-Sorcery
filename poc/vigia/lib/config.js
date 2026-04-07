@@ -54,6 +54,7 @@ export function parseArgs(argv) {
     showHelp: false,
     isCompare: false,
     compareFiles: [],
+    regressionFile: null,
   };
 
   for (let i = 0; i < argv.length; i++) {
@@ -102,6 +103,12 @@ export function parseArgs(argv) {
         result.isCompare = true;
         while (i + 1 < argv.length && !argv[i + 1].startsWith("--")) {
           result.compareFiles.push(argv[++i]);
+        }
+        break;
+
+      case "--regression":
+        if (argv[i + 1] && !argv[i + 1].startsWith("--")) {
+          result.regressionFile = argv[++i];
         }
         break;
 
@@ -189,7 +196,7 @@ export function printHelp() {
   const help = `
 ╔══════════════════════════════════════════════════════╗
 ║  🔍 VIGÍA — Tester Autónomo de Apps Web              ║
-║  v0.7.0 — CLI profesional                           ║
+║  v0.9.0 — CLI profesional                           ║
 ╚══════════════════════════════════════════════════════╝
 
 USAGE:
@@ -204,6 +211,7 @@ OPTIONS:
   --output-format <fmt>       Report format: md (default), json, html
   --quiet, -q                 Suppress terminal output, only write report
   --compare <f1> <f2>         Compare two JSON report files and exit
+  --regression <report.json>  Re-test issues from a previous report
   --help, -h                  Show this help message
 
 CONFIG FILE (vigia.config.json):
@@ -233,6 +241,7 @@ EXAMPLES:
   node vigia.js --url https://example.com --severity-threshold major --quiet
   node vigia.js --url https://example.com --output-format json
   node vigia.js --compare report1.json report2.json
+  node vigia.js --regression reports/vigia-data-2026-07-14.json
 `;
   console.log(help);
 }

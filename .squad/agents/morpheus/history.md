@@ -64,6 +64,10 @@
 - **Quality Score as convergence metric:** Tracking score across iterations tells you when to stop. If V3→V4 delta < 0.3, the app has stabilized. This is the "fitness function" from the LLM-Fighter pattern applied to software quality.
 - **VIGÍA v0.7 — CLI config layer approved (PR #173):** `config.js` pattern is the right approach for CLI tools: zero-SDK module, pure functions (parseArgs → mergeConfig → filterBySeverity → getExitCode), all separately testable. Gate: `??` (nullish coalescing) for optional string flags, `||` for opt-in boolean flags. Flag infrastructure first, reporter wiring second — acceptable phased delivery as long as a follow-on issue is filed for `--output-format` reporter integration before v1.0.
 
+**Session 2026-04-07: VIGÍA v0.8 Architectural Approval (PR #174):**
+- Reviewed PR #174 twice: first requested changes (permissions audit), second approved after Switch fixed `actions:write` + validated 106-test coverage.
+- Approved VIGÍA action pattern for future Cloud actions. Gate: test-first regression validation required for v0.9+. PR merged to dev.
+
 ---
 
 *Detailed session logs from Sessions 1-12 archived in history-backup-2026-07-09.md for reference.*

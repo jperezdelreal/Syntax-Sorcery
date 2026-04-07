@@ -21,6 +21,7 @@
  *    node vigia.js --url https://example.com --severity-threshold major --quiet
  *    node vigia.js --url https://example.com --output-format json
  *    node vigia.js --compare report1.json report2.json
+ *    node vigia.js --regression reports/vigia-data-prev.json
  *
  *  REQUISITOS:
  *    - Node.js 18+
@@ -35,7 +36,11 @@ import * as reporter from "./tools/reporter.js";
 import { extractCommands } from "./lib/extract-commands.js";
 import { executeCommand } from "./lib/execute-command.js";
 import { loadReport, compareReports, formatComparisonOutput } from "./lib/compare.js";
+import { loadBaselineReport, buildRegressionPlan, categorizeRegressionResults, generateRegressionReport, formatRegressionOutput } from "./lib/regression.js";
 import { parseArgs, loadConfigFile, mergeConfig, filterBySeverity, getExitCode, printHelp } from "./lib/config.js";
+
+// Module-level regression baseline (replaces globalThis usage)
+let regressionBaseline = null;
 
 // ════════════════════════════════════════════════════════════
 //  PARSEAR ARGUMENTOS + CARGAR CONFIG
@@ -70,6 +75,44 @@ if (cliArgs.isCompare) {
   process.exit(0);
 }
 
+// Quiet-aware logger — defined early so the regression block can use it
+// before mergeConfig() runs (cliArgs.quiet is already parsed above).
+const log = cliArgs.quiet ? () => {} : console.log.bind(console);
+
+// ── --regression mode: re-test issues from a previous report ──
+if (cliArgs.regressionFile) {
+  let baselineReport;
+  try {
+    baselineReport = await loadBaselineReport(cliArgs.regressionFile);
+  } catch (err) {
+    console.error(`❌ Error cargando reporte baseline: ${err.message}`);
+    process.exit(1);
+  }
+
+  const plan = buildRegressionPlan(baselineReport);
+  if (plan.urls.length === 0) {
+    log("ℹ️  El reporte baseline no tiene issues. Nada que re-testear.");
+    process.exit(0);
+  }
+
+  log(`
+╔══════════════════════════════════════════════════════╗
+║  🔍 VIGÍA — Modo Regresión                          ║
+║  v0.9.0                                             ║
+╚══════════════════════════════════════════════════════╝
+
+   📄 Baseline: ${cliArgs.regressionFile}
+   🎯 URLs a re-testear: ${plan.urls.length}
+   🐛 Issues a verificar: ${plan.totalIssues}
+${plan.urls.map((u, i) => `     ${i + 1}. ${u}`).join("\n")}
+`);
+
+  // Override target URLs with the ones from the baseline report
+  cliArgs.urls = plan.urls;
+  // Store the baseline for regression categorization after testing completes
+  regressionBaseline = baselineReport;
+}
+
 // ── Load config file if specified ─────────────────────────
 let fileConfig = null;
 if (cliArgs.configPath) {
@@ -97,13 +140,10 @@ let targetUrls = config.urls.length > 0
 const visibleMode = config.visible;
 const quietMode = config.quiet;
 
-// Quiet mode: suppress console output
-const log = quietMode ? () => {} : console.log.bind(console);
-
 log(`
 ╔══════════════════════════════════════════════════════╗
 ║  🔍 VIGÍA — Tester Autónomo de Apps Web              ║
-║  v0.7.0 — CLI profesional                           ║
+║  v0.9.0 — CLI profesional                           ║
 ╚══════════════════════════════════════════════════════╝
 
    URL${targetUrls.length > 1 ? "s" : ""} objetivo: ${targetUrls.length === 1 ? targetUrls[0] : ""}
@@ -470,6 +510,35 @@ async function main() {
   } else {
     log("── Generando informe ──────────────────────────────");
     report = await reporter.generateReport();
+  }
+
+  // 4b. Regression mode — categorize results against baseline
+  if (regressionBaseline) {
+    log("── Generando informe de regresión ─────────────────");
+
+    // Build a retest report structure from the session snapshots
+    const retestReport = {
+      generatedAt: new Date().toISOString(),
+      urls: targetUrls,
+      summary: { totalIssues: report.totalIssues },
+      sessions: sessionSnapshots.map((s) => ({
+        url: s.url,
+        issues: s.issues.map((i) => ({
+          ...i,
+          fingerprint: i.fingerprint || `${(i.title || "").toLowerCase().trim()}|${i.severity || "unknown"}`,
+        })),
+        actionsCount: s.actions ? s.actions.length : 0,
+        duration: s.duration,
+      })),
+    };
+
+    const regressionResult = categorizeRegressionResults(
+      regressionBaseline,
+      retestReport,
+    );
+    const regressionReport = await generateRegressionReport(regressionResult);
+    log(formatRegressionOutput(regressionResult));
+    log(`   📄 Informe de regresión: ${regressionReport.filepath}`);
   }
 
   // 5. Limpieza

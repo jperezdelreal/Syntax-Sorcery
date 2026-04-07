@@ -12,6 +12,8 @@
 
 ## Learnings (Current Session)
 
+- **VIGÍA v0.9.0 — Regression Re-testing (#169):** `--regression <report.json>` flag. New `lib/regression.js`: `loadBaselineReport()`, `buildRegressionPlan()` (extracts URLs with issues), `categorizeRegressionResults()` (diffs baseline vs re-test → resolved/persists/new), `generateRegressionReport()` (writes `vigia-regression-*.json`), `formatRegressionOutput()` (terminal summary). Integrated into `vigia.js` main flow — after normal testing, categorizes results and outputs separate regression report. 329 tests green. PR #175 open, awaiting merge after v0.8 stabilization.
+
 - **VIGÍA v0.7.0 — CLI Professional (#167):** Added `--help`, `--config`, `--severity-threshold`, `--output-format`, `--quiet`, and exit codes. New `lib/config.js` module: `parseArgs()`, `loadConfigFile()`, `mergeConfig()` (CLI > file > defaults), `filterBySeverity()`, `getExitCode()` (1 if critical). Backward compatible. 69 TDD tests from Switch all green. PR #173. Morpheus gate: --output-format parsed but not wired to reporter (acceptable phased delivery, follow-on issue for v1.0).
 
 - **VIGÍA v0.6.0 — Run Comparison + JSON Export (#166):** `--compare report1.json report2.json` flag. `vigia-data-{timestamp}.json` export: flat `issues[]` + structured `sessions[]`. New `lib/compare.js`: loadReport(), compareReports() (new/resolved/persistent/regression), formatComparisonOutput(). Fingerprint = title|severity hash. 203 tests green (48 Switch TDD + Trinity impl).

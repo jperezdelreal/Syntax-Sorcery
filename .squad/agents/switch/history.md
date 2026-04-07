@@ -75,3 +75,16 @@
 - **Key spec decisions:** Action defaults: max-turns=10, severity-threshold=minor. Exit code 1 only for critical issues post-filter. formatReportForPR uses `<details>` collapse for reports >2000 chars. Validation accumulates all errors before throwing. severity-threshold is case-insensitive.
 - **Total VIGÍA tests:** 281 across 8 files. All green.
 
+### 2026-07-15: VIGÍA v0.9 Regression Re-Test Tests (49 tests) — Issue #169
+
+- **Scope:** TDD test suite for regression re-testing at `poc/vigia/tests/regression.test.js`.
+- **Sections:** A. Regression module — loadPreviousReport, extractIssuesFromReport, extractUniqueUrls, generateRetestPlan (16 tests). A2. categorizeResults — all resolved/persists/mixed/new/empty/fingerprint-based (10 tests). B. Regression report output — markdown sections, counts, previous report ref, readable format, empty categories (8 tests). C. CLI --regression flag — arg parsing, quiet combo, file validation (12 tests). Integration — full flow end-to-end (3 tests).
+- **Pattern:** Reference implementations inline (loadPreviousReport, extractIssuesFromReport, extractUniqueUrls, generateRetestPlan, categorizeResults, generateRegressionReport, parseRegressionArgs). Trinity: extract to `lib/regression.js` and replace inline refs with imports.
+- **Key spec decisions:** Categorization uses fingerprint matching (not raw title). Report sections omit empty categories. --regression takes one JSON file (unlike --compare which takes two). --quiet/-q combo supported. Report includes previous report path reference.
+- **Validation fix:** Test for "not a VIGÍA report" needed data WITHOUT version field — objects with `version` pass the existing `loadReport()` validation from compare.js. Used `{ name: ..., dependencies: {} }` as test data.
+- **Total VIGÍA tests:** 378 across 9 files. All green.
+
+**Session 2026-04-07: VIGÍA v0.8 Completion (57 CI + 49 regression tests):**
+- Fixed PR #174 permissions: removed `actions:write`, verified context.runId. 57 CI + 49 regression tests validate VIGÍA action + backward compat.
+- All 106 tests passing. Permissions audit complete, approved by Morpheus. PR merged to dev.
+
