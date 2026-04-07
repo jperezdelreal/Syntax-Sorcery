@@ -14,6 +14,9 @@ export async function executeCommand(cmd) {
       case "click":
         return await browser.click(cmd.selector);
 
+      case "click_text":
+        return await browser.clickText(cmd.text, { exact: cmd.exact });
+
       case "type":
         return await browser.type(cmd.selector, cmd.text);
 

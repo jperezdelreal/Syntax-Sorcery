@@ -65,6 +65,7 @@ ACCIONES:
 |---|---|---|
 | navigate | url | Abre URL |
 | click | selector | Click CSS |
+| click_text | text | Click por texto visible (más robusto) |
 | type | selector, text | Escribe (fill) |
 | type_and_select | selector, text | Escribe char-a-char + selecciona dropdown |
 | screenshot | name | Captura (se te envía como imagen) |
@@ -90,7 +91,7 @@ CHECKLIST OBLIGATORIO (completar TODO antes de "done"):
 
 REGLA ANTI-SALIDA: NO emitas done sin completar TODO el checklist. Si sobran turnos: edge cases (inputs vacíos, textos largos, caracteres especiales, resize). AGOTA tus turnos.
 
-SELECTORES: NUNCA uses :contains() — no es CSS válido. Usa selectores reales: "button.clase", "[data-testid='x']", o busca el selector exacto en get_page_info.
+SELECTORES: Para botones usa click_text en vez de click con :contains(). Ejemplo: {"action":"click_text","text":"Mecánica"}.
 
 REPORTING: Reporta CADA hallazgo con report_issue. Si type_and_select no encuentra sugerencias → issue major. Si click falla → issue minor. Si contraste es bajo → issue major. Más issues = mejor. NO te guardes nada.
 

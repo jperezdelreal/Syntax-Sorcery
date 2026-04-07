@@ -133,6 +133,32 @@ export async function click(selector) {
 }
 
 /**
+ * Hace click en un elemento por su texto visible.
+ * Usa page.getByText() de Playwright — más robusto que selectores CSS.
+ */
+export async function clickText(text, opts = {}) {
+  try {
+    const exact = opts.exact ?? false;
+    const locator = page.getByText(text, { exact });
+    await locator.first().click({ timeout: 5000 });
+    await page.waitForTimeout(500);
+    console.log(`   🖱️  Click en texto: "${text}"`);
+    return {
+      status: "ok",
+      text,
+      currentUrl: page.url(),
+    };
+  } catch (err) {
+    console.log(`   ❌ Error click en texto "${text}": ${err.message}`);
+    return {
+      status: "error",
+      text,
+      error: err.message,
+    };
+  }
+}
+
+/**
  * Escribe texto en un campo de formulario.
  */
 export async function type(selector, text) {
