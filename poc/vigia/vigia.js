@@ -75,6 +75,10 @@ if (cliArgs.isCompare) {
   process.exit(0);
 }
 
+// Quiet-aware logger — defined early so the regression block can use it
+// before mergeConfig() runs (cliArgs.quiet is already parsed above).
+const log = cliArgs.quiet ? () => {} : console.log.bind(console);
+
 // ── --regression mode: re-test issues from a previous report ──
 if (cliArgs.regressionFile) {
   let baselineReport;
@@ -87,11 +91,11 @@ if (cliArgs.regressionFile) {
 
   const plan = buildRegressionPlan(baselineReport);
   if (plan.urls.length === 0) {
-    console.log("ℹ️  El reporte baseline no tiene issues. Nada que re-testear.");
+    log("ℹ️  El reporte baseline no tiene issues. Nada que re-testear.");
     process.exit(0);
   }
 
-  console.log(`
+  log(`
 ╔══════════════════════════════════════════════════════╗
 ║  🔍 VIGÍA — Modo Regresión                          ║
 ║  v0.9.0                                             ║
@@ -135,9 +139,6 @@ let targetUrls = config.urls.length > 0
   : ["https://citypulselabs.azurestaticapps.net"];
 const visibleMode = config.visible;
 const quietMode = config.quiet;
-
-// Quiet mode: suppress console output
-const log = quietMode ? () => {} : console.log.bind(console);
 
 log(`
 ╔══════════════════════════════════════════════════════╗
