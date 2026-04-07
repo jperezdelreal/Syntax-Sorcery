@@ -28,6 +28,8 @@
 
 - **Copilot SDK PoC (2026-04-07):** 3 working scripts (index.js, multi-turn.js, with-tools.js) tested live v0.2.1. Chat+multi-turn+streaming production-ready. Custom tools work but agent prefers built-ins (approveAll issue). Oracle verdict: NOT suitable for B2C (2.5s overhead); use Vercel AI SDK instead.
 
+- **Business Products Brainstorm v2 (Oracle, 2026-04-07):** 18 product ideas across 7 categories (management, sales, HR, legal, finance, autónomos, sector-specific). All built on identical Work IQ + Copilot SDK + Azure stack. First product = platform foundation; 2nd is 70% faster, 3rd is 90% faster. Architecture task pending joperezd MVP selection.
+
 ## Archived Learnings
 
 **Phase 1:** Context remediation (95% reduction, 2618KB→126KB). Skills cherry-pick (16→20 total). GDD parser (25-40 issues). Proposal→prototype (5 scripts, 2 GHA).

@@ -46,6 +46,8 @@
 - Vercel AI SDK confirmed for B2C products (Oracle research + Trinity PoC). 25-40x cold start, 4-10x cost reduction vs Copilot SDK. Portfolio expansion approved: AccesoPulse, CostaPulse, RutaViva. All €41-91/mo.
 - SDK + Work IQ architecture analysis complete. Automated Bridge (event-driven) pattern selected as foundation for GitHub↔M365 integration. MCP is the real multiplier — `mcp-m365` server enables any future SDK/framework to access M365 data. Interactive dual-source latency (~5.6s) rules out real-time chat; event-driven eliminates this constraint. Priority: build mcp-m365 (5 tools) first. Estimated €41-71/mo, well within budget. Decisions #18 (Oracle) + #19 (Morpheus) filed; next gate = joperezd approval for PoC sequencing.
 
+**2026-04-07: Business Products Brainstorm v2 (Oracle):** 18 non-developer product ideas filed. Top 3: LUNES (manager reports), CERRADOR (sales follow-up), PILOTO (autónomo daily). Key insight: all use identical Work IQ + Copilot SDK + Azure infrastructure. Awaiting joperezd MVP selection.
+
 ---
 
 *Detailed session logs from Sessions 1-12 archived in history-backup-2026-07-09.md for reference.*
