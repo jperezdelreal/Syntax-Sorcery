@@ -14,7 +14,7 @@
  *
  *  EJECUTAR:
  *    node vigia.js --url https://example.com
- *    node vigia.js --url http://localhost:5173
+ *    node vigia.js --url https://site1.com --url https://site2.com
  *    node vigia.js --url https://example.com --visible   (ves el navegador en tu pantalla)
  *
  *  REQUISITOS:
@@ -31,23 +31,34 @@ import { extractCommands } from "./lib/extract-commands.js";
 import { executeCommand } from "./lib/execute-command.js";
 
 // ════════════════════════════════════════════════════════════
-//  PARSEAR ARGUMENTOS
+//  PARSEAR ARGUMENTOS (soporta múltiples --url)
 // ════════════════════════════════════════════════════════════
 
 const args = process.argv.slice(2);
-const urlIndex = args.indexOf("--url");
-const targetUrl = urlIndex !== -1 && args[urlIndex + 1]
-  ? args[urlIndex + 1]
-  : "https://citypulselabs.azurestaticapps.net";
+const targetUrls = [];
+for (let i = 0; i < args.length; i++) {
+  if (args[i] === "--url" && args[i + 1]) {
+    targetUrls.push(args[i + 1]);
+    i++; // skip the value
+  }
+}
+if (targetUrls.length === 0) {
+  targetUrls.push("https://citypulselabs.azurestaticapps.net");
+}
 const visibleMode = args.includes("--visible");
+
+const urlDisplay = targetUrls.length === 1
+  ? targetUrls[0]
+  : `${targetUrls.length} URLs`;
 
 console.log(`
 ╔══════════════════════════════════════════════════════╗
 ║  🔍 VIGÍA — Tester Autónomo de Apps Web              ║
-║  v0.4.0 — Prompt tuning + better reporting           ║
+║  v0.5.0 — Multi-URL support                         ║
 ╚══════════════════════════════════════════════════════╝
 
-   URL objetivo: ${targetUrl}
+   URL${targetUrls.length > 1 ? "s" : ""} objetivo: ${targetUrls.length === 1 ? targetUrls[0] : ""}
+${targetUrls.length > 1 ? targetUrls.map((u, i) => `     ${i + 1}. ${u}`).join("\n") : ""}\
    Modo: ${visibleMode ? "Visible (headed)" : "Headless"} Chromium
    Motor: GitHub Copilot SDK + Playwright
 `);
@@ -148,19 +159,20 @@ async function sendAndCollect(session, message, attachments = []) {
 //  CONFIGURACIÓN DEL LOOP
 // ════════════════════════════════════════════════════════════
 
-const MAX_TURNS = 15; // Límite de seguridad
+const MAX_TURNS = 15; // Límite de seguridad por URL
 const MAX_IMAGES_PER_TURN = 5;
 
-// Checklist tracker — redirige al agente si intenta done sin cubrir lo esencial
-const checklist = {
-  screenshot: false,
-  page_info: false,
-  accessibility: false,
-  search: false,
-  mobile: false,
-};
+function createChecklist() {
+  return {
+    screenshot: false,
+    page_info: false,
+    accessibility: false,
+    search: false,
+    mobile: false,
+  };
+}
 
-function getMissing() {
+function getMissing(checklist) {
   const hints = {
     screenshot: '→ {"action":"screenshot","name":"homepage"}',
     page_info: '→ {"action":"get_page_info"}',
@@ -189,39 +201,23 @@ process.on("SIGINT", async () => {
 });
 
 // ════════════════════════════════════════════════════════════
-//  LOOP PRINCIPAL — El corazón de VIGÍA
+//  TEST DE UNA URL — Ejecuta el loop del agente para una URL
 // ════════════════════════════════════════════════════════════
 
-async function main() {
-  let client = null;
-  let session = null;
+async function testSingleUrl(client, url, urlIndex, totalUrls) {
+  const urlLabel = totalUrls > 1
+    ? ` [${urlIndex + 1}/${totalUrls}]`
+    : "";
 
-  // Registrar función de limpieza para graceful shutdown
-  _cleanupFn = async () => {
-    try {
-      const r = await reporter.generateReport();
-      console.log(`   📄 Informe parcial guardado: ${r.filename}`);
-    } catch { /* ignorar si no hay datos */ }
-    try { if (session) await session.disconnect(); } catch {}
-    try { if (client) await client.stop(); } catch {}
-    try { await browser.closeBrowser(); } catch {}
-  };
+  console.log(`\n${"█".repeat(55)}`);
+  console.log(`   🌐 Testeando${urlLabel}: ${url}`);
+  console.log(`${"█".repeat(55)}\n`);
 
-  // 1. Inicializar browser
-  console.log("── Inicializando browser ──────────────────────────");
-  await browser.initBrowser({ visible: visibleMode });
+  // Iniciar sesión de reporter para esta URL
+  reporter.startSession(url);
 
-  // 2. Inicializar reporter
-  reporter.startSession(targetUrl);
-
-  // 3. Crear cliente SDK
-  console.log("── Conectando con Copilot SDK ─────────────────────");
-  client = new CopilotClient();
-  await client.start();
-  console.log("   🟢 Cliente SDK iniciado");
-
-  // 4. Crear sesión (gpt-4.1 soporta visión via blob attachments)
-  session = await client.createSession({
+  // Crear sesión SDK por URL (aislamiento limpio del contexto del agente)
+  const session = await client.createSession({
     model: "gpt-4.1",
     streaming: true,
     onPermissionRequest: approveAll,
@@ -233,20 +229,19 @@ async function main() {
 
   console.log(`   📋 Sesión VIGÍA: ${session.sessionId}`);
 
-  // Escuchar errores de sesión SDK
   session.on("session.error", (event) => {
     console.log(`   ❌ Error de sesión SDK: ${event.data?.message || "desconocido"}`);
   });
 
   console.log("\n── Iniciando testing autónomo ─────────────────────\n");
 
+  const checklist = createChecklist();
   const startTime = Date.now();
 
-  // 5. Misión inicial (incluye instrucciones de visión)
-  const mission = `Testea: ${targetUrl} — Tienes ${MAX_TURNS} turnos, ÚSALOS TODOS. Objetivo: ≥12 issues.
+  const mission = `Testea: ${url} — Tienes ${MAX_TURNS} turnos, ÚSALOS TODOS. Objetivo: ≥12 issues.
 
 PLAN:
-1. navigate ${targetUrl} → screenshot → get_page_info → check_performance
+1. navigate ${url} → screenshot → get_page_info → check_performance
 2. check_accessibility + check_links
 3. type_and_select en cada input (múltiples textos)
 4. type en formularios → submit → verificar
@@ -268,18 +263,16 @@ Si llevas <10 issues en turno 10, busca más. Empieza AHORA.`;
     while (turn < MAX_TURNS && !isDone && !_isShuttingDown) {
       turn++;
       console.log(`\n${"═".repeat(55)}`);
-      console.log(`   🔄 Turno ${turn}/${MAX_TURNS}`);
+      console.log(`   🔄 Turno ${turn}/${MAX_TURNS}${urlLabel}`);
       if (pendingAttachments.length > 0) {
         console.log(`   🖼️  ${pendingAttachments.length} imagen(es) adjunta(s) para visión`);
       }
       console.log("─".repeat(55));
 
-      // Enviar al agente con screenshots adjuntos como imágenes
       const response = await sendAndCollect(session, currentMessage, pendingAttachments);
-      pendingAttachments = []; // Limpiar después de enviar
+      pendingAttachments = [];
       console.log("\n");
 
-      // Extraer y ejecutar comandos
       const commands = extractCommands(response);
 
       if (commands.length === 0) {
@@ -290,14 +283,12 @@ Si llevas <10 issues en turno 10, busca más. Empieza AHORA.`;
 
       console.log(`   📦 ${commands.length} comando(s) extraído(s)`);
 
-      // Ejecutar cada comando y acumular resultados
       const results = [];
       for (const cmd of commands) {
         if (cmd.action === "done") {
-          const missing = getMissing();
+          const missing = getMissing(checklist);
           if (missing.length > 0) {
             console.log(`   🚫 Agente quiso terminar pero faltan ${missing.length} items del checklist`);
-            // Don't break — redirect in the feedback message
             continue;
           }
           isDone = true;
@@ -310,7 +301,6 @@ Si llevas <10 issues en turno 10, busca más. Empieza AHORA.`;
         results.push({ command: cmd.action, result });
         if (cmd.action === "report_issue") issueCount++;
 
-        // Track checklist progress
         if (cmd.action === "screenshot") checklist.screenshot = true;
         if (cmd.action === "get_page_info") checklist.page_info = true;
         if (cmd.action === "check_accessibility") checklist.accessibility = true;
@@ -320,7 +310,7 @@ Si llevas <10 issues en turno 10, busca más. Empieza AHORA.`;
 
       if (isDone) break;
 
-      // Auto-report type_and_select failures as issues
+      // Auto-report type_and_select failures
       for (const r of results) {
         if (r.command === "type_and_select" && r.result.selected === null) {
           reporter.reportIssue(
@@ -333,7 +323,7 @@ Si llevas <10 issues en turno 10, busca más. Empieza AHORA.`;
         }
       }
 
-      // Recopilar screenshots como blob attachments para visión
+      // Screenshots como blob attachments para visión
       const imageAttachments = [];
       for (const r of results) {
         if (r.command === "screenshot" && r.result.base64) {
@@ -347,12 +337,11 @@ Si llevas <10 issues en turno 10, busca más. Empieza AHORA.`;
       }
       pendingAttachments = imageAttachments.slice(0, MAX_IMAGES_PER_TURN);
 
-      // Preparar resumen de resultados (sin base64 en texto — se envía como adjunto)
       const resultsSummary = results
         .map((r) => {
           const textResult = { ...r.result };
           delete textResult.base64;
-          delete textResult.filepath; // No necesita paths locales
+          delete textResult.filepath;
           return `[${r.command}] ${JSON.stringify(textResult).substring(0, 200)}`;
         })
         .join("\n");
@@ -361,7 +350,7 @@ Si llevas <10 issues en turno 10, busca más. Empieza AHORA.`;
         ? `\n📸 ${pendingAttachments.length} screenshot(s) adjuntas.`
         : "";
 
-      const missing = getMissing();
+      const missing = getMissing(checklist);
       const checklistHint = missing.length > 0 && turn >= 3
         ? ` Siguiente: ${missing[0]}`
         : "";
@@ -373,30 +362,81 @@ Si llevas <10 issues en turno 10, busca más. Empieza AHORA.`;
       currentMessage = `Resultados (${results.length}):\n${resultsSummary}${visionNote}${checklistHint}${issueHint}`;
     }
   } catch (err) {
-    console.log(`\n   ❌ Error en el loop principal: ${err.message}`);
-    console.log("   Guardando informe parcial con lo recopilado...");
+    console.log(`\n   ❌ Error testeando ${url}: ${err.message}`);
+    console.log("   Continuando con siguiente URL si la hay...");
   }
 
-  const elapsed = ((Date.now() - startTime) / 1000).toFixed(0);
-  console.log(`\n── Testing completado en ${elapsed}s ──────────────────\n`);
-
-  // 6. Generar informe
-  console.log("── Generando informe ──────────────────────────────");
-  const report = await reporter.generateReport();
-
-  // 7. Limpieza
+  // Cerrar sesión de reporter y SDK para esta URL
+  reporter.endUrlSession();
   try { await session.disconnect(); } catch {}
+
+  const elapsed = ((Date.now() - startTime) / 1000).toFixed(0);
+  console.log(`\n── Testing de ${url} completado en ${elapsed}s ──\n`);
+}
+
+// ════════════════════════════════════════════════════════════
+//  LOOP PRINCIPAL — Orquesta testing de todas las URLs
+// ════════════════════════════════════════════════════════════
+
+async function main() {
+  let client = null;
+
+  _cleanupFn = async () => {
+    try {
+      const r = await reporter.generateReport();
+      console.log(`   📄 Informe parcial guardado: ${r.filename}`);
+    } catch { /* ignorar si no hay datos */ }
+    try { if (client) await client.stop(); } catch {}
+    try { await browser.closeBrowser(); } catch {}
+  };
+
+  // 1. Inicializar browser (compartido entre URLs)
+  console.log("── Inicializando browser ──────────────────────────");
+  await browser.initBrowser({ visible: visibleMode });
+
+  // 2. Crear cliente SDK (compartido entre URLs)
+  console.log("── Conectando con Copilot SDK ─────────────────────");
+  client = new CopilotClient();
+  await client.start();
+  console.log("   🟢 Cliente SDK iniciado");
+
+  const globalStart = Date.now();
+
+  // 3. Testear cada URL secuencialmente, capturing session data
+  const sessionSnapshots = [];
+  for (let i = 0; i < targetUrls.length && !_isShuttingDown; i++) {
+    await testSingleUrl(client, targetUrls[i], i, targetUrls.length);
+    sessionSnapshots.push(reporter.captureSession());
+  }
+
+  const globalElapsed = ((Date.now() - globalStart) / 1000).toFixed(0);
+  console.log(`\n── Testing total completado en ${globalElapsed}s ──────────────────\n`);
+
+  // 4. Generar informe — consolidado si multi-URL, simple si single-URL
+  let report;
+  if (targetUrls.length > 1) {
+    console.log("── Generando informe consolidado ──────────────────");
+    report = await reporter.generateConsolidatedReport(sessionSnapshots);
+  } else {
+    console.log("── Generando informe ──────────────────────────────");
+    report = await reporter.generateReport();
+  }
+
+  // 5. Limpieza
   try { await client.stop(); } catch {}
   await browser.closeBrowser();
-  _cleanupFn = null; // Ya no necesitamos el cleanup de SIGINT
+  _cleanupFn = null;
 
-  // 8. Resumen final
+  // 6. Resumen final
   const pad = (s, n) => String(s).padEnd(n);
+  const urlsSummary = targetUrls.length > 1
+    ? `║  URLs:     ${pad(report.urlCount + " testeadas", 40)}║\n`
+    : "";
   console.log(`
 ╔══════════════════════════════════════════════════════╗
 ║  ✅ VIGÍA — Testing Completado                       ║
 ╠══════════════════════════════════════════════════════╣
-║  Issues:   ${pad(`${report.totalIssues} (🔴 ${report.critical} 🟠 ${report.major} 🟡 ${report.minor})`, 40)}║
+${urlsSummary}║  Issues:   ${pad(`${report.totalIssues} (🔴 ${report.critical} 🟠 ${report.major} 🟡 ${report.minor})`, 40)}║
 ║  Acciones: ${pad(report.actionsExecuted, 40)}║
 ║  Duración: ${pad(report.durationMin + " min", 40)}║
 ║  Informe:  ${pad(report.filename, 40)}║
@@ -408,7 +448,6 @@ Si llevas <10 issues en turno 10, busca más. Empieza AHORA.`;
 main().catch(async (err) => {
   console.error("\n❌ Error fatal:", err.message);
   console.error(err.stack);
-  // Intentar guardar informe parcial incluso en error fatal
   try {
     const r = await reporter.generateReport();
     console.log(`   📄 Informe parcial guardado: ${r.filename}`);

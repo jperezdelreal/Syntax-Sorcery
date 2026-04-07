@@ -1,6 +1,6 @@
 {
   "name": "vigia",
-  "version": "0.3.0",
+  "version": "0.5.0",
   "description": "VIGÍA — Tester autónomo de apps web con Copilot SDK + Playwright",
   "private": true,
   "type": "module",
