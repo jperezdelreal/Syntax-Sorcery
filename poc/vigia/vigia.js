@@ -15,6 +15,7 @@
  *  EJECUTAR:
  *    node vigia.js --url https://example.com
  *    node vigia.js --url http://localhost:5173
+ *    node vigia.js --url https://example.com --visible   (ves el navegador en tu pantalla)
  *
  *  REQUISITOS:
  *    - Node.js 18+
@@ -36,6 +37,7 @@ const urlIndex = args.indexOf("--url");
 const targetUrl = urlIndex !== -1 && args[urlIndex + 1]
   ? args[urlIndex + 1]
   : "https://citypulselabs.azurestaticapps.net";
+const visibleMode = args.includes("--visible");
 
 console.log(`
 ╔══════════════════════════════════════════════════════╗
@@ -44,7 +46,7 @@ console.log(`
 ╚══════════════════════════════════════════════════════╝
 
    URL objetivo: ${targetUrl}
-   Modo: Headless Chromium
+   Modo: ${visibleMode ? "Visible (headed)" : "Headless"} Chromium
    Motor: GitHub Copilot SDK + Playwright
 `);
 
@@ -217,7 +219,7 @@ const MAX_TURNS = 15; // Límite de seguridad
 async function main() {
   // 1. Inicializar browser
   console.log("── Inicializando browser ──────────────────────────");
-  await browser.initBrowser();
+  await browser.initBrowser({ visible: visibleMode });
 
   // 2. Inicializar reporter
   reporter.startSession(targetUrl);

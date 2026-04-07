@@ -26,11 +26,16 @@ let page = null;
 let screenshotCounter = 0;
 
 /**
- * Inicializa Chromium headless. Se llama una vez al arrancar.
+ * Inicializa Chromium. Usa --visible para ver el navegador en pantalla.
+ * @param {object} opts - { visible: boolean }
  */
-export async function initBrowser() {
+export async function initBrowser(opts = {}) {
+  const headed = opts.visible || false;
   await mkdir(SCREENSHOTS_DIR, { recursive: true });
-  browser = await chromium.launch({ headless: true });
+  browser = await chromium.launch({
+    headless: !headed,
+    slowMo: headed ? 500 : 0, // 500ms entre acciones para que puedas ver qué hace
+  });
   context = await browser.newContext({
     viewport: { width: 1280, height: 720 },
     locale: "es-ES",
@@ -48,7 +53,8 @@ export async function initBrowser() {
     }
   });
 
-  console.log("   🌐 Browser Chromium iniciado (headless)");
+  const mode = headed ? "visible (headed)" : "headless";
+  console.log(`   🌐 Browser Chromium iniciado (${mode})`);
   return { status: "ok" };
 }
 
