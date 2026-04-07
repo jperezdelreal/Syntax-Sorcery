@@ -88,3 +88,12 @@
 - Fixed PR #174 permissions: removed `actions:write`, verified context.runId. 57 CI + 49 regression tests validate VIGÍA action + backward compat.
 - All 106 tests passing. Permissions audit complete, approved by Morpheus. PR merged to dev.
 
+## Recent Session — 2026-04-07T17:35:50Z (VIGÍA v0.9–v1.0 Completion)
+
+**Issue #169–#170 Completion:**
+- **PR #175 merged:** Regression harness (lib/regression.js, 49 new tests), test architecture fixes (imports production modules per 2026-07-10 decision), --quiet bypass fix.
+- **PR #176 opened:** VIGÍA v1.0 documentation (README, CHANGELOG, npm publish ready).
+- **Quality gates ready:** Nightly regression testing enabled (user directive 2026-04-07T16:57:36Z). Version-to-version comparisons automated.
+- **Test architecture:** All 378 VIGÍA tests now enforce production module imports (decision 2026-07-10).
+- **Morpheus approved:** Leadership sign-off for v0.10 release cycle.
+
