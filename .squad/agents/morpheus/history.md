@@ -42,9 +42,9 @@
 - PWA fixed (€8-18/mo) > Capacitor (€50-80/mo @ 500+ users) > React Native (reject).
 - Service worker cache busting critical for deployment. PR #73 (Tank) + PR #74 (Switch).
 
-**Recent Decision (2026-07-09):**
-- Vercel AI SDK confirmed for B2C products (Oracle research + Trinity PoC). 25-40x cold start, 4-10x cost reduction vs Copilot SDK.
-- Portfolio expansion approved: AccesoPulse, CostaPulse, RutaViva. All €41-91/mo.
+**Recent Decisions (2026-07-09 to 2026-07-10):**
+- Vercel AI SDK confirmed for B2C products (Oracle research + Trinity PoC). 25-40x cold start, 4-10x cost reduction vs Copilot SDK. Portfolio expansion approved: AccesoPulse, CostaPulse, RutaViva. All €41-91/mo.
+- SDK + Work IQ architecture analysis complete. Automated Bridge (event-driven) pattern selected as foundation for GitHub↔M365 integration. MCP is the real multiplier — `mcp-m365` server enables any future SDK/framework to access M365 data. Interactive dual-source latency (~5.6s) rules out real-time chat; event-driven eliminates this constraint. Priority: build mcp-m365 (5 tools) first. Estimated €41-71/mo, well within budget. Decisions #18 (Oracle) + #19 (Morpheus) filed; next gate = joperezd approval for PoC sequencing.
 
 ---
 

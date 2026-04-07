@@ -154,19 +154,64 @@ Validated dependencies:
 
 ---
 
+### 18. T1 Decision: Creative SDK + Work IQ Project Ideas (Oracle)
+
+**By:** Oracle (Product & Docs) | **Date:** 2026-07-10 | **Tier:** T1 | **Status:** 🟡 PENDING REVIEW
+
+**Strategic Insight:** The intersection **CODE × CONTEXT** (code intelligence from Copilot SDK + workplace intelligence from Work IQ) is an unoccupied market position.
+
+**Top 3 Recommendations:**
+1. **NEXUS** — Context-aware PRs referencing meeting decisions & stakeholder emails. Revenue: $5K–25K/yr/company.
+2. **CENTINELA** — EU AI Act compliance-as-code agent. Revenue: $10K–50K/yr. Urgency: Aug 2026 enforcement deadline.
+3. **PULSO** — DevEx analytics crossing GitHub metrics + M365 calendar/meeting data. Revenue: $3K–15K/yr/team.
+
+**Quick Wins (1 week each):** StandupZero, HERMES, CHRONO, ARCHIVO VIVO
+
+**Decisions Needed:** Select 1–2 ideas for PoC; prioritize vendible products vs internal SS improvements; validate Work IQ MCP access.
+
+**Deliverable:** `docs/research/copilot-sdk-creative-projects.md` — 20 ideas, matrix, next steps.
+
+---
+
+### 19. T1 Decision: SDK + Work IQ Architecture — Adopt Automated Bridge Pattern (Morpheus)
+
+**By:** Morpheus (Lead/Architect) | **Date:** 2026-07-09 | **Tier:** T1 | **Status:** 📋 PROPOSED
+
+**Verdict:** Adopt **Patrón B (Automated Bridge)** as foundational infrastructure for Copilot SDK + MCP + Work IQ (M365) integration.
+
+**Architecture Choices:**
+- **Event-driven** (not interactive) — eliminates ~5.6s latency problem
+- **MCP as integration layer** — `mcp-m365` encapsulates Graph API auth & data sensitivity
+- **Serverless** (Azure Functions + Event Grid) — €41–71/mo incremental cost (within €500/mo budget)
+- **Auth encapsulation** — each MCP server handles own auth (GitHub PAT vs MSAL)
+- **No M365 persistence** — process in-memory only
+
+**Priority Investment:**
+1. `mcp-m365` server (5 tools: emails, docs, calendar, teams, people) — HIGH
+2. Event bridge handlers (PR→Teams, Release→SharePoint) — MEDIUM
+3. SDK orchestrator for complex decisions — LOW
+
+**Implementation Estimate:** €41–71/mo, 2–5 weeks phased.
+
+**Deliverable:** `docs/research/copilot-sdk-workiq-architecture.md` — full analysis.
+
+---
+
 ## Metrics
 
 | Metric | Value |
 |--------|-------|
-| Decisions merged today | 16 |
+| Decisions merged today | 18 |
 | T0 decisions | 1 |
-| T1 decisions | 2 |
+| T1 decisions | 4 |
 | T2 recommendations | 2 |
-| Inbox files processed | 16 |
+| Inbox files processed | 2 |
 | Skills to create | 3 |
 | Total skills available | 34 |
 | Risk flags (mitigated) | 1 |
 
 ---
+
+**Last Updated:** 2026-07-10T21:00Z  
 
 See decisions-archive.md for entries >7 days old.
