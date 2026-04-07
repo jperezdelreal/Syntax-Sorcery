@@ -165,12 +165,27 @@ export async function screenshot(name) {
   const filepath = join(SCREENSHOTS_DIR, filename);
 
   try {
-    await page.screenshot({ path: filepath, fullPage: true });
-    console.log(`   📸 Screenshot: ${filename}`);
+    // Capturar screenshot y obtener buffer para codificar como base64
+    const buffer = await page.screenshot({ path: filepath, fullPage: true });
+    const sizeKB = Math.round(buffer.length / 1024);
+    console.log(`   📸 Screenshot: ${filename} (${sizeKB}KB)`);
+
+    // Codificar como base64 para visión del agente (límite: 5MB)
+    const MAX_IMAGE_BYTES = 5 * 1024 * 1024;
+    let base64 = null;
+    if (buffer.length <= MAX_IMAGE_BYTES) {
+      base64 = buffer.toString("base64");
+    } else {
+      console.log(`   ⚠️  Screenshot muy grande para visión (${(buffer.length / 1024 / 1024).toFixed(1)}MB), solo metadata`);
+    }
+
     return {
       status: "ok",
       filename,
       filepath,
+      base64,
+      mimeType: "image/png",
+      sizeKB,
     };
   } catch (err) {
     console.log(`   ❌ Error screenshot: ${err.message}`);
@@ -355,8 +370,12 @@ export async function setViewport(width, height) {
  * Espera un tiempo (ms) — útil para animaciones/transiciones.
  */
 export async function wait(ms) {
-  await page.waitForTimeout(ms);
-  return { status: "ok", waitedMs: ms };
+  try {
+    await page.waitForTimeout(ms);
+    return { status: "ok", waitedMs: ms };
+  } catch (err) {
+    return { status: "error", error: err.message };
+  }
 }
 
 /**

@@ -37,3 +37,14 @@
 
 **Phase 0-1:** Ralph v5 hardening, GDD→Issue pipeline, context hygiene SKILL, governance setup, decision capture patterns.
 
+## Learnings
+
+### 2026-07-10: VIGÍA Test Suite (95 tests)
+
+- **Scope:** First test suite for `poc/vigia/` — browser.js (31 tests), reporter.js (24 tests), commands.js (25 tests), edge-cases.js (15 tests).
+- **Bug found:** `reporter.js` sort used `|| 3` instead of `?? 3`, causing `critical` (order=0) to be treated as unknown severity. Fixed: `||` → `??` (nullish coalescing). Classic JS falsy-zero trap.
+- **Architecture:** Extracted `extractCommands` and `executeCommand` from `vigia.js` into `poc/vigia/lib/` for testability. vigia.js now imports from lib/.
+- **Mocking pattern:** Playwright mocks require `vi.hoisted()` for mock object creation before `vi.mock()` hoisting. Module-level singleton state (browser, page, context) managed via `initBrowser()/closeBrowser()` in beforeEach/afterEach.
+- **vitest config:** Added `poc/vigia/tests/**/*.test.js` to root `vitest.config.js` include patterns.
+- **Known issue:** `vi.clearAllMocks()` doesn't reliably clear mock call history for `vi.mock()` factory-created mocks. Use `mockClear()` explicitly or `mockImplementation()` to capture specific call data.
+

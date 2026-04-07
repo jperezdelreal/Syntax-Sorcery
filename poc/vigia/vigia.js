@@ -27,6 +27,8 @@
 import { CopilotClient, approveAll } from "@github/copilot-sdk";
 import * as browser from "./tools/browser.js";
 import * as reporter from "./tools/reporter.js";
+import { extractCommands } from "./lib/extract-commands.js";
+import { executeCommand } from "./lib/execute-command.js";
 
 // ════════════════════════════════════════════════════════════
 //  PARSEAR ARGUMENTOS
@@ -42,7 +44,7 @@ const visibleMode = args.includes("--visible");
 console.log(`
 ╔══════════════════════════════════════════════════════╗
 ║  🔍 VIGÍA — Tester Autónomo de Apps Web              ║
-║  v0.1.0 MVP                                          ║
+║  v0.2.0 — Visión + Error Handling                    ║
 ╚══════════════════════════════════════════════════════╝
 
    URL objetivo: ${targetUrl}
@@ -54,7 +56,7 @@ console.log(`
 //  PROMPT DEL SISTEMA — Instruye al agente a emitir JSON
 // ════════════════════════════════════════════════════════════
 
-const SYSTEM_PROMPT = `Eres VIGÍA, un agente autónomo de QA para aplicaciones web.
+const SYSTEM_PROMPT = `Eres VIGÍA, un agente autónomo de QA para aplicaciones web con CAPACIDAD DE VISIÓN.
 Tu ÚNICO formato de output son bloques JSON de comandos. NO uses las herramientas del sistema (powershell, report_intent, etc.). Solo emite JSON.
 
 Para ejecutar acciones, emite un bloque JSON así:
@@ -72,7 +74,7 @@ ACCIONES DISPONIBLES:
 - {"action": "navigate", "url": "..."} — Abre una URL, devuelve título y tiempo de carga
 - {"action": "click", "selector": "..."} — Click en un elemento CSS
 - {"action": "type", "selector": "...", "text": "..."} — Escribe en un campo
-- {"action": "screenshot", "name": "..."} — Captura screenshot con nombre descriptivo
+- {"action": "screenshot", "name": "..."} — Captura screenshot. LA IMAGEN se te envía para análisis visual
 - {"action": "get_page_info"} — Obtiene links, botones, inputs, headings, imágenes sin alt
 - {"action": "check_performance"} — Mide tiempos de carga y recursos
 - {"action": "report_issue", "title": "...", "description": "...", "severity": "critical|major|minor"}
@@ -82,117 +84,44 @@ ACCIONES DISPONIBLES:
 
 PROTOCOLO:
 1. Emite un bloque de comandos
-2. Recibirás los resultados de cada comando
-3. Analiza los resultados y decide el siguiente bloque
+2. Recibirás los resultados + las imágenes de screenshots adjuntas
+3. ANALIZA las imágenes: layout, contraste, espaciado, legibilidad, UX
 4. Reporta problemas con report_issue
 5. Cuando termines, emite {"action": "done"} y un resumen
 
+CAPACIDAD DE VISIÓN:
+- Cada screenshot se te envía como imagen adjunta — PUEDES VERLA
+- Analiza: layout real, contraste de colores, tamaño de texto, espaciado
+- Detecta: elementos superpuestos, texto ilegible, CTAs poco visibles, diseño desbalanceado
+- Compara: desktop vs mobile para verificar responsive design
+- No te limites al DOM — usa tu visión para evaluar la calidad visual real
+
 REGLAS:
 - Emite SOLO bloques \`\`\`json ... \`\`\` — nada de texto suelto excepto análisis breve entre bloques
-- Toma screenshots FRECUENTEMENTE
-- Reporta TODOS los problemas con report_issue
+- Toma screenshots FRECUENTEMENTE — es tu herramienta más poderosa
+- Reporta TODOS los problemas con report_issue (incluye hallazgos visuales)
 - Sé específico: qué esperabas vs qué ocurrió
-- Prioriza: funcionalidad rota > UX pobre > mejoras
+- Prioriza: funcionalidad rota > problemas visuales > UX pobre > mejoras
 - Testea: homepage, navegación, búsqueda/formularios, mobile viewport, accesibilidad básica`;
 
-// ════════════════════════════════════════════════════════════
-//  EJECUTOR DE COMANDOS — Traduce JSON a acciones Playwright
-// ════════════════════════════════════════════════════════════
-
-async function executeCommand(cmd) {
-  switch (cmd.action) {
-    case "navigate":
-      return await browser.navigate(cmd.url);
-
-    case "click":
-      return await browser.click(cmd.selector);
-
-    case "type":
-      return await browser.type(cmd.selector, cmd.text);
-
-    case "screenshot":
-      return await browser.screenshot(cmd.name);
-
-    case "get_page_info":
-      return await browser.getPageInfo();
-
-    case "check_performance":
-      return await browser.checkPerformance();
-
-    case "report_issue":
-      return reporter.reportIssue(
-        cmd.title,
-        cmd.description,
-        cmd.severity,
-        cmd.screenshot || null
-      );
-
-    case "set_viewport":
-      return await browser.setViewport(cmd.width, cmd.height);
-
-    case "wait":
-      return await browser.wait(cmd.ms);
-
-    case "done":
-      return { status: "done" };
-
-    default:
-      return { status: "error", error: `Acción desconocida: ${cmd.action}` };
-  }
-}
-
-// ════════════════════════════════════════════════════════════
-//  EXTRAER COMANDOS JSON — Parsea la respuesta del agente
-// ════════════════════════════════════════════════════════════
-
-function extractCommands(text) {
-  const commands = [];
-  // Buscar bloques ```json ... ```
-  const jsonBlockRegex = /```json\s*([\s\S]*?)```/g;
-  let match;
-
-  while ((match = jsonBlockRegex.exec(text)) !== null) {
-    try {
-      const parsed = JSON.parse(match[1].trim());
-      if (parsed.commands && Array.isArray(parsed.commands)) {
-        commands.push(...parsed.commands);
-      } else if (parsed.action) {
-        commands.push(parsed);
-      }
-    } catch {
-      // JSON inválido — intentar limpiar y parsear de nuevo
-      try {
-        const cleaned = match[1].trim().replace(/,\s*}/g, "}").replace(/,\s*]/g, "]");
-        const parsed = JSON.parse(cleaned);
-        if (parsed.commands) commands.push(...parsed.commands);
-        else if (parsed.action) commands.push(parsed);
-      } catch {
-        console.log(`   ⚠️  JSON inválido ignorado`);
-      }
-    }
-  }
-
-  // Fallback: buscar JSON suelto sin backticks
-  if (commands.length === 0) {
-    const looseJson = /\{"commands"\s*:\s*\[[\s\S]*?\]\s*\}/g;
-    while ((match = looseJson.exec(text)) !== null) {
-      try {
-        const parsed = JSON.parse(match[0]);
-        if (parsed.commands) commands.push(...parsed.commands);
-      } catch { /* ignorar */ }
-    }
-  }
-
-  return commands;
-}
+// executeCommand y extractCommands importados de ./lib/
 
 // ════════════════════════════════════════════════════════════
 //  ENVIAR MENSAJE Y RECOGER RESPUESTA COMPLETA
 // ════════════════════════════════════════════════════════════
 
-async function sendAndCollect(session, message) {
+async function sendAndCollect(session, message, attachments = []) {
+  const TURN_TIMEOUT_MS = 120_000; // 2 minutos máximo por turno
+
   return new Promise((resolve) => {
     let fullText = "";
+    let timer = null;
+
+    const cleanup = () => {
+      unsub1();
+      unsub2();
+      if (timer) clearTimeout(timer);
+    };
 
     const unsub1 = session.on("assistant.message_delta", (event) => {
       const delta = event.data.deltaContent;
@@ -201,22 +130,66 @@ async function sendAndCollect(session, message) {
     });
 
     const unsub2 = session.on("session.idle", () => {
-      unsub1();
-      unsub2();
+      cleanup();
       resolve(fullText);
     });
 
-    session.send({ prompt: message });
+    // Timeout de seguridad para evitar cuelgues indefinidos
+    timer = setTimeout(() => {
+      cleanup();
+      console.log("\n   ⚠️  Timeout esperando respuesta del agente (2 min)");
+      resolve(fullText || "[timeout — sin respuesta del agente]");
+    }, TURN_TIMEOUT_MS);
+
+    const sendOpts = { prompt: message };
+    if (attachments.length > 0) {
+      sendOpts.attachments = attachments;
+    }
+    session.send(sendOpts);
   });
 }
+
+// ════════════════════════════════════════════════════════════
+//  CONFIGURACIÓN DEL LOOP
+// ════════════════════════════════════════════════════════════
+
+const MAX_TURNS = 15; // Límite de seguridad
+const MAX_IMAGES_PER_TURN = 5; // Máximo de screenshots como adjuntos visuales
+
+// ════════════════════════════════════════════════════════════
+//  GRACEFUL SHUTDOWN — Ctrl+C guarda informe parcial
+// ════════════════════════════════════════════════════════════
+
+let _cleanupFn = null;
+let _isShuttingDown = false;
+
+process.on("SIGINT", async () => {
+  if (_isShuttingDown) process.exit(1); // Segundo Ctrl+C = forzar salida
+  _isShuttingDown = true;
+  console.log("\n\n   ⚠️  Ctrl+C detectado — guardando informe parcial...");
+  if (_cleanupFn) await _cleanupFn();
+  process.exit(0);
+});
 
 // ════════════════════════════════════════════════════════════
 //  LOOP PRINCIPAL — El corazón de VIGÍA
 // ════════════════════════════════════════════════════════════
 
-const MAX_TURNS = 15; // Límite de seguridad
-
 async function main() {
+  let client = null;
+  let session = null;
+
+  // Registrar función de limpieza para graceful shutdown
+  _cleanupFn = async () => {
+    try {
+      const r = await reporter.generateReport();
+      console.log(`   📄 Informe parcial guardado: ${r.filename}`);
+    } catch { /* ignorar si no hay datos */ }
+    try { if (session) await session.disconnect(); } catch {}
+    try { if (client) await client.stop(); } catch {}
+    try { await browser.closeBrowser(); } catch {}
+  };
+
   // 1. Inicializar browser
   console.log("── Inicializando browser ──────────────────────────");
   await browser.initBrowser({ visible: visibleMode });
@@ -226,12 +199,12 @@ async function main() {
 
   // 3. Crear cliente SDK
   console.log("── Conectando con Copilot SDK ─────────────────────");
-  const client = new CopilotClient();
+  client = new CopilotClient();
   await client.start();
   console.log("   🟢 Cliente SDK iniciado");
 
-  // 4. Crear sesión sin tools (evita competencia con built-ins)
-  const session = await client.createSession({
+  // 4. Crear sesión (gpt-4.1 soporta visión via blob attachments)
+  session = await client.createSession({
     model: "gpt-4.1",
     streaming: true,
     onPermissionRequest: approveAll,
@@ -242,70 +215,112 @@ async function main() {
   });
 
   console.log(`   📋 Sesión VIGÍA: ${session.sessionId}`);
+
+  // Escuchar errores de sesión SDK
+  session.on("session.error", (event) => {
+    console.log(`   ❌ Error de sesión SDK: ${event.data?.message || "desconocido"}`);
+  });
+
   console.log("\n── Iniciando testing autónomo ─────────────────────\n");
 
   const startTime = Date.now();
 
-  // 5. Misión inicial
+  // 5. Misión inicial (incluye instrucciones de visión)
   const mission = `Testea la aplicación web: ${targetUrl}
+
+RECUERDA: Cada screenshot se te envía como imagen adjunta — PUEDES VERLA y analizarla visualmente.
 
 Plan:
 1. Navega a ${targetUrl}, screenshot, get_page_info, check_performance
-2. Explora links principales
-3. Prueba búsquedas/formularios
-4. set_viewport a 375x667 (mobile), navega homepage de nuevo, screenshot
-5. Reporta TODOS los problemas con report_issue
-6. Emite {"action": "done"} al terminar
+2. Analiza visualmente cada screenshot: layout, contraste, legibilidad
+3. Explora links principales
+4. Prueba búsquedas/formularios
+5. set_viewport a 375x667 (mobile), navega homepage de nuevo, screenshot
+6. Compara visualmente desktop vs mobile
+7. Reporta TODOS los problemas con report_issue (incluye hallazgos visuales)
+8. Emite {"action": "done"} al terminar
 
 Empieza ahora con tu primer bloque de comandos.`;
 
   let turn = 0;
   let isDone = false;
   let currentMessage = mission;
+  let pendingAttachments = [];
 
-  while (turn < MAX_TURNS && !isDone) {
-    turn++;
-    console.log(`\n${"═".repeat(55)}`);
-    console.log(`   🔄 Turno ${turn}/${MAX_TURNS}`);
-    console.log("─".repeat(55));
+  try {
+    while (turn < MAX_TURNS && !isDone && !_isShuttingDown) {
+      turn++;
+      console.log(`\n${"═".repeat(55)}`);
+      console.log(`   🔄 Turno ${turn}/${MAX_TURNS}`);
+      if (pendingAttachments.length > 0) {
+        console.log(`   🖼️  ${pendingAttachments.length} imagen(es) adjunta(s) para visión`);
+      }
+      console.log("─".repeat(55));
 
-    // Enviar al agente y recoger respuesta completa
-    const response = await sendAndCollect(session, currentMessage);
-    console.log("\n");
+      // Enviar al agente con screenshots adjuntos como imágenes
+      const response = await sendAndCollect(session, currentMessage, pendingAttachments);
+      pendingAttachments = []; // Limpiar después de enviar
+      console.log("\n");
 
-    // Extraer y ejecutar comandos
-    const commands = extractCommands(response);
+      // Extraer y ejecutar comandos
+      const commands = extractCommands(response);
 
-    if (commands.length === 0) {
-      console.log("   ⚠️  Sin comandos en esta respuesta. Pidiendo más acciones...");
-      currentMessage = "No detecté comandos JSON en tu respuesta. Recuerda usar el formato ```json {\"commands\": [...]} ```. Continúa testeando.";
-      continue;
-    }
-
-    console.log(`   📦 ${commands.length} comando(s) extraído(s)`);
-
-    // Ejecutar cada comando y acumular resultados
-    const results = [];
-    for (const cmd of commands) {
-      if (cmd.action === "done") {
-        isDone = true;
-        console.log("   ✅ Agente indicó fin del testing");
-        break;
+      if (commands.length === 0) {
+        console.log("   ⚠️  Sin comandos en esta respuesta. Pidiendo más acciones...");
+        currentMessage = "No detecté comandos JSON en tu respuesta. Recuerda usar el formato ```json {\"commands\": [...]} ```. Continúa testeando.";
+        continue;
       }
 
-      reporter.logAction(cmd.action, JSON.stringify(cmd).substring(0, 100));
-      const result = await executeCommand(cmd);
-      results.push({ command: cmd.action, result });
+      console.log(`   📦 ${commands.length} comando(s) extraído(s)`);
+
+      // Ejecutar cada comando y acumular resultados
+      const results = [];
+      for (const cmd of commands) {
+        if (cmd.action === "done") {
+          isDone = true;
+          console.log("   ✅ Agente indicó fin del testing");
+          break;
+        }
+
+        reporter.logAction(cmd.action, JSON.stringify(cmd).substring(0, 100));
+        const result = await executeCommand(cmd);
+        results.push({ command: cmd.action, result });
+      }
+
+      if (isDone) break;
+
+      // Recopilar screenshots como blob attachments para visión
+      const imageAttachments = [];
+      for (const r of results) {
+        if (r.command === "screenshot" && r.result.base64) {
+          imageAttachments.push({
+            type: "blob",
+            data: r.result.base64,
+            mimeType: r.result.mimeType,
+            displayName: r.result.filename,
+          });
+        }
+      }
+      pendingAttachments = imageAttachments.slice(0, MAX_IMAGES_PER_TURN);
+
+      // Preparar resumen de resultados (sin base64 en texto — se envía como adjunto)
+      const resultsSummary = results
+        .map((r) => {
+          const textResult = { ...r.result };
+          delete textResult.base64; // El agente ve la imagen via adjunto, no en texto
+          return `[${r.command}] ${JSON.stringify(textResult).substring(0, 500)}`;
+        })
+        .join("\n\n");
+
+      const visionNote = pendingAttachments.length > 0
+        ? `\n\n📸 Se adjuntan ${pendingAttachments.length} screenshot(s) como imágenes. ANALIZA visualmente: layout, contraste, legibilidad, UX.`
+        : "";
+
+      currentMessage = `Resultados de tus ${results.length} comandos:\n\n${resultsSummary}${visionNote}\n\nAnaliza los resultados. Si encontraste problemas, repórtalos con report_issue. Decide qué testear a continuación, o emite {"action": "done"} si terminaste.`;
     }
-
-    if (isDone) break;
-
-    // Enviar resultados como siguiente mensaje
-    const resultsSummary = results
-      .map((r) => `[${r.command}] ${JSON.stringify(r.result).substring(0, 500)}`)
-      .join("\n\n");
-
-    currentMessage = `Resultados de tus ${results.length} comandos:\n\n${resultsSummary}\n\nAnaliza los resultados. Si encontraste problemas, repórtalos con report_issue. Decide qué testear a continuación, o emite {"action": "done"} si terminaste.`;
+  } catch (err) {
+    console.log(`\n   ❌ Error en el loop principal: ${err.message}`);
+    console.log("   Guardando informe parcial con lo recopilado...");
   }
 
   const elapsed = ((Date.now() - startTime) / 1000).toFixed(0);
@@ -316,9 +331,10 @@ Empieza ahora con tu primer bloque de comandos.`;
   const report = await reporter.generateReport();
 
   // 7. Limpieza
-  await session.disconnect();
-  await client.stop();
+  try { await session.disconnect(); } catch {}
+  try { await client.stop(); } catch {}
   await browser.closeBrowser();
+  _cleanupFn = null; // Ya no necesitamos el cleanup de SIGINT
 
   // 8. Resumen final
   const pad = (s, n) => String(s).padEnd(n);
@@ -335,8 +351,14 @@ Empieza ahora con tu primer bloque de comandos.`;
 }
 
 // ── Ejecutar ───────────────────────────────────────────────
-main().catch((err) => {
+main().catch(async (err) => {
   console.error("\n❌ Error fatal:", err.message);
   console.error(err.stack);
+  // Intentar guardar informe parcial incluso en error fatal
+  try {
+    const r = await reporter.generateReport();
+    console.log(`   📄 Informe parcial guardado: ${r.filename}`);
+  } catch { /* sin datos para guardar */ }
+  try { await browser.closeBrowser(); } catch {}
   process.exit(1);
 });

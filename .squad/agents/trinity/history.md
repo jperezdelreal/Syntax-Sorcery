@@ -12,7 +12,9 @@
 
 ## Learnings (Current)
 
-- **VIGÍA MVP Built & Validated (2026-04-07):** Autonomous QA tester at `poc/vigia/`. Copilot SDK + Playwright. Command loop pattern (not `defineTool()`): agent emits JSON `{"commands": [...]}`, script executes via Playwright. 5 turns, 21 actions, 3 issues found in ~51s against example.com. Desktop + mobile screenshots, Markdown report generated. CityPulseLabs 404 blocks production testing (Tank to fix). Decision: avoid `defineTool()` entirely for future agent tools.
+- **VIGÍA v0.2.0 — Visión + Error Handling (2026-07-13):** Upgraded VIGÍA with two major capabilities. (1) Vision: screenshots now encoded as base64 and sent to the agent via Copilot SDK blob attachments (`type: "blob"`, `mimeType: "image/png"`). Agent can SEE actual page layout, detect visual issues (contrast, overlap, UX). System prompt instructs visual analysis. Base64 stripped from text results to avoid bloat — images travel as attachments only. 5MB size limit per screenshot, max 5 images per turn. (2) Error handling: try/catch around executeCommand, 2-min timeout on sendAndCollect, SIGINT graceful shutdown (saves partial report + closes browser), session.error event listener, partial report on fatal crash. `--visible` flag preserved. Functions refactored to `lib/` (extract-commands.js, execute-command.js).
+
+- **Copilot SDK supports vision via blob attachments:** `MessageOptions.attachments` accepts `{ type: "blob", data: base64String, mimeType: "image/png" }`. `ModelCapabilities.supports.vision` confirms model support. gpt-4.1 supports vision. No need for external image description — SDK handles inline images natively.
 
 - **Vercel AI SDK PoC Approved (2026-07-09):** Decision filed. PoC validated in production. Verdict: 25-40x faster cold start (<100ms vs ~2.5s), 4-10x cost reduction, v4.x maturity > v0.2.x. Use for all B2C products. Baseline: `poc/vercel-ai-chat/with-tools.js` for AUTONOMO.AI.
 

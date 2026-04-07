@@ -112,7 +112,7 @@ Se ejecutaron ${testLog.length} acciones de testing y se encontraron **${issues.
     // Ordenar: critical > major > minor
     const sorted = [...issues].sort((a, b) => {
       const order = { critical: 0, major: 1, minor: 2 };
-      return (order[a.severity] || 3) - (order[b.severity] || 3);
+      return (order[a.severity] ?? 3) - (order[b.severity] ?? 3);
     });
 
     for (const issue of sorted) {
@@ -150,7 +150,7 @@ Se ejecutaron ${testLog.length} acciones de testing y se encontraron **${issues.
 
 ## Metadata
 
-- **VIGÍA Version:** 0.1.0 (MVP)
+- **VIGÍA Version:** 0.2.0
 - **Motor:** GitHub Copilot SDK + Playwright
 - **Modelo:** gpt-4.1
 - **Modo:** Headless Chromium
