@@ -34,10 +34,11 @@ export async function initBrowser(opts = {}) {
   await mkdir(SCREENSHOTS_DIR, { recursive: true });
   browser = await chromium.launch({
     headless: !headed,
-    slowMo: headed ? 500 : 0, // 500ms entre acciones para que puedas ver qué hace
+    slowMo: headed ? 500 : 0,
+    args: headed ? ['--start-maximized'] : [],
   });
   context = await browser.newContext({
-    viewport: { width: 1280, height: 720 },
+    viewport: headed ? null : { width: 1280, height: 720 }, // null = usa el tamaño de la ventana
     locale: "es-ES",
   });
   page = await context.newPage();
