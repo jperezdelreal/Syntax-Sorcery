@@ -44,7 +44,7 @@ const visibleMode = args.includes("--visible");
 console.log(`
 ╔══════════════════════════════════════════════════════╗
 ║  🔍 VIGÍA — Tester Autónomo de Apps Web              ║
-║  v0.3.0 — Autocomplete + Stability + A11y + Links    ║
+║  v0.4.0 — Prompt tuning + better reporting           ║
 ╚══════════════════════════════════════════════════════╝
 
    URL objetivo: ${targetUrl}
@@ -56,7 +56,7 @@ console.log(`
 //  PROMPT DEL SISTEMA — Instruye al agente a emitir JSON
 // ════════════════════════════════════════════════════════════
 
-const SYSTEM_PROMPT = `Eres VIGÍA v0.3, agente autónomo de QA web con VISIÓN. Output: SOLO bloques JSON. NO uses herramientas del sistema (powershell, report_intent, etc.).
+const SYSTEM_PROMPT = `Eres VIGÍA v0.4, agente autónomo de QA web con VISIÓN. Output: SOLO bloques JSON. NO uses herramientas del sistema (powershell, report_intent, etc.).
 
 Formato: \`\`\`json {"commands": [{"action": "...", ...}]} \`\`\`
 
@@ -91,9 +91,9 @@ CHECKLIST OBLIGATORIO (completar TODO antes de "done"):
 
 REGLA ANTI-SALIDA: NO emitas done sin completar TODO el checklist. Si sobran turnos: edge cases (inputs vacíos, textos largos, caracteres especiales, resize). AGOTA tus turnos.
 
-SELECTORES: Para botones usa click_text en vez de click con :contains(). Ejemplo: {"action":"click_text","text":"Mecánica"}.
+SELECTORES: Para botones usa click_text en vez de click con CSS complejos. Ejemplo: {"action":"click_text","text":"Mecánica"}.
 
-REPORTING: Reporta CADA hallazgo con report_issue. Si type_and_select no encuentra sugerencias → issue major. Si click falla → issue minor. Si contraste es bajo → issue major. Más issues = mejor. NO te guardes nada.
+REPORTING: Cada hallazgo = report_issue. type_and_select sin sugerencias → major. click falla → minor. Problema visual en screenshot → issue. Contraste bajo → major. Más issues = mejor. NO te guardes nada.
 
 VISIÓN: Cada screenshot se te envía como imagen. Analiza layout, contraste, legibilidad. Compara desktop vs mobile. Reporta hallazgos visuales con report_issue.
 
@@ -161,16 +161,16 @@ const checklist = {
 };
 
 function getMissing() {
-  const labels = {
-    screenshot: "screenshot de la homepage",
-    page_info: "get_page_info para ver la estructura",
-    accessibility: "check_accessibility (axe-core)",
-    search: "type_and_select en campos de búsqueda",
-    mobile: "set_viewport mobile (375x667) + screenshot",
+  const hints = {
+    screenshot: '→ {"action":"screenshot","name":"homepage"}',
+    page_info: '→ {"action":"get_page_info"}',
+    accessibility: '→ {"action":"check_accessibility"}',
+    search: '→ {"action":"type_and_select","selector":"input","text":"test"}',
+    mobile: '→ {"action":"set_viewport","width":375,"height":667}',
   };
   return Object.entries(checklist)
     .filter(([, done]) => !done)
-    .map(([key]) => labels[key]);
+    .map(([key]) => hints[key]);
 }
 
 // ════════════════════════════════════════════════════════════
@@ -243,7 +243,7 @@ async function main() {
   const startTime = Date.now();
 
   // 5. Misión inicial (incluye instrucciones de visión)
-  const mission = `Testea: ${targetUrl} — Tienes ${MAX_TURNS} turnos, ÚSALOS TODOS.
+  const mission = `Testea: ${targetUrl} — Tienes ${MAX_TURNS} turnos, ÚSALOS TODOS. Objetivo: ≥12 issues.
 
 PLAN:
 1. navigate ${targetUrl} → screenshot → get_page_info → check_performance
@@ -253,15 +253,16 @@ PLAN:
 5. click ≥3 links/botones, screenshot tras cada uno
 6. set_viewport 375x667 → screenshot → comparar con desktop
 7. Elementos interactivos + edge cases
-8. report_issue para cada problema
+8. report_issue para CADA problema encontrado
 9. done SOLO al completar todo
 
-Empieza AHORA.`;
+Si llevas <10 issues en turno 10, busca más. Empieza AHORA.`;
 
   let turn = 0;
   let isDone = false;
   let currentMessage = mission;
   let pendingAttachments = [];
+  let issueCount = 0;
 
   try {
     while (turn < MAX_TURNS && !isDone && !_isShuttingDown) {
@@ -307,6 +308,7 @@ Empieza AHORA.`;
         reporter.logAction(cmd.action, JSON.stringify(cmd).substring(0, 100));
         const result = await executeCommand(cmd);
         results.push({ command: cmd.action, result });
+        if (cmd.action === "report_issue") issueCount++;
 
         // Track checklist progress
         if (cmd.action === "screenshot") checklist.screenshot = true;
@@ -327,6 +329,7 @@ Empieza AHORA.`;
             "major"
           );
           console.log(`   🟠 Auto-issue: búsqueda "${r.result.typed}" sin sugerencias`);
+          issueCount++;
         }
       }
 
@@ -359,10 +362,14 @@ Empieza AHORA.`;
 
       const missing = getMissing();
       const checklistHint = missing.length > 0 && turn >= 3
-        ? ` Pendiente: ${missing.slice(0, 2).join(", ")}.`
+        ? ` Siguiente: ${missing[0]}`
         : "";
 
-      currentMessage = `Resultados (${results.length}):\n${resultsSummary}${visionNote}${checklistHint}`;
+      const issueHint = turn >= 8 && issueCount < 10
+        ? ` [${issueCount} issues — busca más]`
+        : "";
+
+      currentMessage = `Resultados (${results.length}):\n${resultsSummary}${visionNote}${checklistHint}${issueHint}`;
     }
   } catch (err) {
     console.log(`\n   ❌ Error en el loop principal: ${err.message}`);
