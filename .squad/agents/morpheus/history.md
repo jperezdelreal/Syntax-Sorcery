@@ -48,6 +48,17 @@
 
 **2026-04-07: Business Products Brainstorm v2 (Oracle):** 18 non-developer product ideas filed. Top 3: LUNES (manager reports), CERRADOR (sales follow-up), PILOTO (autónomo daily). Key insight: all use identical Work IQ + Copilot SDK + Azure infrastructure. Awaiting joperezd MVP selection.
 
+**2026-07-11: VIGÍA — Autonomous App Tester Architecture (Morpheus):** Designed full architecture for "Autonomous App Tester" inspired by jrubiosainz/LLM-Fighter pattern (SDK as decision engine with evolution loop). Key insight: Copilot SDK is the right choice here (not Vercel AI SDK) because this is an infrastructure agent, not a B2C chatbot — MCP native support, multi-step planning, and Git tools are exactly what's needed. Architecture: Copilot SDK + Playwright MCP (browser) + Axe MCP (accessibility) + GPT-4o vision (UX judgment). Dual perception model: accessibility snapshots for interaction (80%) + screenshots for visual judgment (20%). Quality Score formula with weighted categories. Cost: €5-13/mo for weekly runs. MVP in 10 days. Most architecturally interesting product SS has designed — an agent that genuinely uses software like a human. Decision filed in inbox, awaiting joperezd approval.
+
+## Learnings
+
+- **Playwright MCP (`@playwright/mcp`) is production-ready** for agent-driven browser automation. Returns structured accessibility trees (not raw HTML), enabling reliable element referencing without brittle CSS selectors. The agent reasons about structure, not selectors — self-healing by design.
+- **Dual perception is critical:** Accessibility snapshots give structured data for navigation/interaction (fast, cheap). Screenshots + vision models give UX judgment (slow, expensive). Use 80/20 split — snapshots for interaction, screenshots only at key decision points.
+- **Copilot SDK vs Vercel AI SDK is a context-dependent choice:** SDK wins for infrastructure/code agents (MCP native, Git tools, multi-step planning). Vercel wins for B2C chatbots (streaming, React hooks, low latency). Same company, different tools for different jobs.
+- **The LLM-Fighter pattern (Use → Observe → Propose → Verify → Repeat) generalizes beyond games.** Applied to app testing, it becomes an autonomous QA agent. Applied to UX review, a design critic. Applied to security, a pen-tester. The loop is the product, the domain is the configuration.
+- **Axe-core can be injected via Playwright's browser_evaluate** without a dedicated MCP server — simpler for MVP. Dedicated Axe MCP server (Deque) is better for enterprise/reporting needs.
+- **Quality Score as convergence metric:** Tracking score across iterations tells you when to stop. If V3→V4 delta < 0.3, the app has stabilized. This is the "fitness function" from the LLM-Fighter pattern applied to software quality.
+
 ---
 
 *Detailed session logs from Sessions 1-12 archived in history-backup-2026-07-09.md for reference.*
