@@ -13,7 +13,11 @@
 
 ## Learnings (Current)
 
-- **Copilot SDK Research (2026-03-27):** MIT-licensed multi-language API; Top opportunities: (1) Extensions-as-a-Service via FORJA (unserved €2K-10K), (2) Squad headless runtime, (3-5) marketplace + domain products. Phase 1 approved (€0, 1w). Deliverable: docs/research/copilot-sdk-research.md.
+- **Vercel AI SDK Decision Approved (2026-07-09):** Research confirmed + Trinity PoC validated. Recommendation: Vercel AI SDK v6 + Azure OpenAI + MCP for AUTONOMO.AI, AccesoPulse, CAMBIAZO. Cost €35-85/mo for 1K users. Trinity found 25-40x cold-start improvement vs Copilot SDK, 4-10x cost reduction. Baseline architecture: `poc/vercel-ai-chat/with-tools.js`. Approved for B2C; Copilot SDK reserved for FORJA/Squad.
+
+- **Vercel AI SDK Deep Research (2026-07-08):** Full investigation of Vercel AI SDK v6 + Azure OpenAI + MCP for B2C products. Confirmed: Apache 2.0 license, native Azure provider (`@ai-sdk/azure`), first-class MCP support, `useChat()` React hooks, deploys on Azure Container Apps (not Vercel-dependent). Cost: ~€35-85/mo for 1K users with GPT-4o-mini. Prototype in 2-3 days. Recommended over Azure AI Agent Service (still preview), OpenAI Assistants (deprecated), and chat-as-a-service platforms. Deliverable: docs/research/vercel-ai-sdk-research.md.
+
+- **Copilot SDK Research (2026-03-27):**MIT-licensed multi-language API; Top opportunities: (1) Extensions-as-a-Service via FORJA (unserved €2K-10K), (2) Squad headless runtime, (3-5) marketplace + domain products. Phase 1 approved (€0, 1w). Deliverable: docs/research/copilot-sdk-research.md.
 
 - **Copilot SDK Conversational Engine — Final Verdict (2026-04-07):** NOT suitable for B2C (2.5s overhead, dev-focused tools, BYOK strips value, no UI). Recommendation: Vercel AI SDK + MCP + Azure OpenAI for AUTONOMO.AI/AccesoPulse/CAMBIAZO; Copilot SDK for FORJA/Squad headless. Deliverable: docs/research/copilot-sdk-chat-patterns.md.
 

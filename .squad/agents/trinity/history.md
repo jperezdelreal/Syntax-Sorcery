@@ -12,6 +12,10 @@
 
 ## Learnings (Current)
 
+- **Vercel AI SDK PoC Approved (2026-07-09):** Decision filed. PoC validated in production. Verdict: 25-40x faster cold start (<100ms vs ~2.5s), 4-10x cost reduction, v4.x maturity > v0.2.x. Use for all B2C products. Baseline: `poc/vercel-ai-chat/with-tools.js` for AUTONOMO.AI.
+
+- **Vercel AI SDK PoC (2026-07-08):** 3 working scripts at `poc/vercel-ai-chat/` matching Copilot SDK PoC. Key findings: streamText() is one-liner vs CopilotClient→start→createSession→send chain. Manual message history (explicit) vs SDK auto-accumulation (opaque). tool() + maxSteps handles tool loop transparently — no built-in tools competing with custom ones (Copilot SDK's biggest UX problem). Provider abstraction in lib/provider.js: Azure OpenAI → OpenAI fallback. Cold start <100ms vs ~2.5s. Cost ~4-10x cheaper at scale (tokens vs premium requests).
+
 - **Mobile Performance Patterns (CityPulseLabs):** Sequential API calls bottleneck; parallelization 3x speedup. Exponential backoff+jitter>fixed delay. AbortController (not boolean cancelled). Cache 30s TTL. AnalyticsProvider interface pattern (mock→real swap).
 
 - **ORS Proxy + API Key Security (PR #70):** Never call 3rd-party APIs from browser (CORS, key exposure, rate limits). Server-side proxy via Azure Function. Double caching (client+server). Stale-on-error fallback. VITE_* vars exposed in bundle.
