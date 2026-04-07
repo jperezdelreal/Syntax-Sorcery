@@ -1,0 +1,361 @@
+name: 📊 Live Metrics Dashboard
+
+on:
+  schedule:
+    - cron: '*/30 * * * *' # Every 30 minutes
+  workflow_dispatch:
+    inputs:
+      verbose:
+        description: 'Include verbose per-label issue breakdown'
+        required: false
+        default: 'false'
+        type: boolean
+
+permissions:
+  contents: read
+  issues: read
+  pull-requests: read
+  actions: read
+
+jobs:
+  metrics:
+    name: Constellation 24/7 Performance
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Gather GitHub Metrics
+        id: metrics
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const owner = context.repo.owner;
+            const repo  = context.repo.repo;
+
+            // ──────────────────────────────────────────────
+            // Helpers
+            // ──────────────────────────────────────────────
+            const now       = new Date();
+            const todayISO  = new Date(now.getFullYear(), now.getMonth(), now.getDate()).toISOString();
+            const minus7d   = new Date(now - 7 * 24 * 60 * 60 * 1000).toISOString();
+            const minus24h  = new Date(now - 24 * 60 * 60 * 1000).toISOString();
+
+            function statusIcon(ok, warn, label) {
+              if (ok)   return `✅ ${label}`;
+              if (warn) return `⚠️ ${label}`;
+              return          `🔴 ${label}`;
+            }
+
+            // ──────────────────────────────────────────────
+            // 1. PR Velocity
+            // ──────────────────────────────────────────────
+            let prsToday = 0, prs7d = 0;
+            let recentMergedPRs = [];
+
+            try {
+              // PRs merged today
+              const { data: prsT } = await github.rest.search.issuesAndPullRequests({
+                q: `repo:${owner}/${repo} is:pr is:merged merged:>=${todayISO}`,
+                per_page: 50
+              });
+              prsToday = prsT.total_count;
+
+              // PRs merged last 7 days (includes today)
+              const { data: prs7 } = await github.rest.search.issuesAndPullRequests({
+                q: `repo:${owner}/${repo} is:pr is:merged merged:>=${minus7d}`,
+                per_page: 30
+              });
+              prs7d = prs7.total_count;
+              recentMergedPRs = prs7.items.slice(0, 5).map(p => ({
+                number: p.number,
+                title: p.title.substring(0, 60),
+                mergedAt: p.pull_request?.merged_at?.substring(0, 10) ?? 'N/A'
+              }));
+            } catch (e) {
+              core.warning(`PR velocity fetch failed: ${e.message}`);
+            }
+
+            // ──────────────────────────────────────────────
+            // 2. Open Issues by Squad Label
+            // ──────────────────────────────────────────────
+            const squadLabels = [
+              'squad:morpheus', 'squad:trinity', 'squad:tank',
+              'squad:switch',   'squad:oracle',  'squad:copilot',
+              'squad:ralph',    'squad:scribe'
+            ];
+
+            const issuesByLabel = {};
+            let totalOpenSquad = 0;
+
+            try {
+              for (const label of squadLabels) {
+                const { data } = await github.rest.issues.listForRepo({
+                  owner, repo, labels: label, state: 'open', per_page: 50
+                });
+                // Filter out PRs (GitHub returns PRs in issues endpoint)
+                const issues = data.filter(i => !i.pull_request);
+                issuesByLabel[label] = issues.length;
+                totalOpenSquad += issues.length;
+              }
+            } catch (e) {
+              core.warning(`Squad label issues fetch failed: ${e.message}`);
+            }
+
+            // Also grab total open issues (not PRs)
+            let totalOpenIssues = 0;
+            try {
+              const { data: openIs } = await github.rest.issues.listForRepo({
+                owner, repo, state: 'open', per_page: 1
+              });
+              // GitHub doesn't give count directly — use search instead
+              const { data: searchIs } = await github.rest.search.issuesAndPullRequests({
+                q: `repo:${owner}/${repo} is:issue is:open`,
+                per_page: 1
+              });
+              totalOpenIssues = searchIs.total_count;
+            } catch (e) {
+              core.warning(`Total issues fetch failed: ${e.message}`);
+            }
+
+            // ──────────────────────────────────────────────
+            // 3. Recent Workflow Run Status
+            // ──────────────────────────────────────────────
+            let workflowSummary = [];
+            try {
+              const { data: runs } = await github.rest.actions.listWorkflowRunsForRepo({
+                owner, repo, per_page: 30,
+                created: `>=${minus24h}`
+              });
+
+              // Dedupe: latest run per workflow name
+              const latest = {};
+              for (const run of runs.workflow_runs) {
+                if (!latest[run.name] || new Date(run.created_at) > new Date(latest[run.name].created_at)) {
+                  latest[run.name] = run;
+                }
+              }
+
+              workflowSummary = Object.values(latest)
+                .sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
+                .slice(0, 8)
+                .map(r => {
+                  let icon = '⚪';
+                  if (r.conclusion === 'success')  icon = '✅';
+                  else if (r.conclusion === 'failure') icon = '🔴';
+                  else if (r.conclusion === 'cancelled') icon = '⚪';
+                  else if (r.status === 'in_progress' || r.status === 'queued') icon = '🔄';
+                  else if (r.conclusion === 'skipped') icon = '⏭️';
+                  return { icon, name: r.name.substring(0, 40), conclusion: r.conclusion ?? r.status, id: r.id };
+                });
+            } catch (e) {
+              core.warning(`Workflow runs fetch failed: ${e.message}`);
+            }
+
+            // ──────────────────────────────────────────────
+            // 4. Ralph Activity — Issues closed
+            // ──────────────────────────────────────────────
+            let closedToday = 0, closedThisWeek = 0;
+            let recentlyClosed = [];
+            try {
+              const { data: closedT } = await github.rest.search.issuesAndPullRequests({
+                q: `repo:${owner}/${repo} is:issue is:closed closed:>=${todayISO}`,
+                per_page: 50
+              });
+              closedToday = closedT.total_count;
+
+              const { data: closed7 } = await github.rest.search.issuesAndPullRequests({
+                q: `repo:${owner}/${repo} is:issue is:closed closed:>=${minus7d}`,
+                per_page: 10
+              });
+              closedThisWeek = closed7.total_count;
+              recentlyClosed = closed7.items.slice(0, 5).map(i => ({
+                number: i.number,
+                title: i.title.substring(0, 60),
+                closedAt: i.closed_at?.substring(0, 10) ?? 'N/A'
+              }));
+            } catch (e) {
+              core.warning(`Ralph activity fetch failed: ${e.message}`);
+            }
+
+            // ──────────────────────────────────────────────
+            // 5. Open PRs (draft vs ready)
+            // ──────────────────────────────────────────────
+            let openPRsDraft = 0, openPRsReady = 0;
+            let openPRList = [];
+            try {
+              const { data: openPRs } = await github.rest.pulls.list({
+                owner, repo, state: 'open', per_page: 30
+              });
+              openPRsDraft = openPRs.filter(p => p.draft).length;
+              openPRsReady = openPRs.filter(p => !p.draft).length;
+              openPRList = openPRs.filter(p => !p.draft).slice(0, 5).map(p => ({
+                number: p.number,
+                title: p.title.substring(0, 55),
+                author: p.user?.login ?? 'unknown'
+              }));
+            } catch (e) {
+              core.warning(`Open PRs fetch failed: ${e.message}`);
+            }
+
+            // ──────────────────────────────────────────────
+            // 6. Build Status (overall health)
+            // ──────────────────────────────────────────────
+            let latestCIRun = null;
+            try {
+              const { data: ciRuns } = await github.rest.actions.listWorkflowRuns({
+                owner, repo, workflow_id: 'ci.yml', per_page: 1
+              });
+              if (ciRuns.workflow_runs.length > 0) {
+                latestCIRun = ciRuns.workflow_runs[0];
+              }
+            } catch (e) {
+              // ci.yml may not exist — silent skip
+            }
+
+            // ──────────────────────────────────────────────
+            // Produce GITHUB_STEP_SUMMARY
+            // ──────────────────────────────────────────────
+            const ts = now.toUTCString();
+            const prVelocityOk   = prs7d >= 1;
+            const prVelocityWarn = prs7d > 0;
+            const issueHealthOk  = totalOpenSquad < 30;
+            const issueHealthWarn = totalOpenSquad < 50;
+            const closureOk      = closedThisWeek >= 1;
+
+            const overallIcon = (workflowSummary.some(w => w.conclusion === 'failure'))
+              ? '🔴' : (prVelocityOk && issueHealthOk) ? '✅' : '⚠️';
+
+            const lines = [
+              `# ${overallIcon} Constellation 24/7 — Live Metrics Dashboard`,
+              ``,
+              `> **Generated:** ${ts}  |  **Repo:** \`${owner}/${repo}\``,
+              ``,
+              `---`,
+              ``,
+              `## 🚀 PR Velocity`,
+              ``,
+              `| Period | Count | Status |`,
+              `|--------|-------|--------|`,
+              `| Merged today | **${prsToday}** | ${statusIcon(prsToday >= 3, prsToday >= 1, prsToday >= 3 ? 'On fire' : prsToday >= 1 ? 'Active' : 'Quiet')} |`,
+              `| Merged last 7 days | **${prs7d}** | ${statusIcon(prs7d >= 5, prs7d >= 1, prs7d >= 5 ? 'Healthy velocity' : prs7d >= 1 ? 'Some activity' : 'No merges')} |`,
+              `| Open (ready for review) | **${openPRsReady}** | ${statusIcon(openPRsReady <= 5, openPRsReady <= 10, openPRsReady <= 5 ? 'Manageable' : 'Needs attention')} |`,
+              `| Open (drafts) | **${openPRsDraft}** | ⚪ In progress |`,
+              ``
+            ];
+
+            if (recentMergedPRs.length > 0) {
+              lines.push(`### Recent Merges`);
+              lines.push(``);
+              for (const pr of recentMergedPRs) {
+                lines.push(`- **#${pr.number}** ${pr.title} _(${pr.mergedAt})_`);
+              }
+              lines.push(``);
+            }
+
+            if (openPRList.length > 0) {
+              lines.push(`### PRs Ready for Review`);
+              lines.push(``);
+              for (const pr of openPRList) {
+                lines.push(`- **#${pr.number}** ${pr.title} — _@${pr.author}_`);
+              }
+              lines.push(``);
+            }
+
+            lines.push(
+              `---`,
+              ``,
+              `## 🏷️ Open Issues by Squad Member`,
+              ``,
+              `| Member | Open Issues | Status |`,
+              `|--------|------------|--------|`
+            );
+
+            for (const [label, count] of Object.entries(issuesByLabel)) {
+              const member = label.replace('squad:', '');
+              const memberName = member.charAt(0).toUpperCase() + member.slice(1);
+              const icon = count === 0 ? '✅ Clear' : count <= 3 ? `⚠️ ${count} open` : `🔴 ${count} open`;
+              lines.push(`| ${memberName} | **${count}** | ${icon} |`);
+            }
+
+            lines.push(
+              ``,
+              `> **Total open squad issues:** ${totalOpenSquad} / ${totalOpenIssues} total open`,
+              ``,
+              `---`,
+              ``,
+              `## 🔄 Ralph Activity (Issue Closure)`,
+              ``,
+              `| Period | Closed | Status |`,
+              `|--------|--------|--------|`,
+              `| Today | **${closedToday}** | ${statusIcon(closedToday >= 3, closedToday >= 1, closedToday >= 3 ? 'Productive' : closedToday >= 1 ? 'Active' : 'Quiet')} |`,
+              `| Last 7 days | **${closedThisWeek}** | ${statusIcon(closedThisWeek >= 5, closedThisWeek >= 1, closedThisWeek >= 5 ? 'Strong closure' : closedThisWeek >= 1 ? 'Some closure' : 'No closures')} |`,
+              ``
+            );
+
+            if (recentlyClosed.length > 0) {
+              lines.push(`### Recently Closed`);
+              lines.push(``);
+              for (const i of recentlyClosed) {
+                lines.push(`- **#${i.number}** ${i.title} _(${i.closedAt})_`);
+              }
+              lines.push(``);
+            }
+
+            lines.push(
+              `---`,
+              ``,
+              `## ⚙️ Workflow Health (Last 24h)`,
+              ``,
+              `| Workflow | Result |`,
+              `|----------|--------|`
+            );
+
+            if (workflowSummary.length === 0) {
+              lines.push(`| — | No runs in last 24h |`);
+            } else {
+              for (const wf of workflowSummary) {
+                lines.push(`| ${wf.name} | ${wf.icon} ${wf.conclusion ?? 'pending'} |`);
+              }
+            }
+
+            const failedWorkflows = workflowSummary.filter(w => w.conclusion === 'failure');
+            if (failedWorkflows.length > 0) {
+              lines.push(
+                ``,
+                `> 🔴 **${failedWorkflows.length} workflow(s) failed** — investigate immediately`,
+              );
+            }
+
+            lines.push(
+              ``,
+              `---`,
+              ``,
+              `## 📋 Summary`,
+              ``,
+              `| Check | Status |`,
+              `|-------|--------|`,
+              `| PR velocity (7d) | ${statusIcon(prs7d >= 5, prs7d >= 1, `${prs7d} merged`)} |`,
+              `| Issue load | ${statusIcon(totalOpenSquad < 30, totalOpenSquad < 50, `${totalOpenSquad} squad issues open`)} |`,
+              `| Issue closure (7d) | ${statusIcon(closedThisWeek >= 5, closedThisWeek >= 1, `${closedThisWeek} closed`)} |`,
+              `| Workflow health | ${failedWorkflows.length === 0 ? `✅ All passing` : `🔴 ${failedWorkflows.length} failing`} |`,
+              ``,
+              `---`,
+              `_Dashboard auto-refreshes every 30 min. Trigger manually via **Actions → 📊 Live Metrics Dashboard → Run workflow**._`
+            );
+
+            const summaryContent = lines.join('\n');
+            await core.summary.addRaw(summaryContent).write();
+            core.info('✅ Metrics dashboard written to job summary');
+
+            // Expose outputs for downstream steps if needed
+            core.setOutput('prs_today',      prsToday);
+            core.setOutput('prs_7d',         prs7d);
+            core.setOutput('issues_open',    totalOpenIssues);
+            core.setOutput('closed_7d',      closedThisWeek);
+            core.setOutput('failed_workflows', failedWorkflows.length);
+
+      - name: Annotate failures
+        if: ${{ fromJSON(steps.metrics.outputs.failed_workflows) > 0 }}
+        run: |
+          echo "::warning title=Workflow Failures::${{ steps.metrics.outputs.failed_workflows }} workflow(s) failed in the last 24h — check the dashboard summary above."

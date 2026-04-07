@@ -4,7 +4,11 @@
 # Returns: 0=healthy, 1=warning, 2=critical
 #
 # Usage:
-#   ./scripts/monitor-test3.sh [--json] [--ssh-key PATH] [--vm-host USER@HOST]
+#   ./scripts/monitor-test3.sh [--json] [--summary] [--ssh-key PATH] [--vm-host USER@HOST]
+#
+# Flags:
+#   --json      Output raw JSON (for programmatic consumers)
+#   --summary   Write markdown summary to $GITHUB_STEP_SUMMARY (CI-friendly; no-op outside GHA)
 #
 # Requires: ssh, gh CLI, az CLI (optional), jq
 
@@ -12,6 +16,7 @@ set -euo pipefail
 
 # Defaults
 JSON_OUTPUT=false
+SUMMARY_OUTPUT=false
 SSH_KEY="${SSH_KEY:-$HOME/.ssh/id_rsa}"
 VM_HOST="${VM_HOST:-azureuser@syntax-sorcery-vm}"
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -53,7 +58,8 @@ gh_retry() {
 # Parse args
 while [[ $# -gt 0 ]]; do
   case $1 in
-    --json) JSON_OUTPUT=true; shift ;;
+    --json)    JSON_OUTPUT=true; shift ;;
+    --summary) SUMMARY_OUTPUT=true; shift ;;
     --ssh-key) SSH_KEY="$2"; shift 2 ;;
     --vm-host) VM_HOST="$2"; shift 2 ;;
     *) echo "Unknown option: $1" >&2; exit 2 ;;
@@ -328,6 +334,47 @@ else
     echo "🚨 Status: CRITICAL"
   fi
   echo "=========================================="
+fi
+
+# ---------------------------------------------------------------------------
+# --summary: write markdown to $GITHUB_STEP_SUMMARY (CI-friendly)
+# No-op when GITHUB_STEP_SUMMARY is unset (i.e. outside GitHub Actions)
+# ---------------------------------------------------------------------------
+if $SUMMARY_OUTPUT && [ -n "${GITHUB_STEP_SUMMARY:-}" ]; then
+  OVERALL_ICON="✅"
+  [ $EXIT_CODE -eq 1 ] && OVERALL_ICON="⚠️"
+  [ $EXIT_CODE -eq 2 ] && OVERALL_ICON="🔴"
+
+  cat >> "$GITHUB_STEP_SUMMARY" <<SUMMARY
+## ${OVERALL_ICON} VM Monitor — Test 3 Report
+
+> **Generated:** ${TIMESTAMP}
+
+| Check | Result |
+|-------|--------|
+| VM Health | \`${VM_RESULT}\` |
+| Watchdog | \`${WATCHDOG_RESULT}\` |
+| GitHub Activity | \`${GITHUB_RESULT}\` |
+| Azure Cost | \`${AZURE_RESULT}\` |
+| Ralph Activity | \`${RALPH_RESULT}\` |
+
+SUMMARY
+
+  if [ ${#WARNINGS[@]} -gt 0 ]; then
+    echo "### ⚠️ Warnings" >> "$GITHUB_STEP_SUMMARY"
+    for warn in "${WARNINGS[@]}"; do
+      echo "- ${warn}" >> "$GITHUB_STEP_SUMMARY"
+    done
+    echo "" >> "$GITHUB_STEP_SUMMARY"
+  fi
+
+  if [ ${#CRITICALS[@]} -gt 0 ]; then
+    echo "### 🔴 Critical Issues" >> "$GITHUB_STEP_SUMMARY"
+    for crit in "${CRITICALS[@]}"; do
+      echo "- ${crit}" >> "$GITHUB_STEP_SUMMARY"
+    done
+    echo "" >> "$GITHUB_STEP_SUMMARY"
+  fi
 fi
 
 exit $EXIT_CODE
