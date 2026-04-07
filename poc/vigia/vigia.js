@@ -13,10 +13,14 @@
  *  el agente emite JSON estructurado y nosotros lo ejecutamos.
  *
  *  EJECUTAR:
+ *    node vigia.js --help
  *    node vigia.js --url https://example.com
  *    node vigia.js --url https://site1.com --url https://site2.com
- *    node vigia.js --url https://example.com --visible   (ves el navegador en tu pantalla)
- *    node vigia.js --compare report1.json report2.json   (diff entre ejecuciones)
+ *    node vigia.js --url https://example.com --visible
+ *    node vigia.js --config vigia.config.json
+ *    node vigia.js --url https://example.com --severity-threshold major --quiet
+ *    node vigia.js --url https://example.com --output-format json
+ *    node vigia.js --compare report1.json report2.json
  *
  *  REQUISITOS:
  *    - Node.js 18+
@@ -31,18 +35,23 @@ import * as reporter from "./tools/reporter.js";
 import { extractCommands } from "./lib/extract-commands.js";
 import { executeCommand } from "./lib/execute-command.js";
 import { loadReport, compareReports, formatComparisonOutput } from "./lib/compare.js";
+import { parseArgs, loadConfigFile, mergeConfig, filterBySeverity, getExitCode, printHelp } from "./lib/config.js";
 
 // ════════════════════════════════════════════════════════════
-//  PARSEAR ARGUMENTOS (soporta múltiples --url)
+//  PARSEAR ARGUMENTOS + CARGAR CONFIG
 // ════════════════════════════════════════════════════════════
 
-const args = process.argv.slice(2);
+const cliArgs = parseArgs(process.argv.slice(2));
+
+// ── --help: show help and exit ────────────────────────────
+if (cliArgs.showHelp) {
+  printHelp();
+  process.exit(0);
+}
 
 // ── --compare mode: diff two JSON reports and exit ─────────
-const compareIdx = args.indexOf("--compare");
-if (compareIdx !== -1) {
-  const file1 = args[compareIdx + 1];
-  const file2 = args[compareIdx + 2];
+if (cliArgs.isCompare) {
+  const [file1, file2] = cliArgs.compareFiles;
   if (!file1 || !file2) {
     console.error("❌ Uso: node vigia.js --compare <report1.json> <report2.json>");
     process.exit(1);
@@ -61,34 +70,48 @@ if (compareIdx !== -1) {
   process.exit(0);
 }
 
-// ── Parse --url arguments ──────────────────────────────────
-let targetUrls = [];
-for (let i = 0; i < args.length; i++) {
-  if (args[i] === "--url" && args[i + 1]) {
-    targetUrls.push(args[i + 1]);
-    i++; // skip the value
+// ── Load config file if specified ─────────────────────────
+let fileConfig = null;
+if (cliArgs.configPath) {
+  try {
+    fileConfig = await loadConfigFile(cliArgs.configPath);
+  } catch (err) {
+    console.error(`❌ Error loading config file "${cliArgs.configPath}": ${err.message}`);
+    process.exit(1);
   }
 }
-if (targetUrls.length === 0) {
-  targetUrls.push("https://citypulselabs.azurestaticapps.net");
+
+// ── Merge: defaults ← config file ← CLI flags ────────────
+let config;
+try {
+  config = mergeConfig(cliArgs, fileConfig);
+} catch (err) {
+  console.error(`❌ ${err.message}`);
+  process.exit(1);
 }
-targetUrls = [...new Set(targetUrls)]; // deduplicate preserving order
-const visibleMode = args.includes("--visible");
 
-const urlDisplay = targetUrls.length === 1
-  ? targetUrls[0]
-  : `${targetUrls.length} URLs`;
+// Default URL if none specified anywhere
+let targetUrls = config.urls.length > 0
+  ? config.urls
+  : ["https://citypulselabs.azurestaticapps.net"];
+const visibleMode = config.visible;
+const quietMode = config.quiet;
 
-console.log(`
+// Quiet mode: suppress console output
+const log = quietMode ? () => {} : console.log.bind(console);
+
+log(`
 ╔══════════════════════════════════════════════════════╗
 ║  🔍 VIGÍA — Tester Autónomo de Apps Web              ║
-║  v0.6.0 — Run comparison + JSON export               ║
+║  v0.7.0 — CLI profesional                           ║
 ╚══════════════════════════════════════════════════════╝
 
    URL${targetUrls.length > 1 ? "s" : ""} objetivo: ${targetUrls.length === 1 ? targetUrls[0] : ""}
 ${targetUrls.length > 1 ? targetUrls.map((u, i) => `     ${i + 1}. ${u}`).join("\n") : ""}\
    Modo: ${visibleMode ? "Visible (headed)" : "Headless"} Chromium
    Motor: GitHub Copilot SDK + Playwright
+   Formato: ${config.outputFormat}
+   Umbral: ${config.severityThreshold}${quietMode ? "\n   Quiet: activado" : ""}
 `);
 
 // ════════════════════════════════════════════════════════════
@@ -160,7 +183,7 @@ async function sendAndCollect(session, message, attachments = []) {
     const unsub1 = session.on("assistant.message_delta", (event) => {
       const delta = event.data.deltaContent;
       fullText += delta;
-      process.stdout.write(delta);
+      if (!quietMode) process.stdout.write(delta);
     });
 
     const unsub2 = session.on("session.idle", () => {
@@ -168,10 +191,9 @@ async function sendAndCollect(session, message, attachments = []) {
       resolve(fullText);
     });
 
-    // Timeout de seguridad para evitar cuelgues indefinidos
     timer = setTimeout(() => {
       cleanup();
-      console.log("\n   ⚠️  Timeout esperando respuesta del agente (2 min)");
+      log("\n   ⚠️  Timeout esperando respuesta del agente (2 min)");
       resolve(fullText || "[timeout — sin respuesta del agente]");
     }, TURN_TIMEOUT_MS);
 
@@ -187,7 +209,7 @@ async function sendAndCollect(session, message, attachments = []) {
 //  CONFIGURACIÓN DEL LOOP
 // ════════════════════════════════════════════════════════════
 
-const MAX_TURNS = 15; // Límite de seguridad por URL
+const MAX_TURNS = config.maxTurns || 15; // Configurable via config file
 const MAX_IMAGES_PER_TURN = 5;
 
 function createChecklist() {
@@ -237,9 +259,9 @@ async function testSingleUrl(client, url, urlIndex, totalUrls) {
     ? ` [${urlIndex + 1}/${totalUrls}]`
     : "";
 
-  console.log(`\n${"█".repeat(55)}`);
-  console.log(`   🌐 Testeando${urlLabel}: ${url}`);
-  console.log(`${"█".repeat(55)}\n`);
+  log(`\n${"█".repeat(55)}`);
+  log(`   🌐 Testeando${urlLabel}: ${url}`);
+  log(`${"█".repeat(55)}\n`);
 
   // Iniciar sesión de reporter para esta URL
   reporter.startSession(url);
@@ -255,13 +277,13 @@ async function testSingleUrl(client, url, urlIndex, totalUrls) {
     },
   });
 
-  console.log(`   📋 Sesión VIGÍA: ${session.sessionId}`);
+  log(`   📋 Sesión VIGÍA: ${session.sessionId}`);
 
   session.on("session.error", (event) => {
-    console.log(`   ❌ Error de sesión SDK: ${event.data?.message || "desconocido"}`);
+    log(`   ❌ Error de sesión SDK: ${event.data?.message || "desconocido"}`);
   });
 
-  console.log("\n── Iniciando testing autónomo ─────────────────────\n");
+  log("\n── Iniciando testing autónomo ─────────────────────\n");
 
   const checklist = createChecklist();
   const startTime = Date.now();
@@ -290,37 +312,37 @@ Si llevas <10 issues en turno 10, busca más. Empieza AHORA.`;
   try {
     while (turn < MAX_TURNS && !isDone && !_isShuttingDown) {
       turn++;
-      console.log(`\n${"═".repeat(55)}`);
-      console.log(`   🔄 Turno ${turn}/${MAX_TURNS}${urlLabel}`);
+      log(`\n${"═".repeat(55)}`);
+      log(`   🔄 Turno ${turn}/${MAX_TURNS}${urlLabel}`);
       if (pendingAttachments.length > 0) {
-        console.log(`   🖼️  ${pendingAttachments.length} imagen(es) adjunta(s) para visión`);
+        log(`   🖼️  ${pendingAttachments.length} imagen(es) adjunta(s) para visión`);
       }
-      console.log("─".repeat(55));
+      log("─".repeat(55));
 
       const response = await sendAndCollect(session, currentMessage, pendingAttachments);
       pendingAttachments = [];
-      console.log("\n");
+      log("\n");
 
       const commands = extractCommands(response);
 
       if (commands.length === 0) {
-        console.log("   ⚠️  Sin comandos en esta respuesta. Pidiendo más acciones...");
+        log("   ⚠️  Sin comandos en esta respuesta. Pidiendo más acciones...");
         currentMessage = "No detecté comandos JSON en tu respuesta. Recuerda usar el formato ```json {\"commands\": [...]} ```. Continúa testeando.";
         continue;
       }
 
-      console.log(`   📦 ${commands.length} comando(s) extraído(s)`);
+      log(`   📦 ${commands.length} comando(s) extraído(s)`);
 
       const results = [];
       for (const cmd of commands) {
         if (cmd.action === "done") {
           const missing = getMissing(checklist);
           if (missing.length > 0) {
-            console.log(`   🚫 Agente quiso terminar pero faltan ${missing.length} items del checklist`);
+            log(`   🚫 Agente quiso terminar pero faltan ${missing.length} items del checklist`);
             continue;
           }
           isDone = true;
-          console.log("   ✅ Agente indicó fin del testing");
+          log("   ✅ Agente indicó fin del testing");
           break;
         }
 
@@ -346,7 +368,7 @@ Si llevas <10 issues en turno 10, busca más. Empieza AHORA.`;
             `Se escribió "${r.result.typed}" en el campo de búsqueda pero no aparecieron sugerencias de autocomplete. El usuario no puede seleccionar un destino sin sugerencias.`,
             "major"
           );
-          console.log(`   🟠 Auto-issue: búsqueda "${r.result.typed}" sin sugerencias`);
+          log(`   🟠 Auto-issue: búsqueda "${r.result.typed}" sin sugerencias`);
           issueCount++;
         }
       }
@@ -390,8 +412,8 @@ Si llevas <10 issues en turno 10, busca más. Empieza AHORA.`;
       currentMessage = `Resultados (${results.length}):\n${resultsSummary}${visionNote}${checklistHint}${issueHint}`;
     }
   } catch (err) {
-    console.log(`\n   ❌ Error testeando ${url}: ${err.message}`);
-    console.log("   Continuando con siguiente URL si la hay...");
+    log(`\n   ❌ Error testeando ${url}: ${err.message}`);
+    log("   Continuando con siguiente URL si la hay...");
   }
 
   // Cerrar sesión de reporter y SDK para esta URL
@@ -399,7 +421,7 @@ Si llevas <10 issues en turno 10, busca más. Empieza AHORA.`;
   try { await session.disconnect(); } catch {}
 
   const elapsed = ((Date.now() - startTime) / 1000).toFixed(0);
-  console.log(`\n── Testing de ${url} completado en ${elapsed}s ──\n`);
+  log(`\n── Testing de ${url} completado en ${elapsed}s ──\n`);
 }
 
 // ════════════════════════════════════════════════════════════
@@ -412,21 +434,21 @@ async function main() {
   _cleanupFn = async () => {
     try {
       const r = await reporter.generateReport();
-      console.log(`   📄 Informe parcial guardado: ${r.filename}`);
+      log(`   📄 Informe parcial guardado: ${r.filename}`);
     } catch { /* ignorar si no hay datos */ }
     try { if (client) await client.stop(); } catch {}
     try { await browser.closeBrowser(); } catch {}
   };
 
   // 1. Inicializar browser (compartido entre URLs)
-  console.log("── Inicializando browser ──────────────────────────");
+  log("── Inicializando browser ──────────────────────────");
   await browser.initBrowser({ visible: visibleMode });
 
   // 2. Crear cliente SDK (compartido entre URLs)
-  console.log("── Conectando con Copilot SDK ─────────────────────");
+  log("── Conectando con Copilot SDK ─────────────────────");
   client = new CopilotClient();
   await client.start();
-  console.log("   🟢 Cliente SDK iniciado");
+  log("   🟢 Cliente SDK iniciado");
 
   const globalStart = Date.now();
 
@@ -438,15 +460,15 @@ async function main() {
   }
 
   const globalElapsed = ((Date.now() - globalStart) / 1000).toFixed(0);
-  console.log(`\n── Testing total completado en ${globalElapsed}s ──────────────────\n`);
+  log(`\n── Testing total completado en ${globalElapsed}s ──────────────────\n`);
 
   // 4. Generar informe — consolidado si multi-URL, simple si single-URL
   let report;
   if (targetUrls.length > 1) {
-    console.log("── Generando informe consolidado ──────────────────");
+    log("── Generando informe consolidado ──────────────────");
     report = await reporter.generateConsolidatedReport(sessionSnapshots);
   } else {
-    console.log("── Generando informe ──────────────────────────────");
+    log("── Generando informe ──────────────────────────────");
     report = await reporter.generateReport();
   }
 
@@ -455,12 +477,17 @@ async function main() {
   await browser.closeBrowser();
   _cleanupFn = null;
 
-  // 6. Resumen final
+  // 6. Apply severity filter for exit code calculation
+  const allIssues = reporter.getIssuesSummary().issues;
+  const filteredIssues = filterBySeverity(allIssues, config.severityThreshold);
+  const exitCode = getExitCode(filteredIssues);
+
+  // 7. Resumen final
   const pad = (s, n) => String(s).padEnd(n);
   const urlsSummary = targetUrls.length > 1
     ? `║  URLs:     ${pad(report.urlCount + " testeadas", 40)}║\n`
     : "";
-  console.log(`
+  log(`
 ╔══════════════════════════════════════════════════════╗
 ║  ✅ VIGÍA — Testing Completado                       ║
 ╠══════════════════════════════════════════════════════╣
@@ -468,8 +495,11 @@ ${urlsSummary}║  Issues:   ${pad(`${report.totalIssues} (🔴 ${report.critica
 ║  Acciones: ${pad(report.actionsExecuted, 40)}║
 ║  Duración: ${pad(report.durationMin + " min", 40)}║
 ║  Informe:  ${pad(report.filename, 40)}║
+║  Exit:     ${pad(exitCode === 0 ? "0 (clean)" : "1 (critical issues)", 40)}║
 ╚══════════════════════════════════════════════════════╝
   `);
+
+  process.exit(exitCode);
 }
 
 // ── Ejecutar ───────────────────────────────────────────────
@@ -478,7 +508,7 @@ main().catch(async (err) => {
   console.error(err.stack);
   try {
     const r = await reporter.generateReport();
-    console.log(`   📄 Informe parcial guardado: ${r.filename}`);
+    log(`   📄 Informe parcial guardado: ${r.filename}`);
   } catch { /* sin datos para guardar */ }
   try { await browser.closeBrowser(); } catch {}
   process.exit(1);
