@@ -45,6 +45,7 @@
 **Recent Decisions (2026-07-09 to 2026-07-10):**
 - Vercel AI SDK confirmed for B2C products (Oracle research + Trinity PoC). 25-40x cold start, 4-10x cost reduction vs Copilot SDK. Portfolio expansion approved: AccesoPulse, CostaPulse, RutaViva. All €41-91/mo.
 - SDK + Work IQ architecture analysis complete. Automated Bridge (event-driven) pattern selected as foundation for GitHub↔M365 integration. MCP is the real multiplier — `mcp-m365` server enables any future SDK/framework to access M365 data. Interactive dual-source latency (~5.6s) rules out real-time chat; event-driven eliminates this constraint. Priority: build mcp-m365 (5 tools) first. Estimated €41-71/mo, well within budget. Decisions #18 (Oracle) + #19 (Morpheus) filed; next gate = joperezd approval for PoC sequencing.
+- **VIGÍA v0.7 CLI Layer Approved (2026-07-15, PR #173):** Architecture gated. Flag infrastructure (parseArgs → mergeConfig → filterBySeverity → getExitCode) is correct pattern (zero-SDK module, pure functions, fully testable). --output-format parsed but not wired to reporter (acceptable phased delivery, follow-on issue required for v1.0 blocker). 69 TDD tests all green. Spec-first validation: tests defined contract, Trinity impl matches perfectly.
 
 **2026-04-07: Business Products Brainstorm v2 (Oracle):** 18 non-developer product ideas filed. Top 3: LUNES (manager reports), CERRADOR (sales follow-up), PILOTO (autónomo daily). Key insight: all use identical Work IQ + Copilot SDK + Azure infrastructure. Awaiting joperezd MVP selection.
 
@@ -52,12 +53,16 @@
 
 ## Learnings
 
+- **PR #174 (VIGÍA v0.8 CI/CD, 2026-07-15):** `actions: write` in workflow permissions is NOT needed for artifact upload (`upload-artifact@v4` uses ACTIONS_RUNTIME_TOKEN, not GITHUB_TOKEN) nor for `concurrency: cancel-in-progress` (engine-enforced). Minimal permissions for a PR-comment + artifact workflow: `contents: read` + `pull-requests: write`. Over-granting `actions: write` allows token to manage/cancel other workflow runs — reject on sight.
+
+
 - **Playwright MCP (`@playwright/mcp`) is production-ready** for agent-driven browser automation. Returns structured accessibility trees (not raw HTML), enabling reliable element referencing without brittle CSS selectors. The agent reasons about structure, not selectors — self-healing by design.
 - **Dual perception is critical:** Accessibility snapshots give structured data for navigation/interaction (fast, cheap). Screenshots + vision models give UX judgment (slow, expensive). Use 80/20 split — snapshots for interaction, screenshots only at key decision points.
 - **Copilot SDK vs Vercel AI SDK is a context-dependent choice:** SDK wins for infrastructure/code agents (MCP native, Git tools, multi-step planning). Vercel wins for B2C chatbots (streaming, React hooks, low latency). Same company, different tools for different jobs.
 - **The LLM-Fighter pattern (Use → Observe → Propose → Verify → Repeat) generalizes beyond games.** Applied to app testing, it becomes an autonomous QA agent. Applied to UX review, a design critic. Applied to security, a pen-tester. The loop is the product, the domain is the configuration.
 - **Axe-core can be injected via Playwright's browser_evaluate** without a dedicated MCP server — simpler for MVP. Dedicated Axe MCP server (Deque) is better for enterprise/reporting needs.
 - **Quality Score as convergence metric:** Tracking score across iterations tells you when to stop. If V3→V4 delta < 0.3, the app has stabilized. This is the "fitness function" from the LLM-Fighter pattern applied to software quality.
+- **VIGÍA v0.7 — CLI config layer approved (PR #173):** `config.js` pattern is the right approach for CLI tools: zero-SDK module, pure functions (parseArgs → mergeConfig → filterBySeverity → getExitCode), all separately testable. Gate: `??` (nullish coalescing) for optional string flags, `||` for opt-in boolean flags. Flag infrastructure first, reporter wiring second — acceptable phased delivery as long as a follow-on issue is filed for `--output-format` reporter integration before v1.0.
 
 ---
 

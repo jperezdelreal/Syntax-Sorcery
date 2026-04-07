@@ -58,3 +58,20 @@
 - **PR #171 merged:** v0.5.1 — multi-URL support complete. All 155 tests green.
 - **Total VIGÍA tests:** 155 across 5 files (browser: 31, reporter: 24, commands: 25, edge-cases: 15, multi-url: 37). All green.
 
+### 2026-07-15: VIGÍA v0.7 CLI Config Tests (69 tests) — Issue #167
+
+- **Scope:** TDD test suite for CLI professional flags at `poc/vigia/tests/cli-config.test.js`.
+- **Sections:** A. Config module — defaults, file loading, CLI overrides, invalid files (19 tests). B. CLI flags — --help, --severity-threshold, --output-format, --quiet, unknown flags, --turns (24 tests). C. Exit codes — based on severity (7 tests). D. Edge cases — flag combos, non-JSON configs, severity hierarchy, validation accumulation, exit-code-post-filter (19 tests).
+- **Pattern:** Reference implementations inline (loadConfig, mergeConfig, parseCliFlags, resolveConfig, validateConfig, filterBySeverity, computeExitCode, generateHelpText). Trinity: extract to `lib/config.js` and replace inline refs with imports.
+- **Key spec decisions:** Exit code 1 only for critical issues. Severity hierarchy: info < minor < major < critical. CLI flags override config file values. --help/-h and --quiet/-q aliases. Unknown flags captured in `_meta.unknownFlag`. Config validation accumulates all errors before throwing.
+- **Note:** Root `vitest.config.js` needs `poc/vigia/tests/**/*.test.js` added to `include` for vigia tests to run from repo root. This was needed in v0.4 (PR #170) too — pattern keeps getting dropped on master.
+- **Total VIGÍA tests:** 224 across 7 files. All green.
+
+### 2026-07-15: VIGÍA v0.8 CI/CD Integration Tests (57 tests) — Issue #168
+
+- **Scope:** TDD test suite for GitHub Action CI/CD integration at `poc/vigia/tests/ci-integration.test.js`.
+- **Sections:** A. CI-mode behavior — exit codes, --quiet, --output-format, deterministic report paths, severity-threshold filtering (23 tests). B. Action input validation — required url, defaults (max-turns: 10, severity-threshold: minor), invalid values, error accumulation (17 tests). C. Report output for PR comments — valid markdown, no dangerous HTML, formatReportForPR wrapper with status emoji and collapsible details, screenshots directory, JSON structured export (17 tests).
+- **Pattern:** Section A tests real lib/config.js functions (parseArgs, mergeConfig, filterBySeverity, getExitCode). Section B uses inline reference impl `parseActionInputs(env)` that parses INPUT_* env vars as GitHub Actions would. Section C uses inline `formatReportForPR()` reference impl. Tank: extract B/C reference impls into action code.
+- **Key spec decisions:** Action defaults: max-turns=10, severity-threshold=minor. Exit code 1 only for critical issues post-filter. formatReportForPR uses `<details>` collapse for reports >2000 chars. Validation accumulates all errors before throwing. severity-threshold is case-insensitive.
+- **Total VIGÍA tests:** 281 across 8 files. All green.
+
