@@ -1,0 +1,16 @@
+{
+  "name": "copilot-sdk-chat-poc",
+  "version": "0.1.0",
+  "description": "Prueba de concepto — GitHub Copilot SDK como motor conversacional",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "start": "node index.js",
+    "multi-turn": "node multi-turn.js",
+    "with-tools": "node with-tools.js"
+  },
+  "dependencies": {
+    "@github/copilot-sdk": "latest",
+    "zod": "^3.23.0"
+  }
+}

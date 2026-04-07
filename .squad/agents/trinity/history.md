@@ -8,91 +8,42 @@
 - **Team:** Morpheus (Lead), Trinity (Full-Stack), Tank (Cloud), Switch (Tester), Oracle (Product/Docs), @copilot (Coding Agent), Scribe, Ralph
 - **Universe:** The Matrix
 - **Company goal:** Design, build, and deploy software products with minimal human intervention
+- **Phase 1-13 Arc:** 730 tests green, 9+ PRs/session, autonomous deployment, €0 cost
 
-## Phase 1 Learnings (Archived)
+## Learnings (Current)
 
-- Created squad-size-check.yml and .gitignore hardening; CI/context hygiene foundational
-- P1-04/P1-05 context remediation: 95% reduction (2618KB→126KB), all files <15KB
-- P1-07 Skills cherry-pick: 16 domain-agnostic FFS skills migrated to SS (20 total skills)
-- P1-10b GDD→Issue pipeline: Node.js parser handles YAML + 10 sections, produces 25–40 issues, auto-labeled
-- P1-11 Proposal→Prototype orchestration: 5 scripts + 2 GHA workflows + game repo template, stages 0–2 production-ready
-- P1-14 FFS visibility audit: 7 blockers identified, 8–12h remediation queued
+- **VIGÍA v0.5.1 — Multi-URL Consolidation Landed (#171, 2026-07-15):** PR merged. 155 tests passing. Trinity + Switch collaboration complete — multi-URL arg parsing, session isolation, consolidated reporting all production-ready. Switch found URL dedup gap (parseUrls needs Set dedup in vigia.js). Switch TDD tests (37) + Trinity impl confirmed spec-first workflow. Reporter reset-on-startSession pattern isolated state correctly.
 
-## Recent Learnings (Phase 2-13 Summary)
+- **VIGÍA v0.5.0 — Multi-URL support (#165, 2026-07-15):** Added `--url site1 --url site2` support. `vigia.js` parses multiple URLs, creates isolated SDK sessions per URL, shares browser/client. `reporter.js` keeps backward compat: `startSession`/`generateReport` reset state per URL (single-URL unchanged). New `captureSession()` snapshots current URL data, `generateConsolidatedReport(sessions[])` produces unified report with per-URL sections + aggregate table. 155 tests green (20 Switch TDD tests now pass). Key: reporter uses reset-on-startSession pattern — multi-URL orchestration lives in vigia.js, not reporter.
 
-**Phase 2-3:** Pipeline & Satellite deployment (E2E test, 9 PRs merged, Pixel Bounce game deployed)
-**Phase 4-5:** Company showroom (FFS page, SS landing page, GitHub Pages, Squad Monitor)
-**Phase 6-7:** Dashboard infrastructure (metrics, pre-flight validation, CLI consolidation)  
-**Phase 8-10:** Performance optimization (MatrixRain, constellation stats, dashboard backend/UI)
-**Phase 11-13:** Delivery complete (730 tests green, €0 cost, all artifacts live)
+- **VIGÍA v0.4 — click_text fallback (2026-07-14):** Added auto-retry in `execute-command.js` click case: when `browser.click(selector)` fails and the selector contains `:contains('...')` or `:has-text('...')`, extracts the text and retries with `browser.clickText(text)`. Exported `extractTextFromSelector()` helper. 5 tests added (fallback success, no retry on success, no retry without :contains, fallback failure, regex extraction). 118 tests green. This lets the agent use CSS pseudo-selectors like `button:contains('Mecánica')` without knowing Playwright locator syntax.
 
-**Key Learnings:**
-- Always verify what's on origin/master before branching (use `git checkout -b X origin/master`)
-- Design-only PRs rejected; full implementations approved (PR #45 vs PR #47)
-- Build-time data piping (metrics-engine.js → JSON) > API calls during deploy (eliminates tool dependencies)
-- DI-injectable architecture enables standardized error handling across all scripts
-- When PRs conflict on routing file: extract non-conflicting files via `git show`, then merge router/config once
-- Concurrent session branch swaps: use atomic checkout+commit chains
-- Design-only PRs already on branch? Update with full implementation, don't create new PR (saves review overhead)
+- **VIGÍA v0.3.0 — Testing Quality Upgrade (2026-07-14):**Five improvements shipped. (1) `type_and_select` command: types char-by-char to trigger autocomplete dropdowns, waits 3s for suggestions, clicks first match — critical for search/address fields. (2) `wait_for_stable`: waits for network idle + MutationObserver silence (default 500ms) — replaces fragile `wait(ms)` after async DOM changes. (3) `check_accessibility`: injects axe-core 4.9.1 via CDN at runtime (no npm dep), runs `axe.run()`, returns violations/passes/incomplete. (4) `check_links`: collects `<a>` hrefs, HEAD-checks each (max 20, 5s timeout), returns broken list. (5) System prompt rewritten for methodical flow-by-flow testing (homepage→navigation→forms→a11y→responsive) with screenshot-after-every-action rule. All 4 new commands wired in execute-command.js. 113 tests green (was 95). Version bumped in banner, reporter metadata, and package.json.
 
-## Session 2026-03-16 (Phase 5 Launch)
+- **VIGÍA v0.2.0 — Visión + Error Handling (2026-07-13):** Upgraded VIGÍA with two major capabilities. (1) Vision: screenshots now encoded as base64 and sent to the agent via Copilot SDK blob attachments (`type: "blob"`, `mimeType: "image/png"`). Agent can SEE actual page layout, detect visual issues (contrast, overlap, UX). System prompt instructs visual analysis. Base64 stripped from text results to avoid bloat — images travel as attachments only. 5MB size limit per screenshot, max 5 images per turn. (2) Error handling: try/catch around executeCommand, 2-min timeout on sendAndCollect, SIGINT graceful shutdown (saves partial report + closes browser), session.error event listener, partial report on fatal crash. `--visible` flag preserved. Functions refactored to `lib/` (extract-commands.js, execute-command.js).
 
-**PR #67 merged — Mobile Fixes + Phase 5 Skeleton:**
-- Root cause of "failed to fetch": secondary API calls (prediction, geocoding) used raw `fetch()` instead of `fetchWithRetry`. Creates zombie requests on slow mobile networks. Primary route calls worked → "loads then fails" pattern.
-- Solution: exponential backoff with jitter in `fetchWithRetry` + external `AbortSignal` support. Mobile networks recover in bursts; fixed delays cause retry collisions. Formula: `baseMs * 2^attempt + random(0, baseMs*0.5)`.
-- ORS parallelization: was 6 pairs × 3 sequential calls. Parallelized → 3x mobile speedup. Route caching (30s TTL, 5-decimal rounding) eliminates redundant calls on settings toggle.
-- Tiered timeouts: Weather 6s/1 retry, Prediction 8s/2 retry, ORS 10s/2 retry. Non-critical services can't block UI.
-- Phase 5 analytics skeleton: AnalyticsProvider interface (mock impl) + 4 pure SVG charts. Tank plugs real Cosmos data with one-liner. Trinity's UI code has zero dependency on Tank's implementation — design contract first, swap backend.
-- All 252+ tests passing. PR #67 live.
+- **Copilot SDK supports vision via blob attachments:** `MessageOptions.attachments` accepts `{ type: "blob", data: base64String, mimeType: "image/png" }`. `ModelCapabilities.supports.vision` confirms model support. gpt-4.1 supports vision. No need for external image description — SDK handles inline images natively.
 
-**Cross-agent:**
-- Tank deployed functions (PR #69) — functions live, Timer collecting ~22K snapshots/day. Trinity's AnalyticsProvider interface now has real data source.
-- Switch created 116 Phase 5 contract tests (PR #66). Trinity will implement Phase 5 services against these contracts (no test rewrites needed).
-- Mouse redesigned mobile UX (PR #68) — unified bottom sheet, Google Maps pattern. Orthogonal to analytics work.
+- **Vercel AI SDK PoC Approved (2026-07-09):** Decision filed. PoC validated in production. Verdict: 25-40x faster cold start (<100ms vs ~2.5s), 4-10x cost reduction, v4.x maturity > v0.2.x. Use for all B2C products. Baseline: `poc/vercel-ai-chat/with-tools.js` for AUTONOMO.AI.
 
-## Learnings
+- **Vercel AI SDK PoC (2026-07-08):** 3 working scripts at `poc/vercel-ai-chat/` matching Copilot SDK PoC. Key findings: streamText() is one-liner vs CopilotClient→start→createSession→send chain. Manual message history (explicit) vs SDK auto-accumulation (opaque). tool() + maxSteps handles tool loop transparently — no built-in tools competing with custom ones (Copilot SDK's biggest UX problem). Provider abstraction in lib/provider.js: Azure OpenAI → OpenAI fallback. Cold start <100ms vs ~2.5s. Cost ~4-10x cheaper at scale (tokens vs premium requests).
 
-### Mobile Performance Debugging (CityPulseLabs)
-- **Sequential ORS API calls are the #1 mobile bottleneck** — route engine was doing 6 pairs × 3 calls sequentially. Parallel batches of 3 cut load time ~3x on mobile.
-- **`cancelled` boolean ≠ AbortController** — boolean prevents state updates but doesn't cancel in-flight `fetch()` requests. On mobile with slow networks, zombie requests stack up. Always use `AbortController` + `signal` propagation for cancellable data fetching.
-- **Secondary API calls cause "failed to fetch" after apparent success** — prediction and geocoding services used raw `fetch()` while the primary routing used `fetchWithRetry`. The intermittent mobile failure pattern ("loads then errors") is almost always a secondary service call without retry/timeout.
-- **Exponential backoff with jitter > fixed delay** — mobile networks recover in bursts. Fixed 2s delay can cause all retries to hit the same congestion window. `baseMs * 2^attempt + random(0, baseMs*0.5)` spreads retries naturally.
-- **Route caching with 30s TTL** — eliminates redundant ORS API calls when users toggle settings or navigate back. Key: round coordinates to 5 decimals (~1m) to catch near-identical requests.
-- **Non-critical services (weather) should have shorter timeouts and fewer retries** — graceful degradation beats UI blocking. Weather at 6s/1 retry vs routing at 10s/2 retries.
-- **AnalyticsProvider interface pattern** — design the data contract first with a mock implementation, makes the real data switch a one-liner (`setAnalyticsProvider(new CosmosAnalyticsProvider())`). Pure SVG charts avoid adding charting library deps for simple visualizations.
+- **Mobile Performance Patterns (CityPulseLabs):** Sequential API calls bottleneck; parallelization 3x speedup. Exponential backoff+jitter>fixed delay. AbortController (not boolean cancelled). Cache 30s TTL. AnalyticsProvider interface pattern (mock→real swap).
 
-### ORS Proxy — The Real Root Cause (PR #70 — Merged)
-- **Never call third-party APIs directly from the browser** — PR #67 fixed retry/caching, but the fundamental problem was calling `api.openrouteservice.org` directly from client JS. This causes CORS blocks, exposes the API key in the bundle, and hits rate limits (40 req/min free tier vs 18 calls per route calculation). Server-side proxy via Azure Function eliminates all three.
-- **Double caching layer (client + server) is correct** — client-side 30s TTL prevents redundant requests from re-renders/toggles. Server-side 30s TTL prevents redundant ORS calls when multiple users request similar routes. They complement each other.
-- **Stale-on-error pattern** — server proxy returns stale cached data when ORS is down/slow, rather than failing. This is critical for external API dependencies where uptime is outside our control.
-- **API key in `VITE_*` env vars = exposed in production** — Vite bakes all `VITE_*` vars into the client bundle. Any secret in `VITE_*` is public. Move secrets to server-side env vars read by Azure Functions.
-- **After fixing symptoms (retry, caching), always verify the architecture** — PR #67 treated the symptoms (no retry on secondary calls). The disease was the direct browser→ORS call path. Both fixes were needed.
-- **Session 2026-03-16 (PR #70):** Azure Function `/api/routes` proxy deployed. Requires Tank to configure `ORS_API_KEY` in Function app settings. Route loading 3x faster on mobile with new caching pattern.
+- **ORS Proxy + API Key Security (PR #70):** Never call 3rd-party APIs from browser (CORS, key exposure, rate limits). Server-side proxy via Azure Function. Double caching (client+server). Stale-on-error fallback. VITE_* vars exposed in bundle.
 
-### ORS Call Reduction — Quota Survival (PR #71)
-- **Reduce candidate pairs, not quality** — 3 pickup × 1 dropoff = 3 pairs × 3 calls = 9 ORS calls (was 6 pairs × 3 = 18). Users rarely pick the 3rd route anyway; showing top 2 is acceptable for MVP.
-- **Pre-filtering already existed** — `filterPickupStations` checks `is_renting` + bike count, `filterDropoffStations` checks `is_returning` + dock count. No wasted calls to empty/full stations.
-- **Quota-aware error propagation** — `QuotaExhaustedError` class stops route calculation immediately on 429 instead of burning remaining calls. Spanish user message: "Servicio de rutas temporalmente no disponible."
-- **Cache precision trade-off** — 5 decimals (~1m) gives almost no cache hits for nearby searches. 3 decimals (~110m) dramatically increases hit rate. For bike-share routing, 110m precision is fine — users are walking to a station anyway.
-- **Cache TTL trade-off** — 30s was too aggressive for a 2,000 req/day quota. 5 minutes means repeated searches from the same area reuse cached data. Route infrastructure doesn't change in 5 minutes.
-- **Impact: free tier capacity doubled** — 2,000 req/day ÷ 9 calls = ~222 routes/day (was ~111). With cache hits, effective capacity is even higher.
+- **ORS Call Reduction (PR #71, 2026-03-21):** 18→9 calls per route (top 2 pickups, 1 dropoff). Cache 5min TTL, 3 decimals (~110m). Routes shown 3→2. Free tier capacity doubled (~222 routes/day). All 335 tests passing.
 
-### ORS Call Reduction Approved (Morpheus Evaluation 2026-03-20)
-- **Next iteration (v0.1):** Reduce ORS calls from 18→9 per route by showing top 2 pickups + 1 dropoff instead of 3+2. Morpheus evaluated self-hosting (~€52–70/mo) and rejected due to cost/ops burden. Call reduction is the approved path forward.
-- **Latency impact:** 16–21s cold cache → 8–10s (acceptable for MVP; self-hosted would be 400ms–1.6s but costs €40–60/mo extra).
-- **Implementation owner:** Trinity (routing engine refactor, est. 1–2h). Re-evaluate self-hosting at v0.2 if traffic >500 routes/day.
+- **Route Service Diagnosis (2026-03-17):** SWA managed API shadows linked backend. `ORS_API_KEY` set on wrong resource (function app vs SWA). Settings need redeployment to propagate. stationCollector timer stopped (restart loop). deploy-functions.yml never ran (OIDC secrets missing).
 
-### ORS Call Reduction Complete (PR #71 — 2026-03-21)
-- **Merged:** PR #71 implementing 18→9 call reduction + cache optimization
-- **Cache:** 30s → 5min TTL, 5 decimals → 3 decimals (110m precision, acceptable for bike-share)
-- **Routes shown:** 3 → 2 (users rarely pick 3rd; acceptable for MVP)
-- **Candidate pairs:** 6 → 3 (top 2 pickups × 1 dropoff)
-- **Error handling:** `QuotaExhaustedError` on 429 with Spanish message
-- **Impact:** Free tier capacity doubled (~222 routes/day), cache hit rate dramatically increased
-- **All 335 tests passing.** Production-ready.
+- **Real Prediction Model (PR #84, 2026-03-26):** Contract-first: Switch wrote 116 tests with inline impls. Trinity implemented 4 service modules (pure functions, no Cosmos). Swapped inline→import. All 116 tests passed first try. CosmosAnalyticsProvider default + mock fallback.
 
-## Cross-Agent Updates (2026-03-21)
+- **Copilot SDK PoC (2026-04-07):** 3 working scripts (index.js, multi-turn.js, with-tools.js) tested live v0.2.1. Chat+multi-turn+streaming production-ready. Custom tools work but agent prefers built-ins (approveAll issue). Oracle verdict: NOT suitable for B2C (2.5s overhead); use Vercel AI SDK instead.
 
-**Mouse (PR #72 — Mobile-Specific UX):** Merged separate component trees for mobile (Google Maps pattern) vs desktop (side panel). Fixed BOOST visibility, desktop banner, button text bug. Learned: users distinguish responsive vs mobile-specific; separate trees > responsive classes.
+- **Business Products Brainstorm v2 (Oracle, 2026-04-07):** 18 product ideas across 7 categories (management, sales, HR, legal, finance, autónomos, sector-specific). All built on identical Work IQ + Copilot SDK + Azure stack. First product = platform foundation; 2nd is 70% faster, 3rd is 90% faster. Architecture task pending joperezd MVP selection.
 
-**Morpheus (Evaluation):** Self-hosted ORS evaluation complete. Rejection: too expensive (€52–70/mo). Recommendation: Trinity's call reduction (approved path) → v0.2 traffic monitoring → re-evaluate if >500 routes/day. Full cost/latency/ops analysis documented.
+## Archived Learnings
+
+**Phase 1:** Context remediation (95% reduction, 2618KB→126KB). Skills cherry-pick (16→20 total). GDD parser (25-40 issues). Proposal→prototype (5 scripts, 2 GHA).
+
+**Phase 2-3:** Pipeline deployment (9 PRs merged). **Phase 4-5:** Showroom (GitHub Pages, Monitor). **Phase 6-7:** Dashboard (metrics, pre-flight). **Phase 8-13:** Performance + delivery (730 tests, all artifacts live, €0 cost).

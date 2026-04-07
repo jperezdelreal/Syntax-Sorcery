@@ -1,0 +1,16 @@
+{
+  "name": "vigia",
+  "version": "0.5.0",
+  "description": "VIGÍA — Tester autónomo de apps web con Copilot SDK + Playwright",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "start": "node vigia.js",
+    "test:local": "node vigia.js --url http://localhost:5173",
+    "test:prod": "node vigia.js --url https://citypulselabs.azurestaticapps.net"
+  },
+  "dependencies": {
+    "@github/copilot-sdk": "latest",
+    "playwright": "^1.52.0"
+  }
+}

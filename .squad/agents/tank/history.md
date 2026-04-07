@@ -47,6 +47,9 @@
 - **Session 2026-03-16:** PR #69 merged. Functions live. Data collection active ~22,752 snapshots/day. **PENDING:** Configure `ORS_API_KEY` in Function app settings for Trinity's route proxy: `az functionapp config appsettings set --name func-citypulse-api --resource-group rg-citypulse --settings ORS_API_KEY=<key>`
 - **Cross-agent note:** Trinity built analytics skeleton awaiting Tank's data hookup; Switch has 116 contract tests defining Phase 5 shape; Mouse designed mobile UX with no dependency on analytics visual — all orthogonal.
 
+**2026-04-07: Business Products Brainstorm v2 (Oracle):** 18 product ideas for non-developer users filed. Infrastructure insight: all products use Work IQ + Copilot SDK + Azure Functions. Estimated cost €41-71/mo per product. MVP decision pending from joperezd; Tank to scope Azure costs for selected products. **ACTION:** CityPulseLabs deployment returns 404 — fix needed to enable VIGÍA MVP production testing (Trinity blocked).
+
+
 **Session 2026-03-21: PWA Cache-Busting Fix (PR #73):**
 - Root cause: `CacheFirst` runtime cache for static assets (JS/CSS) with 30-day expiration was serving stale Vite-hashed bundles after new deploys. Users saw old Boost/Turbo option and old UI.
 - Fix: Removed `static-assets` CacheFirst workbox rule (redundant — Vite content-hashes bundles, VitePWA precaches with revisions). Added `cleanupOutdatedCaches`, explicit `skipWaiting` + `clientsClaim`, manual SW registration with 60s periodic update checks, and `controllerchange` auto-reload with Spanish toast ("Nueva versión disponible").
@@ -54,9 +57,9 @@
 - Files: `vite.config.ts`, `src/main.tsx`, `tsconfig.app.json`, `tests/unit/serviceWorker.test.ts` (5 tests, all green). Build clean, 337 tests passing.
 - Branch: `squad/cache-busting`. PR #73 created against `main`.
 
-**Session 2026-03-21: Mobile Testing Strategy Execution (Morpheus Decision T1):**
-- Morpheus evaluated 6 testing options; recommended 3-tier stack (cache busting + Playwright E2E + QA checklist).
-- Tank owned cache busting (Tier 1) — PR #73 merged. Fixes stale-code-serving bug immediately. Foundation for E2E and QA testing.
-- Cross-agent: Switch implementing Tier 2 (Playwright E2E) + Tier 3 (QA checklist) in parallel. All three tiers €0 cost, 10 hours total. Ready for production validation.
-- Metrics: 337 unit tests passing (unaffected). Build clean. Lighthouse validation pending E2E completion.
+**Session 2026-03-25: Multi-Squad Azure VM R&D — Morpheus Proposal (T1 Architecture):**
+- Morpheus delivered comprehensive R&D proposal for 5-session tmux-based VM constellation (~€44/mo B2s_v2 + Cosmos). No Docker, no per-service systemd — simple and proven pattern.
+- Critical unknown: Copilot CLI rate limit (50-80 completions/hour per account, shared across sessions). Proposal recommends staggering (2-3 active max), with 4-phase rollout starting €2.40/week.
+- Tank will own Phase 1 VM deployment when founder approves. Bicep template ready (PR #54), cloud-init proven. Prerequisite: founder decision + PAT.
+- Cross-agent note: Morpheus also proposed 3 downstream products (CostaPulse, AccesoPulse, RutaViva) and BOLD services (FORJA, AUTONOMO.AI, CAMBIAZO). Both await founder approval. Tank's multi-squad work likely blocked until these foundational decisions made.
 

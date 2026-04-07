@@ -6,293 +6,186 @@ Autonomous AI dev company (€500/mo Azure, unlimited GitHub). Strict context hy
 
 ## Active Decisions (Last 7 Days)
 
-### 2026-03-16T15:25Z: Mobile UX Fixes 3-5 Implementation Complete
+### 2026-07-14: VIGÍA v0.4 — click_text fallback for failed CSS clicks
 
-**By:** Mouse & Switch (UI/UX Designer & Tester)  
+**By:** Trinity (Full-Stack Developer)  
 **Tier:** T2 (Implementation)  
-**Status:** ✅ COMPLETE
-
-**Fixes Implemented:**
-1. **Fix 3 (GeolocationButton z-index):** Repositioned to z-50 + bottom-32, always visible above bottom sheet
-2. **Fix 4 (isDragging feedback):** DragHandle shows visual feedback (opacity + cursor + highlight) while dragging
-3. **Fix 5 (WelcomeCTA loading state):** Hidden during route calculation, shows peek bar with "X rutas disponibles" instead
-
-**Test Coverage:**
-- 335 → 356 tests (+21 new)
-- Mobile E2E tests: iPhone 12 (390×844), Pixel 5 (360×640), Desktop regression
-- All deterministic (no flaky timeouts)
-- Playwright E2E validates Fixes 1-5 end-to-end
-- Lighthouse mobile ≥80 enforced in CI
-
-**Files Modified:**
-- `GeolocationButton.tsx`, `DragHandle.tsx`, `MobileRoutePanel.tsx`
-- 7 files touched, no breaking changes
-- All z-index values documented (stacking context)
-
-**Impact:**
-- Mobile UX now at Google Maps industry standard
-- All 5 fixes integrated and tested
-- Ready for user review on real device
-- Production deployment unblocked
-
-**Decision:** Approved. Proceed to Phase 5 analytics implementation (Trinity).
-
----
-
-### 2026-03-16T10:43:54Z: User Directive — Unify Origin/Destination with Route Panel
-
-**By:** joperezd (via Copilot)  
-**Tier:** T3 (User directive)  
 **Status:** ✅ IMPLEMENTED
 
-Unify "Donde estas / Donde vas" form with route info panel into single Google Maps-style experience. Clicking map should auto-fill origin/destination fields. Mobile UX must feel closer to Google Maps. Desktop is good — mobile needs major improvement.
+**Decision:** When a CSS `click(selector)` fails in VIGÍA and the selector contains `:contains('...')` or `:has-text('...')`, automatically retry with `clickText(text)` using the extracted text. If `clickText` also fails, return the original error.
 
-**Outcome:** PR #68 (Mouse) implemented UnifiedPanel.tsx with bottom sheet pattern, map click → form fill, and retry UX. All 218+ tests passing. Mobile now follows industry standard (Google Maps, Apple Maps, Uber).
+**Rationale:** The agent often generates CSS-like selectors with `:contains()` which Playwright doesn't natively support. Instead of teaching the agent about locator engines, the fallback transparently handles it. This keeps the agent's prompt simple and makes `click` work for both pure CSS and text-based selectors.
 
----
-
-### 2026-03-16T10:44:09Z: User Clarification — "Failed to Fetch" Not Mobile-Only
-
-**By:** joperezd (via Copilot)  
-**Tier:** T3 (User directive)  
-**Status:** ✅ RESOLVED
-
-"Failed to fetch" errors and slow route loading happen on ALL platforms, not just mobile. This is a service/network issue (API timeouts, CORS, external API reliability), not a mobile-specific rendering problem.
-
-**Outcome:** PR #67 (Trinity) identified root cause: secondary API calls lacked retry/timeout logic. Fixed via exponential backoff, AbortController, and parallel batching. 3x mobile speedup achieved via ORS parallelization.
+**Files:** `poc/vigia/lib/execute-command.js`, `poc/vigia/tests/commands.test.js`  
+**Tests:** 5 new tests, 118 total passing.
 
 ---
 
-### 2026-03-16T11:20Z: Azure Functions Deployment — Phase 5 Unblocked
-
-**By:** Tank (Cloud Engineer)  
-**Tier:** T2 (Implementation)  
-**Status:** ✅ COMPLETE
-
-Deployed 5 Azure Functions to `func-citypulse-api`: health, stations, weather, predict, stationCollector (timer). Fixed EasyAuth 401 blocker, wired App Insights, configured CORS for SWA. Timer triggers every 5 minutes → ~22,752 Cosmos writes/day.
-
-**Key Decisions:**
-1. **EasyAuth disabled** — Was blocking all unauthenticated requests. Disabled for public API.
-2. **Timer @ 5-min intervals** — Balances freshness vs cost (within serverless budget)
-3. **Managed Identity for Cosmos** — Uses ManagedIdentityCredential, no connection strings
-4. **CI/CD via OIDC** — Created deploy-functions.yml (awaiting secrets: AZURE_CLIENT_ID, TENANT_ID, SUBSCRIPTION_ID)
-5. **Azure Monitor alert** — Fires if zero function executions in 15-minute window (missing data detection)
-
-**Cost Impact:** €2-5/mo functions + €5-12/mo Cosmos = €8-18/mo total, well under €100/mo budget.
-
-**Outcome:** PR #69 merged. API endpoints live. Data pipeline active. Phase 5 unblocked.
-
----
-
-### 2026-03-16T12:00Z: CityPulseLabs Mobile UX — Unified Panel Pattern (Updated)
-
-**By:** Mouse (UI/UX Designer)  
-**Tier:** T2 (Implementation detail)  
-**Status:** ✅ COMPLETE
-
-Google Maps-style unified bottom sheet pattern: search bar + route results + station info combined into one cohesive panel. Implements user request to make mobile experience "closer to Google Maps".
-
-**Key Changes:**
-- Unified bottom sheet (collapsed 76px peek → expanded 75vh) with swipe gestures
-- Map click auto-fills origin/destination fields
-- Retry buttons in error states for flaky API recovery
-- Shimmer skeleton loading (perception of speed without new dependencies)
-- Desktop side panel preserved (user said it "looks great")
-
-**Impact:** PR #68 merged. 681 lines added, 73 removed. All 218+ tests passing.
-
----
-
-### 2026-03-16T12:00Z: Mobile Fixes + Phase 5 Skeleton (Trinity)
+### 2026-07-14: VIGÍA v0.3.0 — axe-core via CDN, no npm dependency
 
 **By:** Trinity (Full-Stack Developer)  
 **Tier:** T2 (Implementation)  
-**Status:** ✅ COMPLETE
+**Status:** ✅ IMPLEMENTED
 
-Three major moves: (1) Root cause of "failed to fetch" — secondary API calls lacked retry/timeout. (2) Route caching with 30s TTL + coordinate rounding. (3) Phase 5 analytics skeleton via AnalyticsProvider interface.
+**Decision:** axe-core is injected at runtime via CDN (`page.addScriptTag()`) rather than added as an npm dependency. This keeps the VIGÍA package lean and avoids version lock-in — the CDN URL can be bumped without touching package.json.
 
-**Key Changes:**
-1. **fetchWithRetry upgraded** — Exponential backoff with jitter, external AbortSignal support
-2. **Route caching** — 50-entry max, 30s TTL, 5-decimal coordinate rounding (~1m)
-3. **Analytics dashboard skeleton** — AnalyticsProvider interface + mock implementation, pure SVG charts
-4. **Tiered timeouts** — Weather 6s/1retry, Prediction 8s/2retry, ORS 10s/2retry (graceful degradation)
+**New Commands Added:**
 
-**Impact:** ORS API parallelization achieves 3x mobile speedup. AnalyticsProvider allows Tank to plug real Cosmos data with one-liner. PR #67 merged. All 252+ tests passing.
+| Command | Purpose |
+|---------|---------|
+| `type_and_select` | Char-by-char typing + autocomplete selection |
+| `wait_for_stable` | Network idle + MutationObserver DOM quiescence |
+| `check_accessibility` | axe-core WCAG audit (CDN injection) |
+| `check_links` | HEAD-check all page links for 404s |
+
+**Test Impact:** 95 → 113 tests. All green.
 
 ---
 
-### 2026-03-16T12:00Z: Phase 5 Contract Tests (Switch)
+### 2026-07-13: VIGÍA v0.2.0 — Vision via SDK Blob Attachments
+
+**By:** Trinity (Full-Stack Developer)  
+**Tier:** T2 (Implementation)  
+**Status:** ✅ IMPLEMENTED
+
+**Context:** VIGÍA MVP took screenshots but couldn't see them — the agent only received DOM text. Screenshots were saved to disk as evidence but never analyzed visually.
+
+**Decision:** Use the Copilot SDK's native `blob` attachment type to send screenshot images directly to the agent as base64-encoded data. The SDK's `MessageOptions.attachments` supports `{ type: "blob", data: base64, mimeType: "image/png" }`.
+
+**Key Findings:**
+- gpt-4.1 supports vision (`ModelCapabilities.supports.vision`)
+- No external image processing needed — SDK handles inline images natively
+- 5MB per-image limit (base64), max 5 images per turn for safety
+- Base64 stripped from text results to avoid token bloat — images travel as attachments only
+
+**Error Handling Strategy:**
+- `executeCommand` wrapped in try/catch (returns `{status: "error"}` instead of crashing)
+- `sendAndCollect` has 2-minute timeout per turn
+- SIGINT handler saves partial report + closes browser cleanly
+- `session.error` event listener for SDK disconnections
+- Fatal crash handler saves partial report before exit
+
+**Alternatives Considered:**
+- **sharp/canvas for visual metadata**: Not needed — SDK supports vision natively
+- **axe-core for accessibility**: Deferred to v0.3.0 (would add dependency weight)
+- **gpt-4o model swap**: Unnecessary — gpt-4.1 already supports vision
+
+**Impact:** VIGÍA can now detect visual issues (layout, contrast, spacing, responsive breakage) that DOM inspection alone misses. Error handling ensures no crash leaves the user without a report.
+
+---
+
+### 2026-07-10: VIGÍA Test Suite + Bug Fix
 
 **By:** Switch (Tester/QA)  
-**Tier:** T2 (Test Strategy)  
-**Status:** ✅ COMPLETE
-
-116 contract-first tests for Phase 5 features across 4 suites: predictionAccuracy (32), anomalyDetection (27), analytics (26), predictionModel (31). Consumer-driven contracts define what Trinity must build.
-
-**Key Pattern:**
-- Inline reference implementations define contracts
-- When Trinity builds Phase 5, she swaps stubs for real imports
-- Tests validate her implementation without modification
-- Zero new dependencies; all existing 252+ tests remain green
-
-**Impact:** Trinity now has exact spec for 116 test cases across all Phase 5 domains. PR #66 merged.
-
----
-
-### 2026-03-16T12:00Z: ORS Route Proxy via Azure Function
-
-**By:** Trinity (Full-Stack Developer)  
 **Tier:** T2 (Implementation)  
-**Status:** PR #70 — Merged. Configuration pending.
+**Status:** ✅ IMPLEMENTED
 
-**Context:** PR #67 fixed retry logic, caching, and parallelization — but routes still failed in production. Root cause: frontend called `api.openrouteservice.org` directly from the browser.
+**Bug Found & Fixed:**
+- **File:** `poc/vigia/tools/reporter.js` line 114
+- **Bug:** Sort comparator used `|| 3` (logical OR) instead of `?? 3` (nullish coalescing). Since `critical` has order value `0` (falsy in JS), `0 || 3` evaluates to `3`, making critical issues sort LAST instead of first.
+- **Fix:** Changed `||` to `??`. Critical issues now correctly appear first in reports.
 
-**Problems with Direct Browser → ORS:**
-1. CORS — ORS doesn't whitelist our Azure SWA domain
-2. API key exposure — `VITE_ORS_API_KEY` baked into client JS bundle
-3. Rate limiting — 18 API calls per route calculation vs 40 req/min free tier
-4. Mobile unreliability — direct external API calls slower and more timeout-prone
+**Test Architecture:**
+- Extracted `extractCommands` and `executeCommand` from `vigia.js` into `poc/vigia/lib/` for testability
+- Tests at `poc/vigia/tests/` (4 files, 95 tests)
+- Updated root `vitest.config.js` to include VIGÍA test patterns
+- All test names in Spanish per project convention
 
-**Decision:** Route all ORS calls through Azure Function proxy at `/api/routes`:
-- Server-side `ORS_API_KEY` (never in client bundle)
-- Server-side 30s cache with stale-on-error fallback
-- Frontend calls `/api/routes` instead of ORS directly
-- Removed `VITE_ORS_API_KEY` from CI build
-
-**Action Required:** Tank must add `ORS_API_KEY` to Azure Function app settings:
-```bash
-az functionapp config appsettings set --name func-citypulse-api --resource-group rg-citypulse --settings ORS_API_KEY=<key>
-```
-
-**Impact:**
-- Eliminates CORS, rate limiting, and API key exposure
-- Double caching (client 30s + server 30s) reduces ORS calls significantly
-- Cost impact: negligible (Azure Functions Consumption pricing)
-- All 368 tests pass, both builds clean
+**Files Changed:**
+- `poc/vigia/tools/reporter.js` — bug fix (|| → ??)
+- `poc/vigia/vigia.js` — imports from lib/ instead of inline functions
+- `poc/vigia/lib/extract-commands.js` — extracted pure function
+- `poc/vigia/lib/execute-command.js` — extracted dispatch function
+- `poc/vigia/tests/browser.test.js` — 31 tests
+- `poc/vigia/tests/reporter.test.js` — 24 tests
+- `poc/vigia/tests/commands.test.js` — 25 tests
+- `poc/vigia/tests/edge-cases.test.js` — 15 tests
+- `vitest.config.js` — added vigia test pattern
 
 ---
 
-### 2026-03-20T14:30Z: ORS Call Reduction (v0.1) — Trinity Implementation Complete
+### 2026-07-08T00:00Z: Vercel AI SDK + Azure OpenAI confirmed for B2C Stack
 
-**By:** Trinity (Full-Stack Developer)  
-**Tier:** T2 (Implementation)  
-**Status:** ✅ APPROVED & MERGED — PR #71
-
-**Context:** ORS free tier (2,000 req/day) exhausted. Morpheus evaluation recommended reducing from 18→9 calls per route.
-
-**Implementation:**
-- Candidate pairs: 6 → 3 (top 2 pickups × 1 dropoff)
-- Route options displayed: 3 → 2 (users rarely pick 3rd)
-- Cache TTL: 30s → 5 minutes (quota-aware)
-- Cache precision: 5 decimals (~1m) → 3 decimals (~110m, acceptable for bike-share)
-- Quota-aware error: `QuotaExhaustedError` on 429 with Spanish message
-
-**Impact:**
-- Free tier capacity doubled: ~222 routes/day (was ~111)
-- Cache hit rate dramatically increased
-- All 335 tests passing
-- Production-ready
-
-**Files Changed:** `src/services/routeEngine.ts`, `src/services/routing.ts`, `api/src/functions/routes.ts`, `tests/unit/routeEngine.test.ts`
-
-**Trade-offs Accepted:**
-- 2 routes instead of 3 — acceptable for MVP (users rarely pick 3rd)
-- 110m cache precision — fine for bike-share (users walk to stations anyway)
-- 5-min cache TTL — road network stable, ORS data refresh not critical
-
----
-
-### 2026-03-20T14:30Z: Mobile-Specific UX Redesign — Mouse Implementation Complete
-
-**By:** Mouse (UI/UX Designer)  
-**Tier:** T2 (Implementation)  
-**Status:** ✅ APPROVED & MERGED — PR #72
-
-**Context:** User directive (Spanish): "Móvil tiene sus propios códigos" — mobile needs separate design, not responsive adaptation. Also: hide BOOST/Turbo, fix desktop banner, fix button text bug.
-
-**Implementation:**
-- Separate component trees via `useIsMobile()` hook — NOT responsive breakpoints
-- Mobile: floating search (Google Maps pattern) + bottom sheet results + full-screen map
-- Desktop: side panel + header bar (preserved, user approved)
-- BOOST/Turbo hidden (not available in network)
-- Desktop banner redesigned (clean white, no gradient)
-- Button text bug fixed (CSS cascade issue)
-
-**Mobile-specific features:**
-- Touch targets ≥48px everywhere
-- Swipe gestures (up/down) to expand/collapse bottom sheet
-- 16px font on inputs (prevents iOS auto-zoom)
-- Safe-area-inset support (notch/gesture bar awareness)
-- Overscroll containment (prevents scroll-through to map)
-
-**Impact:**
-- 821 lines added, 170 removed across 9 files
-- All 333 tests passing
-- Industry-standard UX (Google Maps, Apple Maps, Uber pattern)
-
-**Files Changed:** `src/hooks/useIsMobile.ts`, `src/components/SearchBar/MobileSearchBar.tsx`, `src/components/RoutePanel/MobileRoutePanel.tsx`, `src/App.tsx` (separate trees), `src/components/BikeTypeSelector.tsx` (BOOST hidden), `src/components/Header.tsx` (redesigned)
-
-**Learnings:**
-- Users perceive responsive design as "broken" even if technically functional
-- Separate component trees > responsive classes for fundamentally different paradigms
-- 16px minimum font on mobile inputs is non-negotiable (iOS Safari auto-zoom)
-- Tailwind v4 CSS cascade: parent `text-white` bleeds into children
-
----
-
-### 2026-03-21T12:30Z: Mobile Testing Strategy — 3-Tier Stack for Production Readiness
-
-**By:** Morpheus (Lead/Architect)  
+**By:** Oracle (Product & Docs)  
 **Tier:** T1 (Architecture Authority)  
-**Status:** ✅ EVALUATED & APPROVED — Implementation assigned (Tank, Switch)
+**Status:** ✅ APPROVED & RESEARCH COMPLETE
 
-**Problem:** PR #72 (Mobile UX) merged with passing unit tests but failed in production:
-- Touch event capture broken (first tap caught, subsequent taps missed)
-- Service worker cache stale (BOOST/Turbo still visible after deploy)
-- Mobile smoothness not production-grade
+**Decision:** Adopt **Vercel AI SDK v6 + @ai-sdk/azure + MCP** as the official B2C stack for:
+- AUTONOMO.AI (fiscal chat for autonomos)
+- AccesoPulse (WCAG accessibility assistant)
+- CAMBIAZO (residence change assistant)
 
-**Root Cause:** Autonomous agents cannot test visual rendering or mobile interactions without headless browser automation + human QA.
+**Key Metrics:**
+- Cost: €35-85/mo for 1K users (vs Copilot SDK estimated €10-15/mo infra + development overhead)
+- Cold start: <100ms vs Copilot SDK ~2.5s
+- Production maturity: v6.x (stable) vs Copilot SDK v0.2.x (preview)
+- React hooks: ✅ useChat() with native streaming
+- Provider flexibility: 25+ (Azure, Anthropic, OpenAI, etc.) vs 1 (Copilot/BYOK)
 
-**Recommendation: 3-Tier Stack (€0, 10 hours)**
+**Architecture:**
+- Deploys on Azure Container Apps (no Vercel required)
+- Shared MCP servers across products (fiscal, banking, WCAG tools)
+- Apache 2.0 license, zero lock-in
 
-1. **Tier 1 (Critical):** Service worker cache busting via workbox versioning + git SHA
-   - Owner: Tank
-   - Time: 2 hours
-   - Deliverable: PR #73 — cache invalidation on deploy (skipWaiting, clientsClaim, cleanupOutdatedCaches)
-   - Status: ✅ MERGED
-
-2. **Tier 2 (Automated):** Playwright E2E mobile tests in CI
-   - Owner: Switch
-   - Time: 6 hours
-   - Deliverables: `.github/workflows/e2e-mobile.yml`, 10 test cases (touch events, layouts, button reachability), Lighthouse ≥80
-   - Devices: iPhone 12 (390×844), Android Pixel 5 (360×640), Desktop Chrome regression
-   - Status: ✅ MERGED (PR #74)
-
-3. **Tier 3 (Human-in-Loop):** Mobile QA checklist + PR template integration
-   - Owner: Switch
-   - Time: 2 hours
-   - Deliverable: `.github/MOBILE_QA_CHECKLIST.md` (10-point checklist for real device testing)
-   - Approval gate: Founder signs off before merge (real device validation)
-   - Status: ✅ MERGED (PR #74)
-
-**Key Decisions:**
-- Service worker cache busting must be FIRST (prerequisite for all testing)
-- Playwright E2E (CI automation) + QA checklist (human expertise) = 85%+ confidence
-- Visual regression testing (BackstopJS) deferred to Phase 8 (premature now)
-- Lighthouse CI as complement (accessibility + performance monitoring)
+**Research:** `docs/research/vercel-ai-sdk-research.md` (29KB comprehensive analysis)
 
 ---
 
-## Governance
+### 2026-07-08T12:00Z: Vercel AI SDK PoC Complete — 25-40x Faster Cold Start
 
-| Tier | Authority | Scope |
-|------|-----------|-------|
-| T0 | Founder only | New downstream companies, principles changes, critical .squad/ structural changes |
-| T1 | Lead (Morpheus) | Architecture, quality gates, skills, ceremonies, routing |
-| T2 | Agent authority | Implementation details, test strategies, doc updates |
-| T3 | Auto-approved | Scribe ops, history updates, log entries |
+**By:** Trinity (Full-Stack Developer)  
+**Tier:** T2 (Implementation)  
+**Status:** ✅ PoC VALIDATED & COMMITTED
+
+**Findings from side-by-side comparison (Copilot SDK vs Vercel AI SDK):**
+- **Cold start:** <100ms (Vercel) vs ~2.5s (Copilot) — 25-40x improvement
+- **Tool predictability:** Only custom tools (Vercel) vs built-ins compete (Copilot)
+- **Cost at 100 users/day:** €2-5/day vs ~€20/day (4-10x cheaper with Vercel)
+- **Code complexity:** 378 lines (with abstraction layer) vs 298 lines (Copilot hides complexity in subprocess)
+
+**Deliverables:** 3 production-ready scripts at `poc/vercel-ai-chat/`:
+- with-tools.js (FiscalBot multi-turn with tool use)
+- streaming.js (streaming response patterns)
+- basic-chat.js (minimal chat loop)
+
+**Baseline for AUTONOMO.AI:** Start from `poc/vercel-ai-chat/with-tools.js`
+
+**Verdict:** Vercel AI SDK wins decisively. Approved for all B2C products.
 
 ---
 
-See decisions-archive-2026-03-16T16-39-09.md for entries from 2026-03-15 and earlier.  
-**Last Updated:** 2026-03-16T15:25Z
+### 2026-04-07T14:31:01Z: No auto-generation of GitHub Issues from VIGÍA findings
+
+**By:** joperezd (User Directive via Copilot)  
+**Tier:** T0 (User Decision)  
+**Status:** ⏳ ACTIVE (Quality Gate)
+
+**Directive:** No auto-generation of GitHub Issues from VIGÍA findings until the tester is solid. Otherwise it would flood the repo with low-quality issues.
+
+**Rationale:** User request — quality gate before automating issue creation.
+
+---
+
+### 2026-04-07T14:48:59Z: VIGÍA must be aggressive during testing
+
+**By:** joperezd (User Directive via Copilot)  
+**Tier:** T0 (User Decision)  
+**Status:** ⏳ ACTIVE (Execution Style)
+
+**Directive:** VIGÍA debe ser agresivo — darle una paliza total a la app que pruebe. No terminar pronto. Usar todos los turnos disponibles, probar búsqueda, formularios, navegación, interacciones, todo.
+
+**Rationale:** User request — agent was terminating in 7/15 turnos without testing critical features like `type_and_select`.
+
+---
+
+### 2026-04-07T16:57:36Z: Version-over-version regression testing for VIGÍA
+
+**By:** joperezd (User Directive via Copilot)  
+**Tier:** T0 (User Decision)  
+**Status:** ⏳ ACTIVE (Quality Gate)
+
+**Directive:** Después de cada versión de VIGÍA, ejecutar un test headless contra CPL y comparar resultados con la versión anterior. Cada versión debe ser mejor que la anterior (más issues reales, menos falsos positivos, más turnos útiles).
+
+**Rationale:** User request — quality gate para asegurar progreso real entre versiones.
+
+---
