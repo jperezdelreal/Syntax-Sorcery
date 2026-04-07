@@ -351,13 +351,14 @@ Si llevas <10 issues en turno 10, busca más. Empieza AHORA.`;
       const resultsSummary = results
         .map((r) => {
           const textResult = { ...r.result };
-          delete textResult.base64; // El agente ve la imagen via adjunto, no en texto
-          return `[${r.command}] ${JSON.stringify(textResult).substring(0, 300)}`;
+          delete textResult.base64;
+          delete textResult.filepath; // No necesita paths locales
+          return `[${r.command}] ${JSON.stringify(textResult).substring(0, 200)}`;
         })
-        .join("\n\n");
+        .join("\n");
 
       const visionNote = pendingAttachments.length > 0
-        ? `\n\n📸 Se adjuntan ${pendingAttachments.length} screenshot(s) como imágenes. ANALIZA visualmente: layout, contraste, legibilidad, UX.`
+        ? `\n📸 ${pendingAttachments.length} screenshot(s) adjuntas.`
         : "";
 
       const missing = getMissing();
