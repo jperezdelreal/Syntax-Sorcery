@@ -6,6 +6,7 @@
  *  Acumula issues encontrados durante la sesión de testing
  *  y genera un informe Markdown con evidencia.
  *
+ *  v0.6: JSON export alongside markdown for run comparison.
  *  v0.5: Soporta multi-URL via generateConsolidatedReport().
  *  startSession/generateReport mantienen backward compat.
  * ============================================================
@@ -174,9 +175,33 @@ Se ejecutaron ${testLog.length} acciones de testing y se encontraron **${issues.
   await writeFile(filepath, md, "utf-8");
   console.log(`\n   📄 Informe generado: ${filepath}`);
 
+  // JSON export for run comparison
+  const jsonData = buildJsonExport({
+    urls: [targetUrl],
+    sessions: [{
+      url: targetUrl,
+      issues: issues.map((i) => ({ ...i })),
+      actions: testLog.map((l) => ({ ...l })),
+      duration: durationMs,
+    }],
+    totalIssues: issues.length,
+    critical,
+    major,
+    minor,
+    durationMin: parseFloat(durationMin),
+    actionsExecuted: testLog.length,
+    timestamp: sessionStart.toISOString(),
+  });
+  const jsonFilename = `vigia-data-${timestamp}.json`;
+  const jsonFilepath = join(REPORTS_DIR, jsonFilename);
+  await writeFile(jsonFilepath, JSON.stringify(jsonData, null, 2), "utf-8");
+  console.log(`   📊 Datos JSON exportados: ${jsonFilepath}`);
+
   return {
     filepath,
     filename,
+    jsonFilepath,
+    jsonFilename,
     totalIssues: issues.length,
     critical,
     major,
@@ -303,9 +328,33 @@ Se ejecutaron ${allActions.length} acciones de testing y se encontraron **${allI
   await writeFile(filepath, md, "utf-8");
   console.log(`\n   📄 Informe consolidado generado: ${filepath}`);
 
+  // JSON export for run comparison
+  const jsonData = buildJsonExport({
+    urls: urlList,
+    sessions: sessions.map((s) => ({
+      url: s.url,
+      issues: s.issues.map((i) => ({ ...i })),
+      actions: s.actions.map((a) => ({ ...a })),
+      duration: s.duration,
+    })),
+    totalIssues: allIssues.length,
+    critical,
+    major,
+    minor,
+    durationMin: parseFloat(durationMin),
+    actionsExecuted: allActions.length,
+    timestamp: now.toISOString(),
+  });
+  const jsonFilename = `vigia-data-${timestamp}.json`;
+  const jsonFilepath = join(REPORTS_DIR, jsonFilename);
+  await writeFile(jsonFilepath, JSON.stringify(jsonData, null, 2), "utf-8");
+  console.log(`   📊 Datos JSON exportados: ${jsonFilepath}`);
+
   return {
     filepath,
     filename,
+    jsonFilepath,
+    jsonFilename,
     totalIssues: allIssues.length,
     critical,
     major,
@@ -315,6 +364,56 @@ Se ejecutaron ${allActions.length} acciones de testing y se encontraron **${allI
     urlCount,
   };
 }
+
+/**
+ * Construye el objeto JSON estructurado para exportación.
+ * Includes both flat fields (url, issues, timestamp) for backward compat
+ * and structured sessions[] for the compare module.
+ */
+function buildJsonExport({ urls, sessions, totalIssues, critical, major, minor, durationMin, actionsExecuted, timestamp }) {
+  const allIssues = sessions.flatMap((s) =>
+    s.issues.map((i) => ({
+      ...i,
+      fingerprint: issueFingerprint(i),
+    }))
+  );
+
+  const normalizedSessions = sessions.map((s) => ({
+    url: s.url,
+    issues: s.issues.map((i) => ({
+      ...i,
+      fingerprint: issueFingerprint(i),
+    })),
+    actionsCount: s.actions ? s.actions.length : 0,
+    duration: s.duration,
+  }));
+
+  return {
+    version: "0.6.0",
+    url: urls[0],
+    urls,
+    timestamp,
+    generatedAt: timestamp,
+    summary: { totalIssues, critical, major, minor, durationMin, actionsExecuted },
+    issues: allIssues,
+    sessions: normalizedSessions,
+  };
+}
+
+/**
+ * Genera un fingerprint estable para un issue basado en título + severidad + URL implícita.
+ * Usado para comparar issues entre ejecuciones.
+ */
+function issueFingerprint(issue) {
+  const key = `${(issue.title || "").toLowerCase().trim()}|${issue.severity || "unknown"}`;
+  let hash = 0;
+  for (let i = 0; i < key.length; i++) {
+    hash = ((hash << 5) - hash + key.charCodeAt(i)) | 0;
+  }
+  return `vigia-${Math.abs(hash).toString(36)}`;
+}
+
+export { issueFingerprint as _issueFingerprint };
 
 /**
  * Señaliza el fin de la sesión de una URL en modo multi-URL.

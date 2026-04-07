@@ -16,6 +16,7 @@
  *    node vigia.js --url https://example.com
  *    node vigia.js --url https://site1.com --url https://site2.com
  *    node vigia.js --url https://example.com --visible   (ves el navegador en tu pantalla)
+ *    node vigia.js --compare report1.json report2.json   (diff entre ejecuciones)
  *
  *  REQUISITOS:
  *    - Node.js 18+
@@ -29,12 +30,38 @@ import * as browser from "./tools/browser.js";
 import * as reporter from "./tools/reporter.js";
 import { extractCommands } from "./lib/extract-commands.js";
 import { executeCommand } from "./lib/execute-command.js";
+import { loadReport, compareReports, formatComparisonOutput } from "./lib/compare.js";
 
 // ════════════════════════════════════════════════════════════
 //  PARSEAR ARGUMENTOS (soporta múltiples --url)
 // ════════════════════════════════════════════════════════════
 
 const args = process.argv.slice(2);
+
+// ── --compare mode: diff two JSON reports and exit ─────────
+const compareIdx = args.indexOf("--compare");
+if (compareIdx !== -1) {
+  const file1 = args[compareIdx + 1];
+  const file2 = args[compareIdx + 2];
+  if (!file1 || !file2) {
+    console.error("❌ Uso: node vigia.js --compare <report1.json> <report2.json>");
+    process.exit(1);
+  }
+  try {
+    const [reportA, reportB] = await Promise.all([
+      loadReport(file1),
+      loadReport(file2),
+    ]);
+    const result = compareReports(reportA, reportB);
+    console.log(formatComparisonOutput(result));
+  } catch (err) {
+    console.error(`❌ Error al comparar: ${err.message}`);
+    process.exit(1);
+  }
+  process.exit(0);
+}
+
+// ── Parse --url arguments ──────────────────────────────────
 let targetUrls = [];
 for (let i = 0; i < args.length; i++) {
   if (args[i] === "--url" && args[i + 1]) {
@@ -55,7 +82,7 @@ const urlDisplay = targetUrls.length === 1
 console.log(`
 ╔══════════════════════════════════════════════════════╗
 ║  🔍 VIGÍA — Tester Autónomo de Apps Web              ║
-║  v0.5.0 — Multi-URL support                         ║
+║  v0.6.0 — Run comparison + JSON export               ║
 ╚══════════════════════════════════════════════════════╝
 
    URL${targetUrls.length > 1 ? "s" : ""} objetivo: ${targetUrls.length === 1 ? targetUrls[0] : ""}
