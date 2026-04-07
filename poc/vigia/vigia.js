@@ -39,6 +39,9 @@ import { loadReport, compareReports, formatComparisonOutput } from "./lib/compar
 import { loadBaselineReport, buildRegressionPlan, categorizeRegressionResults, generateRegressionReport, formatRegressionOutput } from "./lib/regression.js";
 import { parseArgs, loadConfigFile, mergeConfig, filterBySeverity, getExitCode, printHelp } from "./lib/config.js";
 
+// Module-level regression baseline (replaces globalThis usage)
+let regressionBaseline = null;
+
 // ════════════════════════════════════════════════════════════
 //  PARSEAR ARGUMENTOS + CARGAR CONFIG
 // ════════════════════════════════════════════════════════════
@@ -103,7 +106,7 @@ ${plan.urls.map((u, i) => `     ${i + 1}. ${u}`).join("\n")}
   // Override target URLs with the ones from the baseline report
   cliArgs.urls = plan.urls;
   // Store the baseline for regression categorization after testing completes
-  globalThis.__vigiaRegressionBaseline = baselineReport;
+  regressionBaseline = baselineReport;
 }
 
 // ── Load config file if specified ─────────────────────────
@@ -509,7 +512,7 @@ async function main() {
   }
 
   // 4b. Regression mode — categorize results against baseline
-  if (globalThis.__vigiaRegressionBaseline) {
+  if (regressionBaseline) {
     log("── Generando informe de regresión ─────────────────");
 
     // Build a retest report structure from the session snapshots
@@ -529,12 +532,12 @@ async function main() {
     };
 
     const regressionResult = categorizeRegressionResults(
-      globalThis.__vigiaRegressionBaseline,
+      regressionBaseline,
       retestReport,
     );
     const regressionReport = await generateRegressionReport(regressionResult);
-    console.log(formatRegressionOutput(regressionResult));
-    console.log(`   📄 Informe de regresión: ${regressionReport.filepath}`);
+    log(formatRegressionOutput(regressionResult));
+    log(`   📄 Informe de regresión: ${regressionReport.filepath}`);
   }
 
   // 5. Limpieza
