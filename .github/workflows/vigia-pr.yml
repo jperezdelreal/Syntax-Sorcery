@@ -32,7 +32,6 @@ on:
 permissions:
   contents: read
   pull-requests: write
-  actions: write
 
 # Cancel in-progress runs for the same PR
 concurrency:
