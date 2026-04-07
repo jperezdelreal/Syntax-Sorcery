@@ -6,6 +6,32 @@ Autonomous AI dev company (€500/mo Azure, unlimited GitHub). Strict context hy
 
 ## Active Decisions (Last 7 Days)
 
+### 2026-04-07T07:57Z: Copilot SDK Chat Research Complete — Oracle & Trinity
+
+**By:** Oracle (Product & Docs) + Trinity (Full-Stack Developer)  
+**Tier:** T1 (Architecture Authority)  
+**Status:** ✅ RESEARCH COMPLETE & PoC VALIDATED
+
+**Oracle Finding (Deep-dive on SDK as conversational engine):**
+- **Verdict:** SDK is NOT the right tool for B2C chat products (AUTONOMO.AI, AccesoPulse, CAMBIAZO)
+- **Key Constraints:** 2.5s subprocess overhead, irrelevant built-in tools, BYOK requirement nullifies value, no React hooks, zero B2C case studies
+- **Recommendation:** Dual strategy:
+  - B2C products → **Vercel AI SDK + MCP + Azure OpenAI** (<500ms, React hooks, 25+ providers)
+  - Dev tools & Squad headless → **Copilot SDK** (correct for extensions, code agents)
+  
+**Trinity PoC Results (3 demo scripts at `poc/copilot-sdk-chat/`):**
+- ✅ Basic chat with streaming works perfectly
+- ✅ Multi-turn context maintained (FiscalBot system prompt)
+- ⚠️ Custom tools partial (agent prefers built-in over custom when approveAll enabled)
+
+**Decision:** Use Vercel AI SDK for user-facing products. Copilot SDK for developer-focused tools only.
+
+**Full Reports:**
+- Oracle: `docs/research/copilot-sdk-chat-patterns.md` (20KB+ research)
+- Trinity: `poc/copilot-sdk-chat/` (3 working scripts, all tested live v0.2.1)
+
+---
+
 ### 2026-03-25T18:20Z: Bootstrap Autónomo desde Cero en Azure VM — R&D v2 (PIVOTE)
 
 **By:** Morpheus (Lead/Architect)  
@@ -612,4 +638,4 @@ az functionapp config appsettings set --name func-citypulse-api --resource-group
 ---
 
 See decisions-archive-2026-03-16T16-39-09.md for entries from 2026-03-15 and earlier.  
-**Last Updated:** 2026-03-27T19:00Z
+**Last Updated:** 2026-04-07T07:57Z
