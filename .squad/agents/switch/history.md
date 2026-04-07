@@ -48,3 +48,13 @@
 - **vitest config:** Added `poc/vigia/tests/**/*.test.js` to root `vitest.config.js` include patterns.
 - **Known issue:** `vi.clearAllMocks()` doesn't reliably clear mock call history for `vi.mock()` factory-created mocks. Use `mockClear()` explicitly or `mockImplementation()` to capture specific call data.
 
+### 2026-07-11: VIGÍA v0.5 Multi-URL Tests (37 tests) — Issue #165
+
+- **Scope:** TDD test suite for multi-URL support at `poc/vigia/tests/multi-url.test.js`.
+- **Sections:** A. parseUrls arg parsing (10 tests, inline reference spec), B. Reporter session isolation (5 tests), C. generateConsolidatedReport (13 tests), D. Edge cases (9 tests).
+- **Pattern:** Reporter module has singleton state — MUST call `reporter.startSession('about:blank')` in `beforeEach` to prevent state leaks between tests. The existing reporter.test.js does this; omitting it causes cascading failures as issues accumulate across tests.
+- **Discovery:** Trinity implemented `generateConsolidatedReport(sessions)` in reporter.js AND multi-URL arg parsing in vigia.js BEFORE tests landed. All 37 TDD tests passed first run after fixing beforeEach isolation. This validates spec-first approach: tests aligned with impl without coordination.
+- **parseUrls note:** Reference implementation includes deduplication via `[...new Set(urls)]`. Trinity's inline version in vigia.js does NOT deduplicate. If extracted to lib/, this discrepancy should be resolved (dedup gap identified).
+- **PR #171 merged:** v0.5.1 — multi-URL support complete. All 155 tests green.
+- **Total VIGÍA tests:** 155 across 5 files (browser: 31, reporter: 24, commands: 25, edge-cases: 15, multi-url: 37). All green.
+
