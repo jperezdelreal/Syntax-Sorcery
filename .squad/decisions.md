@@ -6,6 +6,25 @@ Autonomous AI dev company (€500/mo Azure, unlimited GitHub). Strict context hy
 
 ## Active Decisions (Last 7 Days)
 
+### 2026-07-10: VIGÍA Test Coverage Rule — Tests Must Import Production Modules
+
+**By:** Morpheus (Lead/Architect)  
+**Tier:** T1 (Architecture Authority)  
+**Status:** ✅ DECISION FILED  
+
+**Finding:** PR #171 had 155 passing tests but a runtime crash on multi-URL runs. Root cause: TDD tests in `multi-url.test.js` tested an inline reference implementation of `parseUrls`, not the actual production code. Production code diverged from spec (missing deduplication) with no failing tests to catch it.
+
+**Decision:** All tests must import and test the actual production module, not inline reference implementations.
+
+**Rule:** When writing TDD tests ahead of implementation:
+- Gate tests with `it.todo()` or `it.skip()` if the module doesn't exist yet
+- NEVER test an inline reference function as a proxy for production code  
+- The test file note must become a failing test, not a comment
+
+**Impact:** Affects Switch (test writing) and @copilot (implementation). Scribe: add to team conventions.
+
+---
+
 ### 2026-07-14: VIGÍA v0.4 — click_text fallback for failed CSS clicks
 
 **By:** Trinity (Full-Stack Developer)  

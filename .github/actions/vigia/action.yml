@@ -1,0 +1,233 @@
+# ============================================================
+#  VIGÍA — Composite GitHub Action
+# ============================================================
+#  Runs VIGÍA autonomous web tester on a target URL, posts
+#  results as a PR comment, uploads screenshots as artifacts,
+#  and fails the check if critical issues are found.
+#
+#  Usage:
+#    - uses: ./.github/actions/vigia
+#      with:
+#        url: 'https://example.com'
+#      env:
+#        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+# ============================================================
+
+name: 'VIGÍA — Autonomous Web Tester'
+description: 'Run VIGÍA against a URL and report issues as PR comments with screenshot artifacts'
+
+inputs:
+  url:
+    description: 'Target URL to test'
+    required: true
+  max-turns:
+    description: 'Maximum agent turns (more turns = deeper testing)'
+    required: false
+    default: '10'
+  severity-threshold:
+    description: 'Minimum severity to include in report (info, minor, major, critical)'
+    required: false
+    default: 'minor'
+  output-format:
+    description: 'Report format: md, json, html'
+    required: false
+    default: 'md'
+
+outputs:
+  report:
+    description: 'Path to the generated report file'
+    value: ${{ steps.find-report.outputs.report_path }}
+  exit-code:
+    description: 'VIGÍA exit code (0 = clean, 1 = critical issues)'
+    value: ${{ steps.run-vigia.outputs.exit_code }}
+  issue-count:
+    description: 'Number of issues found'
+    value: ${{ steps.find-report.outputs.issue_count }}
+
+runs:
+  using: 'composite'
+  steps:
+    # ── 1. Setup Node.js ──────────────────────────────────
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '22'
+
+    # ── 2. Install VIGÍA dependencies ─────────────────────
+    - name: Install VIGÍA dependencies
+      shell: bash
+      working-directory: poc/vigia
+      run: |
+        npm ci
+
+    # ── 3. Install Playwright Chromium (headless) ─────────
+    - name: Install Playwright browsers
+      shell: bash
+      working-directory: poc/vigia
+      run: |
+        npx playwright install chromium --with-deps
+
+    # ── 4. Generate VIGÍA config file ─────────────────────
+    #   maxTurns is only settable via config file, not CLI flag
+    - name: Generate VIGÍA config
+      shell: bash
+      working-directory: poc/vigia
+      env:
+        INPUT_MAX_TURNS: ${{ inputs.max-turns }}
+        INPUT_URL: ${{ inputs.url }}
+        INPUT_SEVERITY: ${{ inputs.severity-threshold }}
+        INPUT_FORMAT: ${{ inputs.output-format }}
+      run: |
+        cat > vigia-ci.config.json <<CFGEOF
+        {
+          "urls": ["${INPUT_URL}"],
+          "maxTurns": ${INPUT_MAX_TURNS},
+          "severityThreshold": "${INPUT_SEVERITY}",
+          "outputFormat": "${INPUT_FORMAT}",
+          "quiet": true
+        }
+        CFGEOF
+        echo "Generated config:"
+        cat vigia-ci.config.json
+
+    # ── 5. Run VIGÍA ──────────────────────────────────────
+    - name: Run VIGÍA
+      id: run-vigia
+      shell: bash
+      working-directory: poc/vigia
+      run: |
+        set +e
+        node vigia.js --config vigia-ci.config.json --quiet
+        EXIT_CODE=$?
+        echo "exit_code=${EXIT_CODE}" >> "$GITHUB_OUTPUT"
+        echo "VIGIA_EXIT_CODE=${EXIT_CODE}" >> "$GITHUB_ENV"
+        echo "VIGÍA finished with exit code: ${EXIT_CODE}"
+        # Don't fail yet — we need to post the comment and upload artifacts first
+        exit 0
+
+    # ── 6. Find the generated report ──────────────────────
+    - name: Find report
+      id: find-report
+      shell: bash
+      working-directory: poc/vigia
+      run: |
+        # Find the most recent report file
+        REPORT=$(ls -t reports/vigia-report-*.md 2>/dev/null | head -1)
+        if [ -z "$REPORT" ]; then
+          # Try JSON format
+          REPORT=$(ls -t reports/vigia-report-*.json 2>/dev/null | head -1)
+        fi
+        if [ -z "$REPORT" ]; then
+          echo "::warning::No VIGÍA report found"
+          echo "report_path=" >> "$GITHUB_OUTPUT"
+          echo "issue_count=0" >> "$GITHUB_OUTPUT"
+          exit 0
+        fi
+        echo "report_path=${REPORT}" >> "$GITHUB_OUTPUT"
+        echo "VIGIA_REPORT_PATH=${REPORT}" >> "$GITHUB_ENV"
+        echo "Found report: ${REPORT}"
+
+        # Extract issue count from markdown report
+        ISSUES=$(grep -c "^### " "$REPORT" 2>/dev/null || echo "0")
+        echo "issue_count=${ISSUES}" >> "$GITHUB_OUTPUT"
+
+    # ── 7. Post report as PR comment ──────────────────────
+    - name: Post PR comment
+      if: github.event_name == 'pull_request' && env.VIGIA_REPORT_PATH != ''
+      uses: actions/github-script@v7
+      env:
+        VIGIA_EXIT_CODE: ${{ env.VIGIA_EXIT_CODE }}
+        VIGIA_REPORT_PATH: ${{ env.VIGIA_REPORT_PATH }}
+      with:
+        github-token: ${{ env.GITHUB_TOKEN }}
+        script: |
+          const fs = require('fs');
+          const path = require('path');
+
+          const reportPath = path.join('poc/vigia', process.env.VIGIA_REPORT_PATH);
+          let reportContent = '';
+
+          try {
+            reportContent = fs.readFileSync(reportPath, 'utf-8');
+          } catch (err) {
+            console.log(`Could not read report: ${err.message}`);
+            return;
+          }
+
+          // Truncate if too long for a GH comment (max ~65536 chars)
+          const MAX_COMMENT_LENGTH = 60000;
+          if (reportContent.length > MAX_COMMENT_LENGTH) {
+            reportContent = reportContent.substring(0, MAX_COMMENT_LENGTH)
+              + '\n\n---\n⚠️ *Report truncated. See full report in artifacts.*';
+          }
+
+          const exitCode = process.env.VIGIA_EXIT_CODE || '0';
+          const statusEmoji = exitCode === '0' ? '✅' : '🔴';
+          const statusText = exitCode === '0' ? 'No critical issues' : 'Critical issues found';
+
+          const body = `## ${statusEmoji} VIGÍA Report — ${statusText}\n\n`
+            + `<details><summary>Click to expand full report</summary>\n\n`
+            + reportContent
+            + `\n\n</details>\n\n`
+            + `---\n`
+            + `*🔍 VIGÍA v0.8 — Autonomous Web Tester | `
+            + `[Artifacts](${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId})*`;
+
+          // Find and update existing VIGÍA comment, or create new one
+          const { data: comments } = await github.rest.issues.listComments({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            issue_number: context.issue.number,
+          });
+
+          const existingComment = comments.find(c =>
+            c.body && c.body.includes('VIGÍA Report')
+          );
+
+          if (existingComment) {
+            await github.rest.issues.updateComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              comment_id: existingComment.id,
+              body,
+            });
+            console.log(`Updated existing comment: ${existingComment.id}`);
+          } else {
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              body,
+            });
+            console.log('Created new VIGÍA comment');
+          }
+
+    # ── 8. Upload screenshots as artifacts ────────────────
+    - name: Upload screenshots
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: vigia-screenshots
+        path: poc/vigia/screenshots/
+        if-no-files-found: ignore
+        retention-days: 14
+
+    # ── 9. Upload report as artifact ──────────────────────
+    - name: Upload report
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: vigia-report
+        path: poc/vigia/reports/
+        if-no-files-found: ignore
+        retention-days: 30
+
+    # ── 10. Fail check if critical issues found ───────────
+    - name: Check for critical issues
+      shell: bash
+      run: |
+        if [ "$VIGIA_EXIT_CODE" = "1" ]; then
+          echo "::error::VIGÍA found critical issues in the target application"
+          exit 1
+        fi
+        echo "✅ VIGÍA completed — no critical issues"

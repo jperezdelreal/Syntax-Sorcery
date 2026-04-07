@@ -63,3 +63,11 @@
 - Tank will own Phase 1 VM deployment when founder approves. Bicep template ready (PR #54), cloud-init proven. Prerequisite: founder decision + PAT.
 - Cross-agent note: Morpheus also proposed 3 downstream products (CostaPulse, AccesoPulse, RutaViva) and BOLD services (FORJA, AUTONOMO.AI, CAMBIAZO). Both await founder approval. Tank's multi-squad work likely blocked until these foundational decisions made.
 
+**Session 2026-07-15: VIGÍA v0.8 CI/CD GitHub Action (#168, PR #174):**
+- Created composite action `.github/actions/vigia/action.yml` — 10-step pipeline: Node.js setup → npm ci → Playwright chromium --with-deps → generate config → run VIGÍA → find report → post PR comment → upload screenshots → upload report → fail on critical.
+- Key design: VIGÍA's `maxTurns` is config-file only (no CLI flag), so the action generates a temp `vigia-ci.config.json`. Config is built from action inputs via env vars.
+- Workflow `.github/workflows/vigia-pr.yml` triggers on `vigia` label (removed after run) or manual dispatch. 30min timeout, concurrency per PR.
+- PR comment pattern: updates existing VIGÍA comment (no spam on re-run), truncates at 60K chars with artifact link. Screenshots retained 14d, reports 30d.
+- Exit code mapping: VIGÍA exit 1 = critical issues → action fails the check. Exit 0 = pass.
+- Cost: $0 (runs on ubuntu-latest GitHub-hosted runners, free tier for public repos).
+
