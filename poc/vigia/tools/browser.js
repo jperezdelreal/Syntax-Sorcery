@@ -217,7 +217,7 @@ export async function getPageInfo() {
           href: a.getAttribute("href"),
         }))
         .filter((l) => l.text && l.href)
-        .slice(0, 30);
+        .slice(0, 15);
 
       // Botones
       const buttons = [...document.querySelectorAll("button, [role='button']")]
@@ -226,7 +226,7 @@ export async function getPageInfo() {
           disabled: b.disabled || false,
         }))
         .filter((b) => b.text)
-        .slice(0, 20);
+        .slice(0, 10);
 
       // Inputs/formularios
       const inputs = [...document.querySelectorAll("input, textarea, select")]
@@ -236,7 +236,7 @@ export async function getPageInfo() {
           placeholder: i.placeholder || "",
           required: i.required || false,
         }))
-        .slice(0, 20);
+        .slice(0, 10);
 
       // Encabezados
       const headings = [...document.querySelectorAll("h1, h2, h3")]
@@ -244,7 +244,7 @@ export async function getPageInfo() {
           level: h.tagName,
           text: getText(h),
         }))
-        .slice(0, 15);
+        .slice(0, 8);
 
       // Imágenes sin alt
       const imagesWithoutAlt = [...document.querySelectorAll("img")]
@@ -268,7 +268,7 @@ export async function getPageInfo() {
         buttons,
         inputs,
         headings,
-        mainText: mainText.substring(0, 500),
+        mainText: mainText.substring(0, 300),
         imagesWithoutAlt,
         totalImages,
         bodyBackground: bodyStyles.backgroundColor,
@@ -375,6 +375,134 @@ export async function wait(ms) {
     await page.waitForTimeout(ms);
     return { status: "ok", waitedMs: ms };
   } catch (err) {
+    return { status: "error", error: err.message };
+  }
+}
+
+/**
+ * Types text character-by-character to trigger autocomplete/dropdown,
+ * then clicks the first matching suggestion if one appears.
+ */
+export async function typeAndSelect(selector, text, opts = {}) {
+  try {
+    await page.waitForSelector(selector, { timeout: 5000 });
+    await page.click(selector);
+    await page.fill(selector, '');
+    for (const char of text) {
+      await page.keyboard.type(char, { delay: 50 });
+    }
+    const suggestionsSelector = opts.suggestionsSelector || '[role="listbox"], [role="option"], .suggestions, .autocomplete-results, ul.dropdown-menu, [class*="suggestion"], [class*="dropdown"], [class*="autocomplete"], [class*="results"]';
+    try {
+      await page.waitForSelector(suggestionsSelector, { timeout: 3000 });
+      const option = await page.$(suggestionsSelector + ' li, ' + suggestionsSelector + ' [role="option"], ' + suggestionsSelector + ' a, ' + suggestionsSelector + ' div');
+      if (option) {
+        const optionText = await option.textContent();
+        await option.click();
+        await page.waitForTimeout(500);
+        console.log(`   ⌨️  Typed "${text}", selected: "${optionText.trim()}"`);
+        return { status: "ok", typed: text, selected: optionText.trim(), method: "autocomplete" };
+      }
+    } catch {
+      // No suggestions appeared
+    }
+    console.log(`   ⌨️  Typed "${text}", no suggestions found`);
+    return { status: "ok", typed: text, selected: null, method: "no_suggestions" };
+  } catch (err) {
+    console.log(`   ❌ Error typeAndSelect en ${selector}: ${err.message}`);
+    return { status: "error", selector, error: err.message };
+  }
+}
+
+/**
+ * Waits for DOM to stabilize — network idle + no mutations for a period.
+ */
+export async function waitForStable(opts = {}) {
+  const timeout = opts.timeout || 5000;
+  try {
+    await page.waitForLoadState('networkidle', { timeout });
+    await page.evaluate((stableMs) => {
+      return new Promise((resolve) => {
+        let timer;
+        const observer = new MutationObserver(() => {
+          clearTimeout(timer);
+          timer = setTimeout(() => { observer.disconnect(); resolve(); }, stableMs);
+        });
+        observer.observe(document.body, { childList: true, subtree: true, attributes: true });
+        timer = setTimeout(() => { observer.disconnect(); resolve(); }, stableMs);
+      });
+    }, opts.stableMs || 500);
+    console.log(`   ⏳ DOM stabilized`);
+    return { status: "ok", settled: true };
+  } catch {
+    console.log(`   ⏳ DOM stabilization timeout`);
+    return { status: "ok", settled: false, note: "timeout waiting for stability" };
+  }
+}
+
+/**
+ * Injects axe-core via CDN and runs accessibility audit on current page.
+ */
+export async function checkAccessibility() {
+  try {
+    await page.addScriptTag({ url: 'https://cdnjs.cloudflare.com/ajax/libs/axe-core/4.9.1/axe.min.js' });
+    await page.waitForFunction(() => typeof window.axe !== 'undefined', { timeout: 5000 });
+
+    const results = await page.evaluate(async () => {
+      const res = await window.axe.run();
+      return {
+        violations: res.violations.map(v => ({
+          id: v.id,
+          impact: v.impact,
+          description: v.description,
+          helpUrl: v.helpUrl,
+          nodes: v.nodes.length
+        })),
+        passes: res.passes.length,
+        incomplete: res.incomplete.length
+      };
+    });
+
+    console.log(`   ♿ Accessibility: ${results.violations.length} violations, ${results.passes} passes`);
+    return { status: "ok", ...results };
+  } catch (err) {
+    console.log(`   ❌ Error checkAccessibility: ${err.message}`);
+    return { status: "error", error: err.message };
+  }
+}
+
+/**
+ * Checks all links on the page for broken (non-2xx) responses.
+ */
+export async function checkLinks() {
+  try {
+    const links = await page.evaluate(() => {
+      return [...document.querySelectorAll('a[href]')]
+        .map(a => ({ href: a.href, text: a.textContent.trim().substring(0, 50) }))
+        .filter(l => l.href.startsWith('http'))
+        .slice(0, 20);
+    });
+
+    const results = [];
+    for (const link of links) {
+      try {
+        const response = await page.request.head(link.href, { timeout: 5000 });
+        if (!response.ok()) {
+          results.push({ ...link, status: response.status(), broken: true });
+        }
+      } catch {
+        results.push({ ...link, status: 0, broken: true, error: "unreachable" });
+      }
+    }
+
+    console.log(`   🔗 Links: ${links.length} total, ${results.length} broken`);
+    return {
+      status: "ok",
+      totalLinks: links.length,
+      brokenLinks: results.length,
+      broken: results
+    };
+  } catch (err) {
+    console.log(`   ❌ Error checkLinks: ${err.message}`);
     return { status: "error", error: err.message };
   }
 }

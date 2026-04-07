@@ -265,6 +265,7 @@ describe('reporter.js — generador de informes', () => {
 
       const markdown = writeFile.mock.calls[0][1];
       expect(markdown).toContain('VIGÍA Version');
+      expect(markdown).toContain('0.3.0');
       expect(markdown).toContain('Copilot SDK');
       expect(markdown).toContain('Playwright');
     });

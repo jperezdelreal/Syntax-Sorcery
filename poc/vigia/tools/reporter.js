@@ -150,7 +150,7 @@ Se ejecutaron ${testLog.length} acciones de testing y se encontraron **${issues.
 
 ## Metadata
 
-- **VIGÍA Version:** 0.2.0
+- **VIGÍA Version:** 0.3.0
 - **Motor:** GitHub Copilot SDK + Playwright
 - **Modelo:** gpt-4.1
 - **Modo:** Headless Chromium

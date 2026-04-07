@@ -390,4 +390,189 @@ describe('browser.js — herramientas de Playwright', () => {
       expect(Array.isArray(errors)).toBe(true);
     });
   });
+
+  // ── typeAndSelect ──────────────────────────────────────
+  describe('typeAndSelect(selector, text, opts)', () => {
+    it('types character by character and returns autocomplete result when suggestion found', async () => {
+      const mockOption = {
+        textContent: vi.fn().mockResolvedValue('Madrid, Spain'),
+        click: vi.fn().mockResolvedValue(undefined),
+      };
+      mocks.mockPage.keyboard = { type: vi.fn().mockResolvedValue(undefined) };
+      mocks.mockPage.waitForSelector
+        .mockResolvedValueOnce(undefined) // initial wait for selector
+        .mockResolvedValueOnce(undefined); // wait for suggestions
+      mocks.mockPage.$ = vi.fn().mockResolvedValue(mockOption);
+
+      const result = await browser.typeAndSelect('#city', 'Mad');
+
+      expect(result.status).toBe('ok');
+      expect(result.typed).toBe('Mad');
+      expect(result.selected).toBe('Madrid, Spain');
+      expect(result.method).toBe('autocomplete');
+      expect(mocks.mockPage.fill).toHaveBeenCalledWith('#city', '');
+      expect(mocks.mockPage.keyboard.type).toHaveBeenCalledTimes(3); // M, a, d
+    });
+
+    it('returns no_suggestions when no dropdown appears', async () => {
+      mocks.mockPage.keyboard = { type: vi.fn().mockResolvedValue(undefined) };
+      mocks.mockPage.waitForSelector
+        .mockResolvedValueOnce(undefined) // initial wait for selector
+        .mockRejectedValueOnce(new Error('Timeout')); // no suggestions
+
+      const result = await browser.typeAndSelect('#search', 'xyz');
+
+      expect(result.status).toBe('ok');
+      expect(result.typed).toBe('xyz');
+      expect(result.selected).toBeNull();
+      expect(result.method).toBe('no_suggestions');
+    });
+
+    it('returns error when selector not found', async () => {
+      mocks.mockPage.keyboard = { type: vi.fn().mockResolvedValue(undefined) };
+      mocks.mockPage.waitForSelector.mockRejectedValueOnce(new Error('Timeout waiting for #missing'));
+
+      const result = await browser.typeAndSelect('#missing', 'text');
+
+      expect(result.status).toBe('error');
+      expect(result.error).toContain('Timeout');
+    });
+  });
+
+  // ── waitForStable ──────────────────────────────────────
+  describe('waitForStable(opts)', () => {
+    it('returns settled true when DOM stabilizes', async () => {
+      mocks.mockPage.waitForLoadState = vi.fn().mockResolvedValue(undefined);
+      mocks.mockPage.evaluate.mockResolvedValueOnce(undefined);
+
+      const result = await browser.waitForStable();
+
+      expect(result.status).toBe('ok');
+      expect(result.settled).toBe(true);
+      expect(mocks.mockPage.waitForLoadState).toHaveBeenCalledWith('networkidle', { timeout: 5000 });
+    });
+
+    it('returns settled false on timeout', async () => {
+      mocks.mockPage.waitForLoadState = vi.fn().mockRejectedValue(new Error('Timeout'));
+
+      const result = await browser.waitForStable({ timeout: 1000 });
+
+      expect(result.status).toBe('ok');
+      expect(result.settled).toBe(false);
+      expect(result.note).toContain('timeout');
+    });
+
+    it('accepts custom timeout and stableMs options', async () => {
+      mocks.mockPage.waitForLoadState = vi.fn().mockResolvedValue(undefined);
+      mocks.mockPage.evaluate.mockResolvedValueOnce(undefined);
+
+      await browser.waitForStable({ timeout: 10000, stableMs: 1000 });
+
+      expect(mocks.mockPage.waitForLoadState).toHaveBeenCalledWith('networkidle', { timeout: 10000 });
+      expect(mocks.mockPage.evaluate).toHaveBeenCalledWith(expect.any(Function), 1000);
+    });
+  });
+
+  // ── checkAccessibility ─────────────────────────────────
+  describe('checkAccessibility()', () => {
+    it('injects axe-core and returns violations', async () => {
+      mocks.mockPage.addScriptTag = vi.fn().mockResolvedValue(undefined);
+      mocks.mockPage.waitForFunction = vi.fn().mockResolvedValue(undefined);
+      mocks.mockPage.evaluate.mockResolvedValueOnce({
+        violations: [
+          { id: 'color-contrast', impact: 'serious', description: 'Low contrast', helpUrl: 'https://help.url', nodes: 3 },
+        ],
+        passes: 42,
+        incomplete: 2,
+      });
+
+      const result = await browser.checkAccessibility();
+
+      expect(result.status).toBe('ok');
+      expect(result.violations).toHaveLength(1);
+      expect(result.violations[0].id).toBe('color-contrast');
+      expect(result.violations[0].impact).toBe('serious');
+      expect(result.violations[0].nodes).toBe(3);
+      expect(result.passes).toBe(42);
+      expect(result.incomplete).toBe(2);
+      expect(mocks.mockPage.addScriptTag).toHaveBeenCalledWith(
+        expect.objectContaining({ url: expect.stringContaining('axe-core') })
+      );
+    });
+
+    it('returns error when axe injection fails', async () => {
+      mocks.mockPage.addScriptTag = vi.fn().mockRejectedValue(new Error('Network error'));
+
+      const result = await browser.checkAccessibility();
+
+      expect(result.status).toBe('error');
+      expect(result.error).toContain('Network error');
+    });
+  });
+
+  // ── checkLinks ─────────────────────────────────────────
+  describe('checkLinks()', () => {
+    it('finds broken links and returns results', async () => {
+      mocks.mockPage.evaluate.mockResolvedValueOnce([
+        { href: 'https://good.com', text: 'Good' },
+        { href: 'https://broken.com/404', text: 'Broken' },
+      ]);
+      mocks.mockPage.request = {
+        head: vi.fn()
+          .mockResolvedValueOnce({ ok: () => true, status: () => 200 })
+          .mockResolvedValueOnce({ ok: () => false, status: () => 404 }),
+      };
+
+      const result = await browser.checkLinks();
+
+      expect(result.status).toBe('ok');
+      expect(result.totalLinks).toBe(2);
+      expect(result.brokenLinks).toBe(1);
+      expect(result.broken).toHaveLength(1);
+      expect(result.broken[0].href).toBe('https://broken.com/404');
+      expect(result.broken[0].status).toBe(404);
+    });
+
+    it('marks unreachable links as broken', async () => {
+      mocks.mockPage.evaluate.mockResolvedValueOnce([
+        { href: 'https://unreachable.test', text: 'Dead' },
+      ]);
+      mocks.mockPage.request = {
+        head: vi.fn().mockRejectedValue(new Error('ECONNREFUSED')),
+      };
+
+      const result = await browser.checkLinks();
+
+      expect(result.status).toBe('ok');
+      expect(result.brokenLinks).toBe(1);
+      expect(result.broken[0].error).toBe('unreachable');
+      expect(result.broken[0].status).toBe(0);
+    });
+
+    it('returns empty broken array when all links are OK', async () => {
+      mocks.mockPage.evaluate.mockResolvedValueOnce([
+        { href: 'https://ok1.com', text: 'OK1' },
+        { href: 'https://ok2.com', text: 'OK2' },
+      ]);
+      mocks.mockPage.request = {
+        head: vi.fn().mockResolvedValue({ ok: () => true, status: () => 200 }),
+      };
+
+      const result = await browser.checkLinks();
+
+      expect(result.status).toBe('ok');
+      expect(result.totalLinks).toBe(2);
+      expect(result.brokenLinks).toBe(0);
+      expect(result.broken).toEqual([]);
+    });
+
+    it('returns error when page evaluate fails', async () => {
+      mocks.mockPage.evaluate.mockRejectedValueOnce(new Error('Page crashed'));
+
+      const result = await browser.checkLinks();
+
+      expect(result.status).toBe('error');
+      expect(result.error).toContain('Page crashed');
+    });
+  });
 });

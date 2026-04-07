@@ -15,6 +15,10 @@ vi.mock('../tools/browser.js', () => ({
   checkPerformance: vi.fn().mockResolvedValue({ status: 'ok', domContentLoaded: 200, loadComplete: 500 }),
   setViewport: vi.fn().mockResolvedValue({ status: 'ok', width: 375, height: 667 }),
   wait: vi.fn().mockResolvedValue({ status: 'ok', waitedMs: 1000 }),
+  typeAndSelect: vi.fn().mockResolvedValue({ status: 'ok', typed: 'Mad', selected: 'Madrid', method: 'autocomplete' }),
+  waitForStable: vi.fn().mockResolvedValue({ status: 'ok', settled: true }),
+  checkAccessibility: vi.fn().mockResolvedValue({ status: 'ok', violations: [], passes: 50, incomplete: 1 }),
+  checkLinks: vi.fn().mockResolvedValue({ status: 'ok', totalLinks: 5, brokenLinks: 0, broken: [] }),
 }));
 
 vi.mock('../tools/reporter.js', () => ({
@@ -211,5 +215,38 @@ describe('executeCommand() — despacho de acciones', () => {
     const result = await executeCommand({ action: 'navigate', url: 'https://crash.com' });
     expect(result.status).toBe('error');
     expect(result.error).toContain('Boom');
+  });
+
+  it('despacha type_and_select a browser.typeAndSelect con selector, texto y opciones', async () => {
+    await executeCommand({ action: 'type_and_select', selector: '#city', text: 'Mad', suggestionsSelector: '.dropdown' });
+    expect(browser.typeAndSelect).toHaveBeenCalledWith('#city', 'Mad', { suggestionsSelector: '.dropdown' });
+  });
+
+  it('despacha type_and_select sin suggestionsSelector usa undefined', async () => {
+    await executeCommand({ action: 'type_and_select', selector: '#q', text: 'test' });
+    expect(browser.typeAndSelect).toHaveBeenCalledWith('#q', 'test', { suggestionsSelector: undefined });
+  });
+
+  it('despacha wait_for_stable a browser.waitForStable con opciones', async () => {
+    await executeCommand({ action: 'wait_for_stable', timeout: 10000, stableMs: 1000 });
+    expect(browser.waitForStable).toHaveBeenCalledWith({ timeout: 10000, stableMs: 1000 });
+  });
+
+  it('despacha wait_for_stable sin opciones usa defaults', async () => {
+    await executeCommand({ action: 'wait_for_stable' });
+    expect(browser.waitForStable).toHaveBeenCalledWith({ timeout: undefined, stableMs: undefined });
+  });
+
+  it('despacha check_accessibility a browser.checkAccessibility', async () => {
+    const result = await executeCommand({ action: 'check_accessibility' });
+    expect(browser.checkAccessibility).toHaveBeenCalled();
+    expect(result.status).toBe('ok');
+  });
+
+  it('despacha check_links a browser.checkLinks', async () => {
+    const result = await executeCommand({ action: 'check_links' });
+    expect(browser.checkLinks).toHaveBeenCalled();
+    expect(result.status).toBe('ok');
+    expect(result.totalLinks).toBe(5);
   });
 });

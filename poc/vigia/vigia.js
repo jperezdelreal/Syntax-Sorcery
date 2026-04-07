@@ -44,7 +44,7 @@ const visibleMode = args.includes("--visible");
 console.log(`
 ╔══════════════════════════════════════════════════════╗
 ║  🔍 VIGÍA — Tester Autónomo de Apps Web              ║
-║  v0.2.0 — Visión + Error Handling                    ║
+║  v0.3.0 — Autocomplete + Stability + A11y + Links    ║
 ╚══════════════════════════════════════════════════════╝
 
    URL objetivo: ${targetUrl}
@@ -56,53 +56,47 @@ console.log(`
 //  PROMPT DEL SISTEMA — Instruye al agente a emitir JSON
 // ════════════════════════════════════════════════════════════
 
-const SYSTEM_PROMPT = `Eres VIGÍA, un agente autónomo de QA para aplicaciones web con CAPACIDAD DE VISIÓN.
-Tu ÚNICO formato de output son bloques JSON de comandos. NO uses las herramientas del sistema (powershell, report_intent, etc.). Solo emite JSON.
+const SYSTEM_PROMPT = `Eres VIGÍA v0.3, agente autónomo de QA web con VISIÓN. Output: SOLO bloques JSON. NO uses herramientas del sistema (powershell, report_intent, etc.).
 
-Para ejecutar acciones, emite un bloque JSON así:
+Formato: \`\`\`json {"commands": [{"action": "...", ...}]} \`\`\`
 
-\`\`\`json
-{"commands": [
-  {"action": "navigate", "url": "https://example.com"},
-  {"action": "screenshot", "name": "homepage"},
-  {"action": "get_page_info"},
-  {"action": "check_performance"}
-]}
-\`\`\`
+ACCIONES:
+| Acción | Parámetros | Descripción |
+|---|---|---|
+| navigate | url | Abre URL |
+| click | selector | Click CSS |
+| type | selector, text | Escribe (fill) |
+| type_and_select | selector, text | Escribe char-a-char + selecciona dropdown |
+| screenshot | name | Captura (se te envía como imagen) |
+| get_page_info | — | Links, botones, inputs, headings |
+| check_performance | — | Tiempos de carga |
+| check_accessibility | — | Auditoría axe-core WCAG |
+| check_links | — | Detecta 404s y links rotos |
+| wait_for_stable | — | Espera DOM estable |
+| report_issue | title, description, severity | Reporta bug (critical/major/minor) |
+| set_viewport | width, height | Emula dispositivo |
+| wait | ms | Espera ms |
+| done | — | Fin del testing |
 
-ACCIONES DISPONIBLES:
-- {"action": "navigate", "url": "..."} — Abre una URL, devuelve título y tiempo de carga
-- {"action": "click", "selector": "..."} — Click en un elemento CSS
-- {"action": "type", "selector": "...", "text": "..."} — Escribe en un campo
-- {"action": "screenshot", "name": "..."} — Captura screenshot. LA IMAGEN se te envía para análisis visual
-- {"action": "get_page_info"} — Obtiene links, botones, inputs, headings, imágenes sin alt
-- {"action": "check_performance"} — Mide tiempos de carga y recursos
-- {"action": "report_issue", "title": "...", "description": "...", "severity": "critical|major|minor"}
-- {"action": "set_viewport", "width": 375, "height": 667} — Emular dispositivo
-- {"action": "wait", "ms": 1000} — Esperar milisegundos
-- {"action": "done"} — Indica que terminaste el testing
+CHECKLIST OBLIGATORIO (completar TODO antes de "done"):
+1. HOMEPAGE: navigate → screenshot → get_page_info → check_performance
+2. ACCESIBILIDAD: check_accessibility
+3. LINKS: check_links
+4. BÚSQUEDA: type_and_select en cada input (FUNCIÓN ESTRELLA — múltiples textos)
+5. FORMULARIOS: type → submit → verificar
+6. NAVEGACIÓN: click ≥3 links/botones, screenshot tras cada uno
+7. MOBILE: set_viewport 375x667 → screenshot → comparar con desktop
+8. INTERACTIVOS: markers, popups, dropdowns, tabs
 
-PROTOCOLO:
-1. Emite un bloque de comandos
-2. Recibirás los resultados + las imágenes de screenshots adjuntas
-3. ANALIZA las imágenes: layout, contraste, espaciado, legibilidad, UX
-4. Reporta problemas con report_issue
-5. Cuando termines, emite {"action": "done"} y un resumen
+REGLA ANTI-SALIDA: NO emitas done sin completar TODO el checklist. Si sobran turnos: edge cases (inputs vacíos, textos largos, caracteres especiales, resize). AGOTA tus turnos.
 
-CAPACIDAD DE VISIÓN:
-- Cada screenshot se te envía como imagen adjunta — PUEDES VERLA
-- Analiza: layout real, contraste de colores, tamaño de texto, espaciado
-- Detecta: elementos superpuestos, texto ilegible, CTAs poco visibles, diseño desbalanceado
-- Compara: desktop vs mobile para verificar responsive design
-- No te limites al DOM — usa tu visión para evaluar la calidad visual real
+SELECTORES: NUNCA uses :contains() — no es CSS válido. Usa selectores reales: "button.clase", "[data-testid='x']", o busca el selector exacto en get_page_info.
 
-REGLAS:
-- Emite SOLO bloques \`\`\`json ... \`\`\` — nada de texto suelto excepto análisis breve entre bloques
-- Toma screenshots FRECUENTEMENTE — es tu herramienta más poderosa
-- Reporta TODOS los problemas con report_issue (incluye hallazgos visuales)
-- Sé específico: qué esperabas vs qué ocurrió
-- Prioriza: funcionalidad rota > problemas visuales > UX pobre > mejoras
-- Testea: homepage, navegación, búsqueda/formularios, mobile viewport, accesibilidad básica`;
+REPORTING: Reporta CADA hallazgo con report_issue. Si type_and_select no encuentra sugerencias → issue major. Si click falla → issue minor. Si contraste es bajo → issue major. Más issues = mejor. NO te guardes nada.
+
+VISIÓN: Cada screenshot se te envía como imagen. Analiza layout, contraste, legibilidad. Compara desktop vs mobile. Reporta hallazgos visuales con report_issue.
+
+METODOLOGÍA: Un flujo completo a la vez. Screenshot después de cada acción significativa. Prioriza: funcionalidad rota > accesibilidad > visual > UX. Usa wait_for_stable tras cambios async.`;
 
 // executeCommand y extractCommands importados de ./lib/
 
@@ -154,7 +148,29 @@ async function sendAndCollect(session, message, attachments = []) {
 // ════════════════════════════════════════════════════════════
 
 const MAX_TURNS = 15; // Límite de seguridad
-const MAX_IMAGES_PER_TURN = 5; // Máximo de screenshots como adjuntos visuales
+const MAX_IMAGES_PER_TURN = 5;
+
+// Checklist tracker — redirige al agente si intenta done sin cubrir lo esencial
+const checklist = {
+  screenshot: false,
+  page_info: false,
+  accessibility: false,
+  search: false,
+  mobile: false,
+};
+
+function getMissing() {
+  const labels = {
+    screenshot: "screenshot de la homepage",
+    page_info: "get_page_info para ver la estructura",
+    accessibility: "check_accessibility (axe-core)",
+    search: "type_and_select en campos de búsqueda",
+    mobile: "set_viewport mobile (375x667) + screenshot",
+  };
+  return Object.entries(checklist)
+    .filter(([, done]) => !done)
+    .map(([key]) => labels[key]);
+}
 
 // ════════════════════════════════════════════════════════════
 //  GRACEFUL SHUTDOWN — Ctrl+C guarda informe parcial
@@ -226,21 +242,20 @@ async function main() {
   const startTime = Date.now();
 
   // 5. Misión inicial (incluye instrucciones de visión)
-  const mission = `Testea la aplicación web: ${targetUrl}
+  const mission = `Testea: ${targetUrl} — Tienes ${MAX_TURNS} turnos, ÚSALOS TODOS.
 
-RECUERDA: Cada screenshot se te envía como imagen adjunta — PUEDES VERLA y analizarla visualmente.
+PLAN:
+1. navigate ${targetUrl} → screenshot → get_page_info → check_performance
+2. check_accessibility + check_links
+3. type_and_select en cada input (múltiples textos)
+4. type en formularios → submit → verificar
+5. click ≥3 links/botones, screenshot tras cada uno
+6. set_viewport 375x667 → screenshot → comparar con desktop
+7. Elementos interactivos + edge cases
+8. report_issue para cada problema
+9. done SOLO al completar todo
 
-Plan:
-1. Navega a ${targetUrl}, screenshot, get_page_info, check_performance
-2. Analiza visualmente cada screenshot: layout, contraste, legibilidad
-3. Explora links principales
-4. Prueba búsquedas/formularios
-5. set_viewport a 375x667 (mobile), navega homepage de nuevo, screenshot
-6. Compara visualmente desktop vs mobile
-7. Reporta TODOS los problemas con report_issue (incluye hallazgos visuales)
-8. Emite {"action": "done"} al terminar
-
-Empieza ahora con tu primer bloque de comandos.`;
+Empieza AHORA.`;
 
   let turn = 0;
   let isDone = false;
@@ -277,6 +292,12 @@ Empieza ahora con tu primer bloque de comandos.`;
       const results = [];
       for (const cmd of commands) {
         if (cmd.action === "done") {
+          const missing = getMissing();
+          if (missing.length > 0) {
+            console.log(`   🚫 Agente quiso terminar pero faltan ${missing.length} items del checklist`);
+            // Don't break — redirect in the feedback message
+            continue;
+          }
           isDone = true;
           console.log("   ✅ Agente indicó fin del testing");
           break;
@@ -285,9 +306,28 @@ Empieza ahora con tu primer bloque de comandos.`;
         reporter.logAction(cmd.action, JSON.stringify(cmd).substring(0, 100));
         const result = await executeCommand(cmd);
         results.push({ command: cmd.action, result });
+
+        // Track checklist progress
+        if (cmd.action === "screenshot") checklist.screenshot = true;
+        if (cmd.action === "get_page_info") checklist.page_info = true;
+        if (cmd.action === "check_accessibility") checklist.accessibility = true;
+        if (cmd.action === "type_and_select") checklist.search = true;
+        if (cmd.action === "set_viewport" && cmd.width <= 480) checklist.mobile = true;
       }
 
       if (isDone) break;
+
+      // Auto-report type_and_select failures as issues
+      for (const r of results) {
+        if (r.command === "type_and_select" && r.result.selected === null) {
+          reporter.reportIssue(
+            `Búsqueda sin resultados: "${r.result.typed}"`,
+            `Se escribió "${r.result.typed}" en el campo de búsqueda pero no aparecieron sugerencias de autocomplete. El usuario no puede seleccionar un destino sin sugerencias.`,
+            "major"
+          );
+          console.log(`   🟠 Auto-issue: búsqueda "${r.result.typed}" sin sugerencias`);
+        }
+      }
 
       // Recopilar screenshots como blob attachments para visión
       const imageAttachments = [];
@@ -308,7 +348,7 @@ Empieza ahora con tu primer bloque de comandos.`;
         .map((r) => {
           const textResult = { ...r.result };
           delete textResult.base64; // El agente ve la imagen via adjunto, no en texto
-          return `[${r.command}] ${JSON.stringify(textResult).substring(0, 500)}`;
+          return `[${r.command}] ${JSON.stringify(textResult).substring(0, 300)}`;
         })
         .join("\n\n");
 
@@ -316,7 +356,12 @@ Empieza ahora con tu primer bloque de comandos.`;
         ? `\n\n📸 Se adjuntan ${pendingAttachments.length} screenshot(s) como imágenes. ANALIZA visualmente: layout, contraste, legibilidad, UX.`
         : "";
 
-      currentMessage = `Resultados de tus ${results.length} comandos:\n\n${resultsSummary}${visionNote}\n\nAnaliza los resultados. Si encontraste problemas, repórtalos con report_issue. Decide qué testear a continuación, o emite {"action": "done"} si terminaste.`;
+      const missing = getMissing();
+      const checklistHint = missing.length > 0 && turn >= 3
+        ? ` Pendiente: ${missing.slice(0, 2).join(", ")}.`
+        : "";
+
+      currentMessage = `Resultados (${results.length}):\n${resultsSummary}${visionNote}${checklistHint}`;
     }
   } catch (err) {
     console.log(`\n   ❌ Error en el loop principal: ${err.message}`);

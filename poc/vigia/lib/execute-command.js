@@ -40,6 +40,23 @@ export async function executeCommand(cmd) {
       case "wait":
         return await browser.wait(cmd.ms);
 
+      case "type_and_select":
+        return await browser.typeAndSelect(cmd.selector, cmd.text, {
+          suggestionsSelector: cmd.suggestionsSelector,
+        });
+
+      case "wait_for_stable":
+        return await browser.waitForStable({
+          timeout: cmd.timeout,
+          stableMs: cmd.stableMs,
+        });
+
+      case "check_accessibility":
+        return await browser.checkAccessibility();
+
+      case "check_links":
+        return await browser.checkLinks();
+
       case "done":
         return { status: "done" };
 
