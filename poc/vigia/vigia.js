@@ -1,3 +1,4 @@
+#!/usr/bin/env node
 /**
  * ============================================================
  *  vigia.js — VIGÍA: Tester Autónomo de Apps Web

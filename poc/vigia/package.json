@@ -1,16 +1,52 @@
 {
   "name": "vigia",
-  "version": "0.5.0",
-  "description": "VIGÍA — Tester autónomo de apps web con Copilot SDK + Playwright",
-  "private": true,
+  "version": "1.0.0",
+  "description": "VIGÍA — Autonomous web app tester powered by Copilot SDK + Playwright. Uses your app like a real user with product judgment.",
   "type": "module",
+  "bin": {
+    "vigia": "./vigia.js"
+  },
+  "files": [
+    "vigia.js",
+    "lib/",
+    "tools/",
+    "README.md",
+    "CHANGELOG.md"
+  ],
   "scripts": {
     "start": "node vigia.js",
+    "test": "vitest run",
+    "test:watch": "vitest --watch",
     "test:local": "node vigia.js --url http://localhost:5173",
     "test:prod": "node vigia.js --url https://citypulselabs.azurestaticapps.net"
+  },
+  "keywords": [
+    "qa",
+    "testing",
+    "autonomous",
+    "playwright",
+    "copilot",
+    "ai-testing",
+    "web-testing",
+    "accessibility",
+    "regression",
+    "cli"
+  ],
+  "author": "Syntax Sorcery",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/joperezd/syntax-sorcery.git",
+    "directory": "poc/vigia"
+  },
+  "engines": {
+    "node": ">=18"
   },
   "dependencies": {
     "@github/copilot-sdk": "latest",
     "playwright": "^1.52.0"
+  },
+  "devDependencies": {
+    "vitest": "^2.0.0"
   }
 }
