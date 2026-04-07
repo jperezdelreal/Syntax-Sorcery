@@ -35,7 +35,7 @@ import { executeCommand } from "./lib/execute-command.js";
 // ════════════════════════════════════════════════════════════
 
 const args = process.argv.slice(2);
-const targetUrls = [];
+let targetUrls = [];
 for (let i = 0; i < args.length; i++) {
   if (args[i] === "--url" && args[i + 1]) {
     targetUrls.push(args[i + 1]);
@@ -45,6 +45,7 @@ for (let i = 0; i < args.length; i++) {
 if (targetUrls.length === 0) {
   targetUrls.push("https://citypulselabs.azurestaticapps.net");
 }
+targetUrls = [...new Set(targetUrls)]; // deduplicate preserving order
 const visibleMode = args.includes("--visible");
 
 const urlDisplay = targetUrls.length === 1

@@ -317,6 +317,14 @@ Se ejecutaron ${allActions.length} acciones de testing y se encontraron **${allI
 }
 
 /**
+ * Señaliza el fin de la sesión de una URL en modo multi-URL.
+ * El estado se preserva para que captureSession() pueda leerlo.
+ */
+export function endUrlSession() {
+  // no-op: state is intentionally preserved for captureSession()
+}
+
+/**
  * Devuelve el estado actual de los issues.
  */
 export function getIssuesSummary() {
