@@ -99,7 +99,7 @@ if (cliArgs.regressionFile) {
   log(`
 ╔══════════════════════════════════════════════════════╗
 ║  🔍 VIGÍA — Modo Regresión                          ║
-║  v0.9.0                                             ║
+║  v1.0.0                                             ║
 ╚══════════════════════════════════════════════════════╝
 
    📄 Baseline: ${cliArgs.regressionFile}
@@ -144,7 +144,7 @@ const quietMode = config.quiet;
 log(`
 ╔══════════════════════════════════════════════════════╗
 ║  🔍 VIGÍA — Tester Autónomo de Apps Web              ║
-║  v0.9.0 — CLI profesional                           ║
+║  v1.0.0 — CLI profesional                           ║
 ╚══════════════════════════════════════════════════════╝
 
    URL${targetUrls.length > 1 ? "s" : ""} objetivo: ${targetUrls.length === 1 ? targetUrls[0] : ""}
