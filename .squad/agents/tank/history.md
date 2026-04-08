@@ -35,6 +35,8 @@
 
 **Session 2026-04-07 (VIGÍA v0.9–v1.0 Completion):** PR #175 merged — --quiet bypass fixed, globalThis cleanup complete. Ready for nightly regression testing infrastructure. Morpheus approved quality gates. No Azure cost changes.
 
+**Session 2026-04-08 (npm Publish):** PR #187 merged. npm publish preparation complete: .npmignore configured, prepublishOnly script added, publish-checklist.md filed. Package name "vigia" reserved on npm. VIGÍA ready for v1.0 release cycle launch.
+
 **Phase 5 CityPulseLabs Function Deployment (#59, #60):**
 - Deployed 5 Azure Functions to `func-citypulse-api` via `func azure functionapp publish`: health, stations, predict, weather, stationCollector (timer).
 - Timer trigger: `0 */5 * * * *` — writes station snapshots to Cosmos DB every 5 minutes. Cosmos container: `bici-coruna/station-snapshots`, partitioned by `/stationId`.

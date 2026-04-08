@@ -97,3 +97,8 @@
 - **Test architecture:** All 378 VIGÍA tests now enforce production module imports (decision 2026-07-10).
 - **Morpheus approved:** Leadership sign-off for v0.10 release cycle.
 
+## Recent Session — 2026-04-08T06:22:05Z (VIGÍA v1.0 Release Sprint)
+
+**PR #186 Merged:** E2E smoke tests complete. 8 Playwright + 3 CLI tests. 389 total tests green. **Decision filed:** Vitest 4 options-as-second-arg pattern — new tests use `describe('name', { timeout }, fn)`.
+**Cross-team impact:** Trinity/Tank must respect Vitest 4 syntax in all future test suites. Affects upcoming HTML report tests and CI integration.
+

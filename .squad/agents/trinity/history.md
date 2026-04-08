@@ -12,12 +12,16 @@
 
 ## Learnings (Current Session)
 
+- **PR #188 — Wire --output-format + HTML report (v1.1):** Finally wired `config.outputFormat` to the reporter. Refactored `generateReport()` and `generateConsolidatedReport()` to accept format param (`md`/`json`/`html`/`all`). Default `md` generates only Markdown (breaking from old always-both behavior). Added `buildHtmlReport()` — self-contained single HTML file with inline CSS, severity-colored badges (critical=red, major=orange, minor=yellow, info=blue), summary stat cards, collapsible sections, responsive grid, and base64-embedded screenshots. Updated 15 tests across 4 test files to pass `'all'` when testing JSON export (since `md` default no longer produces JSON). Added `fs` mocks for `existsSync`. 378 tests green. Removed README ⚠️ warning.
+
 - **PR #176 Blocker Fixes (Oracle locked out — reviewer rejection rule):** Fixed two Morpheus-flagged blockers. (1) `--output-format` docs were misleading — flag is parsed but not wired to reporter; updated README CLI reference, flag table, `--output-format` section, and GitHub Action inputs table to honestly state "aceptado pero no funcional en v1.0 — siempre genera MD + JSON." (2) Missing `poc/vigia/LICENSE` — package.json declared MIT but no file existed; created standard MIT LICENSE (2026, Syntax Sorcery). Key lesson: when taking over a locked-out author's PR, touch only the flagged scope — 2 files, 27 insertions, 0 deletions.
 
 
 - **VIGÍA v0.9.0 — Regression Re-testing (#169):** `--regression <report.json>` flag. New `lib/regression.js`: `loadBaselineReport()`, `buildRegressionPlan()` (extracts URLs with issues), `categorizeRegressionResults()` (diffs baseline vs re-test → resolved/persists/new), `generateRegressionReport()` (writes `vigia-regression-*.json`), `formatRegressionOutput()` (terminal summary). Integrated into `vigia.js` main flow — after normal testing, categorizes results and outputs separate regression report. 329 tests green. PR #175 open, awaiting merge after v0.8 stabilization.
 
 - **Session 2026-04-07 (VIGÍA v0.9–v1.0 Completion):** PR #175 merged — regression harness ready. PR #176 opened — v1.0 documentation complete. Quality gates enabled for nightly regression testing (user directive). Morpheus approved v0.10 release cycle. Test architecture now enforces production module imports (decision 2026-07-10).
+
+- **Session 2026-04-08 (--output-format HTML):** PR #188 merged. Wired md|json|html|all output formats. Self-contained HTML with inline CSS, responsive grid, severity color coding, collapsible sections, base64 screenshot embedding. **Breaking change:** Default `md` now produces Markdown-only output; scripts expecting JSON must use `--output-format all`. Updated 15 tests across 4 files. 378 tests green. Decision filed (T2). Ready for Tank's CI action update.
 
 - **VIGÍA v0.7.0 — CLI Professional (#167):** Added `--help`, `--config`, `--severity-threshold`, `--output-format`, `--quiet`, and exit codes. New `lib/config.js` module: `parseArgs()`, `loadConfigFile()`, `mergeConfig()` (CLI > file > defaults), `filterBySeverity()`, `getExitCode()` (1 if critical). Backward compatible. 69 TDD tests from Switch all green. PR #173. Morpheus gate: --output-format parsed but not wired to reporter (acceptable phased delivery, follow-on issue for v1.0).
 
