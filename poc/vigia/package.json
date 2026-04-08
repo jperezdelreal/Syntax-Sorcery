@@ -11,10 +11,12 @@
     "lib/",
     "tools/",
     "README.md",
-    "CHANGELOG.md"
+    "CHANGELOG.md",
+    "LICENSE"
   ],
   "scripts": {
     "start": "node vigia.js",
+    "prepublishOnly": "vitest run",
     "test": "vitest run",
     "test:watch": "vitest --watch",
     "test:local": "node vigia.js --url http://localhost:5173",

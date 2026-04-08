@@ -1,0 +1,14 @@
+# Tests
+tests/
+
+# Reports & screenshots (generated at runtime)
+reports/
+screenshots/
+
+# Dev config
+vitest.config.js
+.gitignore
+
+# Node
+node_modules/
+package-lock.json
