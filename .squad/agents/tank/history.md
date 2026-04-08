@@ -77,3 +77,9 @@
 - PR #174 merged to dev after Morpheus approval. Tank infrastructure ready. Switch test coverage (57 CI + 49 regression) validated permissions fix.
 - Downstream: Trinity v0.9 regression framework ready (PR #175 open). All agents delivered on schedule.
 
+**Session 2026-04-08: VIGÍA npm Publish Preparation (PR #187):**
+- Verified npm name `vigia` is **available** on the registry. No scoped name needed.
+- Added LICENSE to `files` whitelist, `prepublishOnly: "vitest run"` gate, `.npmignore` (tests/screenshots/reports excluded), and `publish-checklist.md`.
+- `npm pack` verified: 12 files, 30.8 kB tarball. Shebang already present. Zero test/report leakage.
+- Did NOT publish — prepared everything for manual publish by joperezd.
+
