@@ -208,3 +208,37 @@ Autonomous AI dev company (€500/mo Azure, unlimited GitHub). Strict context hy
 **Rationale:** User request — quality gate para asegurar progreso real entre versiones.
 
 ---
+
+### 2026-04-08: Vitest 4 — Options-as-Second-Arg Pattern for Timeouts
+
+**By:** Switch (Tester/QA)  
+**Tier:** T2 (Implementation)  
+**Status:** ✅ DECISION FILED  
+
+**Finding:** Vitest 4 removed the signature `describe('name', fn, { timeout })`. Options must now be the second argument: `describe('name', { timeout }, fn)`.
+
+**Decision:** All new tests with custom timeouts must use the Vitest 4 pattern:
+```js
+describe('name', { timeout: 60000 }, () => { ... });
+it('name', { timeout: 30000 }, async () => { ... });
+```
+
+**Impact:** Affects Switch (test writing) and @copilot (any test authoring). Existing tests without timeouts are unaffected.
+
+---
+
+### 2026-04-08: --output-format now functional (v1.1)
+
+**By:** Trinity (Full-Stack Developer)  
+**Tier:** T2 (Implementation)  
+**Status:** ✅ IMPLEMENTED (PR #188)  
+
+**Decision:** `--output-format` now controls report output. Default `md` generates only Markdown (no JSON). `json` generates only JSON. `html` generates a self-contained HTML report. `all` generates all three.
+
+**Breaking Change:** Scripts that relied on `generateReport()` always producing both `.md` and `.json` files must now pass `--output-format all` (or `json`) to get JSON output. The default (`md`) no longer produces a `.json` file.
+
+**HTML Report Features:** Inline CSS, severity color coding, responsive layout, collapsible sections, base64 screenshot embedding.
+
+**Files:** `poc/vigia/tools/reporter.js`, `poc/vigia/vigia.js`, `poc/vigia/lib/config.js`, `poc/vigia/README.md`
+
+---

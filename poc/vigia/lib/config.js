@@ -152,7 +152,7 @@ export function mergeConfig(cliArgs, fileConfig = null) {
   }
 
   // Validate output format
-  const validFormats = ["md", "json", "html"];
+  const validFormats = ["md", "json", "html", "all"];
   if (!validFormats.includes(config.outputFormat)) {
     throw new Error(
       `Invalid output format: "${config.outputFormat}". Must be one of: ${validFormats.join(", ")}`
@@ -208,7 +208,7 @@ OPTIONS:
   --config <path>             Load config from JSON file
   --severity-threshold <lvl>  Only report issues at this level or above
                               Levels: info < minor < major < critical
-  --output-format <fmt>       Report format: md (default), json, html
+  --output-format <fmt>       Report format: md (default), json, html, all
   --quiet, -q                 Suppress terminal output, only write report
   --compare <f1> <f2>         Compare two JSON report files and exit
   --regression <report.json>  Re-test issues from a previous report

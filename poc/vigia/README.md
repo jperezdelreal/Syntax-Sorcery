@@ -84,7 +84,7 @@ OPTIONS:
   --config <path>             Cargar configuración desde archivo JSON
   --severity-threshold <lvl>  Solo reportar issues en este nivel o superior
                               Niveles: info < minor < major < critical
-  --output-format <fmt>       Aceptado pero no funcional en v1.0 — ver nota abajo
+  --output-format <fmt>       Formato del informe: md (default), json, html, all
   --quiet, -q                 Silenciar terminal, solo escribir el informe
   --compare <f1> <f2>         Comparar dos informes JSON y mostrar diff
   --regression <report.json>  Re-testear issues de un informe anterior
@@ -138,13 +138,12 @@ Niveles de severidad:
 node vigia.js --url https://mi-app.com --output-format json
 ```
 
-> ⚠️ **Estado actual (v1.0):** Este flag es aceptado y validado por el CLI, pero **aún no está conectado al reporter**. Independientemente del valor que pases, VIGÍA siempre genera **ambos formatos**: un `.md` legible y un `.json` estructurado. La selección de formato estará disponible en una versión futura.
-
 | Formato | Descripción |
 |---------|-------------|
-| `md` | Markdown legible (default) — *siempre generado* |
-| `json` | JSON estructurado para programatic use o comparación — *siempre generado* |
-| `html` | HTML renderizable *(próximamente)* |
+| `md` | Markdown legible (default) |
+| `json` | JSON estructurado para uso programático o comparación |
+| `html` | HTML autocontenido con CSS inline, tabla de severidades con colores, y secciones colapsables |
+| `all` | Genera los tres formatos (md + json + html) |
 
 ### `--quiet` — Modo silencioso
 
@@ -383,7 +382,7 @@ VIGÍA incluye una GitHub Action lista para usar en `.github/actions/vigia/`:
 | `url` | *(requerido)* | URL a testear |
 | `max-turns` | `10` | Turnos máximos del agente |
 | `severity-threshold` | `minor` | Severidad mínima a reportar |
-| `output-format` | `md` | Aceptado pero no funcional en v1.0 — siempre genera MD + JSON |
+| `output-format` | `md` | Formato del informe: `md`, `json`, `html`, `all` |
 
 ### Outputs de la Action
 
