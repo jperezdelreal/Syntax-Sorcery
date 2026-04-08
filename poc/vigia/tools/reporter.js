@@ -83,7 +83,7 @@ export function captureSession() {
 
 /**
  * Genera el informe (single-URL) y lo guarda en reports/.
- * @param {string} outputFormat — "md" | "json" | "html" | "all"
+ * @param {string} outputFormat — "md" | "html" | "all" (JSON is always written regardless)
  */
 export async function generateReport(outputFormat = "md") {
   await mkdir(REPORTS_DIR, { recursive: true });
@@ -99,7 +99,6 @@ export async function generateReport(outputFormat = "md") {
   const minor = issues.filter((i) => i.severity === "minor").length;
 
   const wantMd = outputFormat === "md" || outputFormat === "all";
-  const wantJson = outputFormat === "json" || outputFormat === "all";
   const wantHtml = outputFormat === "html" || outputFormat === "all";
 
   const result = {
@@ -131,8 +130,8 @@ export async function generateReport(outputFormat = "md") {
     result.filename = filename;
   }
 
-  // JSON report
-  if (wantJson) {
+  // JSON is always written — machine-readable data layer required by --compare and --regression
+  {
     const jsonData = buildJsonExport({
       urls: [targetUrl],
       sessions: [sessionData],
@@ -265,7 +264,7 @@ Se ejecutaron ${testLog.length} acciones de testing y se encontraron **${issues.
 /**
  * Genera un informe consolidado multi-URL.
  * @param {Array<{url, issues, actions, duration}>} sessions
- * @param {string} outputFormat — "md" | "json" | "html" | "all"
+ * @param {string} outputFormat — "md" | "html" | "all" (JSON is always written regardless)
  */
 export async function generateConsolidatedReport(sessions, outputFormat = "md") {
   await mkdir(REPORTS_DIR, { recursive: true });
@@ -286,7 +285,6 @@ export async function generateConsolidatedReport(sessions, outputFormat = "md") 
   const urlList = sessions.map((s) => s.url);
 
   const wantMd = outputFormat === "md" || outputFormat === "all";
-  const wantJson = outputFormat === "json" || outputFormat === "all";
   const wantHtml = outputFormat === "html" || outputFormat === "all";
 
   const result = {
@@ -310,8 +308,8 @@ export async function generateConsolidatedReport(sessions, outputFormat = "md") 
     result.filename = filename;
   }
 
-  // JSON report
-  if (wantJson) {
+  // JSON is always written — machine-readable data layer required by --compare and --regression
+  {
     const jsonData = buildJsonExport({
       urls: urlList,
       sessions: sessions.map((s) => ({
