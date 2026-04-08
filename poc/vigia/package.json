@@ -11,10 +11,12 @@
     "lib/",
     "tools/",
     "README.md",
-    "CHANGELOG.md"
+    "CHANGELOG.md",
+    "LICENSE"
   ],
   "scripts": {
     "start": "node vigia.js",
+    "prepublishOnly": "vitest run",
     "test": "vitest run",
     "test:e2e": "vitest run tests/e2e-smoke.test.js tests/e2e-cli.test.js",
     "test:watch": "vitest --watch",
