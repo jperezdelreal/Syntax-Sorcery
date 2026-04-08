@@ -6,6 +6,11 @@ import { describe, it, expect, beforeEach, vi } from 'vitest';
 vi.mock('fs/promises', () => ({
   writeFile: vi.fn().mockResolvedValue(undefined),
   mkdir: vi.fn().mockResolvedValue(undefined),
+  readFile: vi.fn().mockResolvedValue('{}'),
+}));
+
+vi.mock('fs', () => ({
+  existsSync: vi.fn().mockReturnValue(false),
 }));
 
 import * as reporter from '../tools/reporter.js';

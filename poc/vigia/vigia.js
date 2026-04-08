@@ -474,7 +474,7 @@ async function main() {
 
   _cleanupFn = async () => {
     try {
-      const r = await reporter.generateReport();
+      const r = await reporter.generateReport(config.outputFormat);
       log(`   📄 Informe parcial guardado: ${r.filename}`);
     } catch { /* ignorar si no hay datos */ }
     try { if (client) await client.stop(); } catch {}
@@ -507,10 +507,10 @@ async function main() {
   let report;
   if (targetUrls.length > 1) {
     log("── Generando informe consolidado ──────────────────");
-    report = await reporter.generateConsolidatedReport(sessionSnapshots);
+    report = await reporter.generateConsolidatedReport(sessionSnapshots, config.outputFormat);
   } else {
     log("── Generando informe ──────────────────────────────");
-    report = await reporter.generateReport();
+    report = await reporter.generateReport(config.outputFormat);
   }
 
   // 4b. Regression mode — categorize results against baseline
@@ -577,7 +577,7 @@ main().catch(async (err) => {
   console.error("\n❌ Error fatal:", err.message);
   console.error(err.stack);
   try {
-    const r = await reporter.generateReport();
+    const r = await reporter.generateReport(config.outputFormat);
     log(`   📄 Informe parcial guardado: ${r.filename}`);
   } catch { /* sin datos para guardar */ }
   try { await browser.closeBrowser(); } catch {}
