@@ -16,6 +16,7 @@
   "scripts": {
     "start": "node vigia.js",
     "test": "vitest run",
+    "test:e2e": "vitest run tests/e2e-smoke.test.js tests/e2e-cli.test.js",
     "test:watch": "vitest --watch",
     "test:local": "node vigia.js --url http://localhost:5173",
     "test:prod": "node vigia.js --url https://citypulselabs.azurestaticapps.net"
